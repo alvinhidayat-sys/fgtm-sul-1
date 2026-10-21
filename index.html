@@ -73,6 +73,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:18px 16px}
 .mbox{background:#fff;border-radius:20px;width:min(980px,100%);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4)}
 .mh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--line)}.mh h2{margin:0 0 2px;font-size:16px;font-weight:800}
 .mhb{display:flex;gap:8px;flex:none}.xb{border:0;border-radius:10px;padding:9px 13px;font:700 12px 'Plus Jakarta Sans';color:#fff;background:linear-gradient(135deg,var(--teal),var(--blue));cursor:pointer}.xc{border:1px solid var(--line);background:#fff;border-radius:10px;width:36px;font-size:14px;cursor:pointer}
+.num{color:#1a62c9;font-weight:800;cursor:pointer;border-bottom:1.5px dotted #1a62c9;padding:0 1px}.num:hover{background:#e8f1ff;border-radius:4px}
 .mb{padding:4px 18px 18px;overflow:auto;-webkit-overflow-scrolling:touch}
 @media(max-width:640px){.mh{flex-direction:column}.mdl{padding:8px;align-items:flex-end}.mbox{max-height:94vh;border-radius:18px}}
 @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
@@ -439,13 +440,15 @@ function vNorm(c){const L=filtered(),tr=L.filter(e=>e.tipe==='Trip'),pk=L.filter
    <div class="card"><h2>Padam Pekerjaan</h2><p class="sub">${fmt(pk.length)} kejadian • pemeliharaan, pengamanan, manuver (semua durasi)</p>${bars(pk)}${tb(pk,e=>e.alasan,'Alasan dilepas')}</div></div>
    ${tr.length?`<div class="card" style="margin-top:14px"><h2>Kinerja Auto Reclose (Padam Trip)</h2><p class="sub">Status reclose</p>${Object.entries(ar).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12.5px"><b>${k}</b><span class="mono">${v} • ${fmt(v/tr.length*100,1)}%</span></div><div class="bar"><i style="width:${v/tr.length*100}%"></i></div></div>`).join('')}</div>`:''}`}
 
-function vSys(c){const A=S.aset;
-  if(!A.length){c.innerHTML='<div class="card empty">Data aset (gid=39281652) belum termuat.</div>';return}
-  const g={};A.forEach(x=>{const k=x.up3||'-';g[k]=g[k]||{n:0,mo:0,gi:new Set,ulp:new Set};g[k].n++;if(x.mode.startsWith('MOTOR'))g[k].mo++;g[k].gi.add(x.gi);g[k].ulp.add(x.ulp)});
-  const tot=A.length,mo=A.filter(x=>x.mode.startsWith('MOTOR')).length;
-  c.innerHTML=`<div class="grid g3" style="margin-bottom:14px">${kpi('k1','Total Aset Switching',fmt(tot),'PMT, LBS, Recloser, GH/GD')}${kpi('k3','Motorized (SCADA)',fmt(mo),fmt(mo/tot*100,1)+'% dari aset')}${kpi('k4','Manual',fmt(tot-mo),fmt((tot-mo)/tot*100,1)+'% dari aset')}</div>
-  <div class="card"><h2>Komposisi Aset per UP3</h2><p class="sub">Sumber: spreadsheet database aset (gid=39281652). Perubahan aset otomatis mengikuti spreadsheet.</p>
-  ${Object.entries(g).sort((a,b)=>b[1].n-a[1].n).map(([k,v])=>`<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><b>UP3 ${esc(k)}</b><span class="mono">${fmt(v.n)} aset • ${v.gi.size} GI • ${v.ulp.size} ULP • ${fmt(v.mo/v.n*100,0)}% motorized</span></div><div class="bar"><i style="width:${v.n/tot*100}%"></i></div></div>`).join('')}</div>`}
+function vSys(c){const A=asetScope();
+  if(!S.aset.length){c.innerHTML='<div class="card empty">Data aset (gid=39281652) belum termuat.</div>';return}
+  if(!A.length){c.innerHTML='<div class="card empty">Tidak ada aset pada filter ini.</div>';return}
+  const tot=A.length,mo=A.filter(isMo).length,g={};A.forEach(x=>{const k=x.up3||'-';(g[k]=g[k]||[]).push(x)});
+  const lk=(up3,w,t)=>`<a class="num" onclick="openAsset(${esc(JSON.stringify(up3)).replace(/'/g,'&#39;')},'${w}')">${t}</a>`;
+  c.innerHTML=`<div class="grid g3" style="margin-bottom:14px">${kpi('k1','Total Aset Switching',fmt(tot),'PMT, LBS, Recloser, GH/GD','aAll')}${kpi('k3','Motorized (SCADA)',fmt(mo),fmt(mo/tot*100,1)+'% dari aset','aMo')}${kpi('k4','Manual',fmt(tot-mo),fmt((tot-mo)/tot*100,1)+'% dari aset','aMan')}</div>
+  <div class="card"><h2>Komposisi Aset per UP3</h2><p class="sub">Sumber: spreadsheet database aset (gid=39281652), mengikuti filter. <b>Klik angka</b> untuk melihat detail dan mengunduh Excel.</p>
+  ${Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([k,l])=>{const m=l.filter(isMo).length,gi=new Set(l.map(x=>x.gi)).size,ul=new Set(l.map(x=>x.ulp)).size;
+   return `<div style="margin:12px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;flex-wrap:wrap"><b>UP3 ${esc(k)}</b><span class="mono">${lk(k,'n',fmt(l.length))} aset • ${lk(k,'gi',gi)} GI • ${lk(k,'ulp',ul)} ULP • ${lk(k,'mo',m)} motorized (${fmt(m/l.length*100,0)}%) • ${lk(k,'ma',l.length-m)} manual</span></div><div class="bar"><i style="width:${l.length/tot*100}%"></i></div></div>`}).join('')}</div>`}
 
 function vLog(c){const l=filtered().slice().sort((a,b)=>(b.date?+b.date:0)-(a.date?+a.date:0)),PS=25,pg=Math.max(1,Math.ceil(l.length/PS));S.page=Math.min(S.page,pg);
   const s=l.slice((S.page-1)*PS,S.page*PS);
@@ -461,46 +464,70 @@ function exportXlsx(){const l=filtered(),a=analyze(l);
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d),'Data Logsheet');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sm),'Ringkasan');
   XLSX.writeFile(wb,'Laporan_Padam_UP2D_'+new Date().toISOString().slice(0,10)+'.xlsx')}
 
-/* ================= POP-UP REKAP ================= */
+/* ================= POP-UP REKAP (angka bisa diklik → detail → Excel) ================= */
 let RC=null;
 function descFilter(){const f=S.f,p=[];if(f.bulan!=='SEMUA')p.push(f.bulan);if(f.dcc!=='SEMUA')p.push(f.dcc);if(f.up3!=='SEMUA')p.push('UP3 '+f.up3);if(f.ulp!=='SEMUA')p.push('ULP '+f.ulp);if(f.q)p.push('“'+f.q+'”');return p.length?p.join(' • '):'Semua wilayah & periode'}
+const EVH=['Tanggal','Tipe','DCC','UP3','ULP','Penyulang','PMT','Zona','Jam Padam','Jam Masuk','Durasi (mnt)','Penyebab / Alasan','Penormalan','Auto Reclose','ENS (kWh)','Keterangan'];
+const evRow=e=>[e.tanggal,e.tipe==='Trip'?'Padam Trip':'Pemeliharaan/Dilepas',e.dcc,e.up3,e.ulp,e.feeder,e.pmt,e.zona,e.jamPadam,e.jamMasuk,e.menit,e.tipe==='Trip'?CAUSES[causeOf(e)]:e.alasan,e.nor,e.ar,e.ens,e.ket];
+const det=(l,name,xonly)=>({name,xonly,det:true,head:EVH,rows:l.map(evRow)});
+const ASH=['No','PMT / LBS / Peralatan','Motorized/Manual','Penyulang','Gardu Induk','ULP','UP3'];
+const asDet=(l,name)=>({name,det:true,head:ASH,rows:l.map((x,i)=>[i+1,x.nama,x.mode,x.peny,x.gi,x.ulp,x.up3])});
+const EV=l=>({secs:[det(l,'Detail Padam')]}),AS=l=>({secs:[asDet(l,'Detail Aset')]});
+const isMo=x=>x.mode.startsWith('MOTOR');
+const tag=(r,d,dc)=>{r.d=d;if(dc)r.dc=dc;return r};
+const pc=(n,t)=>t?fmt(n/t*100,1)+'%':'-';
+const hourOf=e=>parseInt((e.jamTrip!=='-'?e.jamTrip:e.jamPadam).split(':')[0],10);
+function grp(list,kf){const g={};list.forEach(e=>{const k=kf(e);g[k]=g[k]||{n:0,m:0,ens:0,l:[]};const v=g[k];v.n++;v.m+=e.menit;v.ens+=e.ens;v.l.push(e)});return Object.entries(g).sort((x,y)=>y[1].n-x[1].n)}
+function rec(name,list,h1,kf,withEns){return{name,head:[h1,'Jumlah','%','Rata-rata durasi (mnt)'].concat(withEns?['ENS (kWh)']:[]),
+  rows:grp(list,kf).map(([k,v])=>tag([k,v.n,pc(v.n,list.length),+(v.m/v.n).toFixed(1)].concat(withEns?[+v.ens.toFixed(1)]:[]),EV(v.l)))}}
+function asGroup(list,h1,kf,name){const g={};list.forEach(x=>{const k=kf(x)||'-';(g[k]=g[k]||[]).push(x)});
+  return{name:name||('Aset per '+h1),head:[h1,'Jumlah Aset','Motorized','Manual'],rows:Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([k,l])=>
+    tag([k,l.length,l.filter(isMo).length,l.filter(x=>!isMo(x)).length],AS(l),{2:AS(l.filter(isMo)),3:AS(l.filter(x=>!isMo(x)))}))}}
+function asUp3(list){const g={};list.forEach(x=>{const k=x.up3||'-';(g[k]=g[k]||[]).push(x)});
+  return{name:'Aset per UP3',head:['UP3','Jumlah Aset','Motorized','Manual','Gardu Induk','ULP'],rows:Object.entries(g).sort((a,b)=>b[1].length-a[1].length).map(([k,l])=>{
+    const mo=l.filter(isMo),ma=l.filter(x=>!isMo(x));
+    return tag([k,l.length,mo.length,ma.length,new Set(l.map(x=>x.gi)).size,new Set(l.map(x=>x.ulp)).size],AS(l),{2:AS(mo),3:AS(ma),4:{secs:[asGroup(l,'Gardu Induk',x=>x.gi)]},5:{secs:[asGroup(l,'ULP',x=>x.ulp)]}})})}}
+function openAsset(up3,what){const l=asetScope().filter(x=>x.up3===up3);let s,t='Aset UP3 '+up3;
+  if(what==='gi'){s=asGroup(l,'Gardu Induk',x=>x.gi);t+=' › Gardu Induk'}else if(what==='ulp'){s=asGroup(l,'ULP',x=>x.ulp);t+=' › ULP'}
+  else if(what==='mo'){s=asDet(l.filter(isMo),'Aset Motorized');t+=' › Motorized'}else if(what==='ma'){s=asDet(l.filter(x=>!isMo(x)),'Aset Manual');t+=' › Manual'}else s=asDet(l,'Detail Aset');
+  showRC({title:t,secs:[s],kind:'aset_'+up3,parent:null})}
 function openRecap(kind){
-  const L=filtered(),a=analyze(L),tr=a.trips,dl=a.dil,secs=[];let title='';
-  const pc=(n,t)=>t?fmt(n/t*100,1)+'%':'-';
-  const grp=(list,kf)=>{const g={};list.forEach(e=>{const k=kf(e);g[k]=g[k]||{n:0,m:0,ens:0};g[k].n++;g[k].m+=e.menit;g[k].ens+=e.ens});return Object.entries(g).sort((x,y)=>y[1].n-x[1].n)};
-  const rec=(name,list,h1,kf,withEns)=>({name,head:[h1,'Jumlah','%','Rata-rata durasi (mnt)'].concat(withEns?['ENS (kWh)']:[]),rows:grp(list,kf).map(([k,v])=>[k,v.n,pc(v.n,list.length),+(v.m/v.n).toFixed(1)].concat(withEns?[+v.ens.toFixed(1)]:[]))});
-  const det=(list,name,xonly)=>({name,xonly,head:['Tanggal','Tipe','DCC','UP3','ULP','Penyulang','PMT','Zona','Jam Padam','Jam Masuk','Durasi (mnt)','Penyebab / Alasan','Penormalan','Auto Reclose','ENS (kWh)','Keterangan'],
-    rows:list.map(e=>[e.tanggal,e.tipe==='Trip'?'Padam Trip':'Pemeliharaan/Dilepas',e.dcc,e.up3,e.ulp,e.feeder,e.pmt,e.zona,e.jamPadam,e.jamMasuk,e.menit,e.tipe==='Trip'?CAUSES[causeOf(e)]:e.alasan,e.nor,e.ar,e.ens,e.ket])});
-  const zn=e=>e.zona&&e.zona!=='-'?'Zona '+e.zona:'Zona tidak tercatat';
+  const L=filtered(),a=analyze(L),tr=a.trips,dl=a.dil,secs=[],A=asetScope();let title='';
   switch(kind){
    case'all':title='Detail Semua Padam';secs.push(det(L,'Detail Semua Padam'));break;
    case'trip':title='Rekapan Padam Trip >5 Menit';
-    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[['Total Trip',a.T],['Rata-rata durasi pemulihan (mnt)',+a.avgDur.toFixed(1)],['ENS (kWh)',+a.ens.toFixed(1)]]});
-    secs.push(rec('Trip per Zona',tr,'Zona',zn));secs.push(rec('Penyebab Trip',tr,'Penyebab',e=>CAUSES[causeOf(e)],true));secs.push(rec('Auto Reclose',tr,'Status Auto Reclose',e=>e.ar));secs.push(det(tr,'Detail Trip',true));break;
+    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[tag(['Total Trip',a.T],EV(tr)),tag(['Rata-rata durasi pemulihan (mnt)',+a.avgDur.toFixed(1)],EV(tr)),tag(['ENS (kWh)',+a.ens.toFixed(1)],EV(tr))]});
+    secs.push(rec('Trip per Zona',tr,'Zona',e=>e.zona&&e.zona!=='-'?'Zona '+e.zona:'Zona tidak tercatat'));secs.push(rec('Penyebab Trip',tr,'Penyebab',e=>CAUSES[causeOf(e)],true));secs.push(rec('Auto Reclose',tr,'Status Auto Reclose',e=>e.ar));secs.push(det(tr,'Detail Trip',true));break;
    case'dil':title='Rekapan Pemeliharaan / Dilepas';
-    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[['Total kejadian',dl.length],['Rata-rata durasi padam (mnt)',dl.length?+(dl.reduce((s,e)=>s+e.menit,0)/dl.length).toFixed(1):0],['Total durasi (jam)',+(dl.reduce((s,e)=>s+e.menit,0)/60).toFixed(1)]]});
+    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[tag(['Total kejadian',dl.length],EV(dl)),tag(['Rata-rata durasi padam (mnt)',dl.length?+(dl.reduce((s,e)=>s+e.menit,0)/dl.length).toFixed(1):0],EV(dl)),tag(['Total durasi (jam)',+(dl.reduce((s,e)=>s+e.menit,0)/60).toFixed(1)],EV(dl))]});
     secs.push(rec('Alasan Dilepas',dl,'Alasan (HAR, Emergency, Manuver, dll)',e=>e.alasan));secs.push(det(dl,'Detail Pemeliharaan',true));break;
    case'pctAll':title='% Trip terhadap Semua Laporan';
-    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[['Padam trip >5 menit',a.T],['Pemeliharaan/pengamanan/manuver (semua durasi)',dl.length],['Total laporan tercatat',a.total],['% Trip thd semua laporan',pc(a.T,a.total)]]});break;
-   case'pctAset':{title='% Trip terhadap Jumlah Aset';const A=asetScope();
-    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[['Jumlah aset pada cakupan filter',A.length],['Motorized',A.filter(x=>x.mode.startsWith('MOTOR')).length],['Manual',A.filter(x=>!x.mode.startsWith('MOTOR')).length],['Padam trip >5 menit',a.T],['% Trip thd aset',a.pctAset===null?'Data aset belum termuat':fmt(a.pctAset,2)+'%']]});break}
+    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[tag(['Padam trip >5 menit',a.T],EV(tr)),tag(['Pemeliharaan/pengamanan/manuver (semua durasi)',dl.length],EV(dl)),tag(['Total laporan tercatat',a.total],EV(L)),tag(['% Trip thd semua laporan',pc(a.T,a.total)],EV(tr))]});break;
+   case'pctAset':title='% Trip terhadap Jumlah Aset';
+    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[tag(['Jumlah aset pada cakupan filter',A.length],AS(A)),tag(['Motorized',A.filter(isMo).length],AS(A.filter(isMo))),tag(['Manual',A.filter(x=>!isMo(x)).length],AS(A.filter(x=>!isMo(x)))),tag(['Padam trip >5 menit',a.T],EV(tr)),tag(['% Trip thd aset',a.pctAset===null?'Data aset belum termuat':fmt(a.pctAset,2)+'%'],EV(tr))]});
+    if(A.length)secs.push(asUp3(A));break;
    case'ens':title='ENS Padam Trip per Penyebab';secs.push(rec('ENS per Penyebab',tr,'Penyebab',e=>CAUSES[causeOf(e)],true));break;
-   case'jam':title='Padam Trip per Jam (WITA)';secs.push({name:'Per Jam',head:['Jam','Jumlah Trip','%'],rows:a.hr.map((n,h)=>[String(h).padStart(2,'0')+':00',n,pc(n,a.T)])});break;
-   case'feeder':{title='Penyulang dengan Trip Terbanyak';const g={};tr.forEach(e=>{if(e.feeder==='-')return;const k=e.feeder+'|'+e.ulp+'|'+e.up3;g[k]=g[k]||{n:0,m:0,ens:0};g[k].n++;g[k].m+=e.menit;g[k].ens+=e.ens});
-    secs.push({name:'Top Penyulang',head:['Penyulang','ULP','UP3','Jumlah Trip','Rata-rata durasi (mnt)','ENS (kWh)'],rows:Object.entries(g).sort((x,y)=>y[1].n-x[1].n).slice(0,15).map(([k,v])=>{const p=k.split('|');return[p[0],p[1],p[2],v.n,+(v.m/v.n).toFixed(1),+v.ens.toFixed(1)]})});break}
-  }
-  RC={title,secs,kind};
-  let h=`<div class="mdl" id="md" onclick="if(event.target===this)closeModal()"><div class="mbox"><div class="mh"><div><h2>${esc(title)}</h2><p class="sub" style="margin:0">${esc(descFilter())}</p></div><div class="mhb"><button class="xb" onclick="exportRecap()">⬇ Export Excel</button><button class="xc" onclick="closeModal()" aria-label="Tutup">✕</button></div></div><div class="mb">`;
-  secs.filter(s=>!s.xonly).forEach(s=>{const R=s.rows.slice(0,200);
-    h+=`<h3 style="margin:14px 0 8px;font-size:13.5px">${esc(s.name)}</h3><div class="tw"><table style="min-width:${s.head.length>6?900:360}px"><thead><tr>${s.head.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${R.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${s.head.length}" class="empty">Tidak ada data</td></tr>`}</tbody></table></div>`+
+   case'jam':title='Padam Trip per Jam (WITA)';secs.push({name:'Per Jam',head:['Jam','Jumlah Trip','%'],rows:a.hr.map((n,h)=>tag([String(h).padStart(2,'0')+':00',n,pc(n,a.T)],EV(tr.filter(e=>hourOf(e)===h))))});break;
+   case'feeder':{title='Penyulang dengan Trip Terbanyak';const g=grp(tr.filter(e=>e.feeder!=='-'),e=>e.feeder+'|'+e.ulp+'|'+e.up3).slice(0,15);
+    secs.push({name:'Top Penyulang',head:['Penyulang','ULP','UP3','Jumlah Trip','Rata-rata durasi (mnt)','ENS (kWh)'],rows:g.map(([k,v])=>{const p=k.split('|');return tag([p[0],p[1],p[2],v.n,+(v.m/v.n).toFixed(1),+v.ens.toFixed(1)],EV(v.l))})});break}
+   case'aAll':title='Total Aset Switching';secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[tag(['Total aset',A.length],AS(A)),tag(['Motorized',A.filter(isMo).length],AS(A.filter(isMo))),tag(['Manual',A.filter(x=>!isMo(x)).length],AS(A.filter(x=>!isMo(x))))]});secs.push(asUp3(A));break;
+   case'aMo':title='Aset Motorized (SCADA)';secs.push(asUp3(A.filter(isMo)));secs.push(asDet(A.filter(isMo),'Detail Aset Motorized'));break;
+   case'aMan':title='Aset Manual';secs.push(asUp3(A.filter(x=>!isMo(x))));secs.push(asDet(A.filter(x=>!isMo(x)),'Detail Aset Manual'));break}
+  showRC({title,secs,kind,parent:null})}
+function showRC(rc){RC=rc;rc.vis=rc.secs.filter(s=>!s.xonly);
+  let h=`<div class="mdl" id="md" onclick="if(event.target===this)closeModal()"><div class="mbox"><div class="mh"><div><h2>${esc(rc.title)}</h2><p class="sub" style="margin:0">${esc(descFilter())}${rc.vis.some(s=>!s.det)?' • <b>klik angka untuk melihat detail</b>':''}</p></div><div class="mhb">${rc.parent?'<button class="xc" style="width:auto;padding:0 12px;font-weight:700;font-size:12px" onclick="showRC(RC.parent)">‹ Kembali</button>':''}<button class="xb" onclick="exportRecap()">⬇ Export Excel</button><button class="xc" onclick="closeModal()" aria-label="Tutup">✕</button></div></div><div class="mb">`;
+  rc.vis.forEach((s,si)=>{const R=s.rows.slice(0,200);
+    h+=`<h3 style="margin:14px 0 8px;font-size:13.5px">${esc(s.name)} <span class="sub" style="font-weight:500">(${fmt(s.rows.length)} baris)</span></h3><div class="tw"><table style="min-width:${s.head.length>6?900:360}px"><thead><tr>${s.head.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${R.map((r,ri)=>`<tr>${r.map((x,ci)=>{const d=r.dc&&r.dc[ci]!==undefined?r.dc[ci]:r.d;return ci>0&&d?`<td><a class="num" onclick="drill(${si},${ri},${ci})">${esc(x)}</a></td>`:`<td>${esc(x)}</td>`}).join('')}</tr>`).join('')||`<tr><td colspan="${s.head.length}" class="empty">Tidak ada data</td></tr>`}</tbody></table></div>`+
     (s.rows.length>200?`<p class="sub" style="margin-top:6px">Menampilkan 200 dari ${fmt(s.rows.length)} baris — file Excel berisi seluruh data.</p>`:'')});
-  h+='</div></div></div>';
-  closeModal();document.body.insertAdjacentHTML('beforeend',h);document.body.style.overflow='hidden'}
+  h+='</div></div></div>';closeModal();document.body.insertAdjacentHTML('beforeend',h);document.body.style.overflow='hidden'}
+function drill(si,ri,ci){const r=RC.vis[si].rows[ri],d=r.dc&&r.dc[ci]!==undefined?r.dc[ci]:r.d;if(!d)return;
+  showRC({title:RC.title+' › '+r[0]+(ci>0&&RC.vis[si].head[ci]&&r.dc&&r.dc[ci]!==undefined?' › '+RC.vis[si].head[ci]:''),secs:d.secs,kind:RC.kind+'_detail',parent:RC})}
 function closeModal(){const m=document.getElementById('md');if(m)m.remove();document.body.style.overflow=''}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-function exportRecap(){if(!RC)return;const wb=XLSX.utils.book_new();
-  RC.secs.forEach(s=>{const ws=XLSX.utils.aoa_to_sheet([s.head].concat(s.rows));XLSX.utils.book_append_sheet(wb,ws,s.name.slice(0,31))});
-  XLSX.writeFile(wb,'Rekap_'+RC.kind+'_'+new Date().toISOString().slice(0,10)+'.xlsx')}
+function exportRecap(){if(!RC)return;const wb=XLSX.utils.book_new(),used={};
+  RC.secs.forEach(s=>{let n=s.name.replace(/[\[\]:*?\/\\]/g,'').slice(0,28)||'Sheet';if(used[n]){n+=' '+(++used[n])}else used[n]=1;
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([s.head].concat(s.rows)),n)});
+  XLSX.writeFile(wb,'Rekap_'+RC.kind.replace(/[^A-Za-z0-9_]+/g,'_').slice(0,40)+'_'+new Date().toISOString().slice(0,10)+'.xlsx')}
 
 /* ================= MUAT DATA (cache instan + tarik paralel) ================= */
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
