@@ -7,8 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--ink:#0b1b33;--ink2:#14305a;--bg:#f3f5fb;--card:#fff;--line:#e4e8f2;--mut:#64708a;--txt:#16233b;
 --teal:#12b5a6;--violet:#6d5dfc;--amber:#ffb020;--coral:#ff6159;--green:#17b26a;--blue:#2e90fa}
@@ -68,6 +68,13 @@ td{padding:9px 10px;border-top:1px solid var(--line);vertical-align:top}.tw{over
 .pager{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px}.pager button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font:600 12px 'Plus Jakarta Sans';cursor:pointer}
 .empty{padding:30px;text-align:center;color:var(--mut)}
 footer{text-align:center;color:var(--mut);font-size:11.5px;padding:18px 16px}
+.kpi[onclick]{cursor:pointer;transition:transform .15s,box-shadow .15s}.kpi[onclick]:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,48,90,.22)}.kpi em{display:block;font-style:normal;font-size:10px;opacity:.75;margin-top:4px}
+.mdl{position:fixed;inset:0;z-index:200;background:rgba(11,27,51,.6);display:flex;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
+.mbox{background:#fff;border-radius:20px;width:min(980px,100%);max-height:90vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.mh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--line)}.mh h2{margin:0 0 2px;font-size:16px;font-weight:800}
+.mhb{display:flex;gap:8px;flex:none}.xb{border:0;border-radius:10px;padding:9px 13px;font:700 12px 'Plus Jakarta Sans';color:#fff;background:linear-gradient(135deg,var(--teal),var(--blue));cursor:pointer}.xc{border:1px solid var(--line);background:#fff;border-radius:10px;width:36px;font-size:14px;cursor:pointer}
+.mb{padding:4px 18px 18px;overflow:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:640px){.mh{flex-direction:column}.mdl{padding:8px;align-items:flex-end}.mbox{max-height:94vh;border-radius:18px}}
 @media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.g2,.g3,.acts4{grid-template-columns:1fr}.g4{grid-template-columns:repeat(2,1fr)}main{padding:12px}.kpi b{font-size:21px}.chartbox{height:250px}.hd{padding:10px 12px}.btn span{display:none}.ring{width:108px;height:108px}.ring div{width:82px;height:82px}.ring b{font-size:25px}.brand p{display:none}}
 @media print{.top,.filters,.pager,.acts{display:none}body{background:#fff}}
@@ -89,7 +96,7 @@ footer{text-align:center;color:var(--mut);font-size:11.5px;padding:18px 16px}
   <nav id="nav"></nav>
 </div>
 <main id="app"><div class="empty">Memuat data…</div></main>
-<footer>PT PLN (Persero) UP2D Suluttenggo • DCC Manado • DCC Gorontalo • DCC Palu • DCC Luwuk</footer>
+<footer>PLN Nusa Daya Unit Layanan Manado, Tahuna &amp; Kotamobagu</footer>
 <script>
 /* ================= KONFIGURASI SUMBER DATA ================= */
 const SRC={
@@ -127,16 +134,16 @@ function csvRows(a){const t=[];let e=[],r='',q=false;
     else r+=h}
   if(r||e.length){e.push(r.trim());t.push(e)}return t}
 
-async function fetchCsv(s,tag,useGas){
-  const urls=[];if(useGas)urls.push(`${GAS}?sumber=${tag}`);
-  urls.push(`https://docs.google.com/spreadsheets/d/${s.id}/export?format=csv&gid=${s.gid}`,
-            `https://docs.google.com/spreadsheets/d/${s.id}/gviz/tq?tqx=out:csv&headers=0&gid=${s.gid}`);
-  let err=null;
-  for(const u of urls){const c=new AbortController,t=setTimeout(()=>c.abort(),25000);
+const firstOk=ps=>new Promise((res,rej)=>{let n=ps.length,last;ps.forEach(p=>p.then(res,e=>{last=e;if(--n===0)rej(last)}))});
+function fetchCsv(s,tag,useGas){
+  const urls=[`https://docs.google.com/spreadsheets/d/${s.id}/export?format=csv&gid=${s.gid}`,
+              `https://docs.google.com/spreadsheets/d/${s.id}/gviz/tq?tqx=out:csv&headers=0&gid=${s.gid}`];
+  if(useGas)urls.push(`${GAS}?sumber=${tag}`);
+  const one=async u=>{const c=new AbortController,t=setTimeout(()=>c.abort(),15000);
     try{const r=await fetch(u,{signal:c.signal,cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);
       const x=await r.text();if(/^\s*<(!doctype|html)/i.test(x)||/^ERROR:/.test(x))throw new Error('Akses ditolak');return x}
-    catch(e){err=e}finally{clearTimeout(t)}}
-  throw err||new Error('Gagal mengambil data')}
+    finally{clearTimeout(t)}};
+  return firstOk(urls.map(one))} /* semua sumber dicoba paralel, yang tercepat & valid dipakai */
 
 /* ================= PARSER LOGSHEET ================= */
 function parseLog(text){
@@ -178,7 +185,7 @@ function parseLog(text){
       else if(ua.includes('jaringan')||sub.toUpperCase().includes('JARINGAN'))alasan='Pemeliharaan Jaringan (HAR)';
       else alasan='Pekerjaan Operasional Lainnya'}
     const num=x=>parseFloat(x.replace(/\./g,'').replace(',','.').replace(/[^0-9.]/g,''))||0;
-    out.push({dcc,up3:up3||'LAINNYA',ulp:ulp||'NON-ULP / KHUSUS',bulan,tanggal:tgl||'-',date:d,feeder:fd||'-',pmt:pmt||'-',tipe,remoteManual:rm||'-',
+    out.push({dcc,up3:up3||'LAINNYA',ulp:ulp||'NON-ULP / KHUSUS',bulan,tanggal:tgl||'-',date:d,feeder:fd||'-',pmt:pmt||'-',zona:zona||'-',tipe,remoteManual:rm||'-',
       jamPadam:jp||'-',jamTrip:jt||'-',jamDilepas:jd||'-',jamMasuk:jm||'-',lama:lama||'-',menit:mnt,ket:ket||'-',indikasi:ind||'-',beban:num(bb),ens:num(ens),
       sub:sub||'Lain-lain',cuaca:cuaca||'CERAH',disp:disp||'-',kat,nor,ar,alasan})}
   return out}
@@ -206,8 +213,8 @@ function parseAset(text){
 const S={all:[],aset:[],tab:'dashboard',page:1,trend:{gran:'harian',metric:'kejadian'},
   f:{bulan:'SEMUA',dcc:'SEMUA',up3:'SEMUA',ulp:'SEMUA',feeder:'SEMUA',tipe:'SEMUA',from:'',to:'',q:''},charts:{}};
 const DCC_UP3={'DCC Manado':['MANADO','KOTAMOBAGU'],'DCC Gorontalo':['GORONTALO'],'DCC Palu':['PALU','TOLITOLI'],'DCC Luwuk':['LUWUK']};
-function rows(){ // hanya padam >= 5 menit
-  return S.all.filter(e=>e.menit>=MIN_DUR)}
+function rows(){ // trip hanya >5 menit; pemeliharaan/pengamanan/manuver semua durasi
+  return S.all.filter(e=>e.tipe!=='Trip'||e.menit>=MIN_DUR)}
 function filtered(){const f=S.f,q=f.q.trim().toLowerCase();
   const a=f.from?new Date(f.from+'T00:00:00'):null,b=f.to?new Date(f.to+'T23:59:59'):null;
   return rows().filter(e=>{
@@ -313,21 +320,6 @@ const KB={
   P:['<b>Perbaikan temuan</b> sesuai hasil patroli (tiang miring, penghantar kendor, komponen rusak).'],
   R:['<b>Sosialisasi pihak ketiga</b> di area rawan (layangan, pembakaran lahan, kegiatan konstruksi).']}
 };
-function p0For(key,c,cz){const L=[],add=(n,d)=>L.push(`<b>${n}</b> — ${d}`),x=c.ctx;
-  const jam=`${String(x.peak).padStart(2,'0')}:00–${String(x.peak+1).padStart(2,'0')}:00`;
-  switch(key){
-   case'pohon':add('Pekerjaan Pemeliharaan Row','eksekusi pemangkasan pada segmen yang paling sering trip.');add('Pekerjaan Pengusutan','telusuri titik sentuh pohon pasca-trip agar pemulihan cepat.');if(x.konstruksi>0)add('Pekerjaan Patroli Proyek','awasi kegiatan konstruksi/pembukaan lahan yang berdekatan dengan jaringan.');add('Pekerjaan Listriqu','tindak lanjuti pengaduan pelanggan pada area terdampak.');break;
-   case'sesaat':add('Pekerjaan Pengecekan Jaringan','cek arrester, grounding, dan sambungan pada penyulang terdampak setelah reclose berulang.');add('Pekerjaan Pendampingan Deteksi','dampingi uji thermovision/deteksi gangguan.');add('Pekerjaan Pengisian Ctt','lengkapi catatan FPI, arus gangguan, dan cuaca.');break;
-   case'komponen':add('Pekerjaan Emergensi','penggantian komponen rusak sesegera mungkin.');add('Pekerjaan Pendampingan Deteksi','konfirmasi hotspot/komponen cacat sebelum menjadi gangguan.');if(x.lokal>=15)add('Pekerjaan Manuver Jaringan','pemulihan dengan manuver untuk memperkecil area padam selama perbaikan.');if(x.gardu)add('Pekerjaan Buka Tutup Pintu Gardu','siapkan akses gardu/kubikel agar penormalan tidak tertunda.');if(x.beban>=80)add('Pekerjaan Bantuan Pengukuran Beban','ukur pembebanan trafo/penyulang; indikasi beban hilang rata-rata cukup tinggi ('+fmt(x.beban)+' A).');if(cz.n>=3)add('Pekerjaan Bantuan Gelar Ukb/Ugb/Utb','siagakan unit bergerak untuk memperpendek pemulihan.');break;
-   case'binatang':add('Pekerjaan Pengecekan Jaringan','cek titik rawan dan pemasangan pelindung.');add('Pekerjaan Pengusutan','temukan titik kontak hewan setelah trip.');break;
-   case'belum':add('Pekerjaan Pengusutan','patroli lanjutan dengan prioritas segmen di antara FPI.');add('Pekerjaan Pendampingan Deteksi','dukungan alat deteksi/thermovision.');add('Pekerjaan Piket Kehandalan','siagakan tim pada jam rawan ('+jam+').');add('Pekerjaan Pengisian Ctt','catat temuan tiap patroli agar akar penyebab dapat dipetakan.');break;
-   case'pembangkit':add('Pekerjaan Manuver Jaringan','alihkan beban sesuai skema UFR/UPLS.');add('Pekerjaan Bidang Non Distribusi','koordinasi dengan pembangkit/transmisi.');add('Pekerjaan Piket Kehandalan','pantau pemulihan beban.');break;
-   default:add('Pekerjaan Pengusutan','lengkapi identifikasi penyebab.');add('Pekerjaan Pengecekan Jaringan','verifikasi kondisi lapangan.')}
-  if(x.vip&&['sesaat','komponen','belum','pohon'].includes(key)){add('Pekerjaan Piket Vvip','penyulang/lokasi prioritas (bandara/instansi/RS) terdampak — siagakan petugas.');add('Pekerjaan Alamat Khusus','informasikan pelanggan khusus saat terjadi padam.')}
-  if(x.icon&&key!=='pembangkit')add('Pekerjaan Stroomnet / Iconnet','koordinasi pemulihan layanan pelanggan jaringan terkait.');
-  if(x.peakShare>=25&&['sesaat','belum','pohon'].includes(key))add('Stanby Shift','siagakan petugas pada jam rawan '+jam+' ('+fmt(x.peakShare,0)+'% trip terjadi di jam ini).');
-  return L}
-
 /* ================= RENDER ================= */
 const TABS=[['dashboard','Dashboard'],['evaluasi','Evaluasi Padam >5 Menit'],['penormalan','Penormalan'],['sistem','Kondisi Aset'],['log','Data Logsheet']];
 function buildNav(){$('#nav').innerHTML=TABS.map(([k,n])=>`<button class="${S.tab===k?'on':''}" onclick="go('${k}')">${n}</button>`).join('')}
@@ -345,10 +337,6 @@ function buildFilters(){
    <div><label>DCC</label><select onchange="setF('dcc',this.value)">${opts(['DCC Manado','DCC Gorontalo','DCC Palu','DCC Luwuk'],f.dcc)}</select></div>
    <div><label>UP3</label><select onchange="setF('up3',this.value)">${opts(up3,f.up3)}</select></div>
    <div><label>ULP</label><select onchange="setF('ulp',this.value)">${opts(ulp,f.ulp)}</select></div>
-   <div><label>Penyulang</label><select onchange="setF('feeder',this.value)">${opts(fd,f.feeder)}</select></div>
-   <div><label>Tipe</label><select onchange="setF('tipe',this.value)"><option value="SEMUA">Semua</option><option ${f.tipe==='Trip'?'selected':''} value="Trip">Padam Trip</option><option ${f.tipe==='Dilepas'?'selected':''} value="Dilepas">Pemeliharaan</option></select></div>
-   <div><label>Dari tanggal</label><input type="date" value="${f.from}" onchange="setF('from',this.value)"></div>
-   <div><label>Sampai tanggal</label><input type="date" value="${f.to}" onchange="setF('to',this.value)"></div>
    <div style="grid-column:1/-1"><label>Cari</label><input type="text" id="q" placeholder="Penyulang, PMT, keterangan, ULP…" value="${esc(f.q)}"></div></div></div>`;
   let tm;$('#q').addEventListener('input',e=>{clearTimeout(tm);tm=setTimeout(()=>{S.f.q=e.target.value;S.page=1;renderContent()},250)})}
 function setF(k,v){const f=S.f;f[k]=v;
@@ -382,20 +370,20 @@ function setTrend(k,v){S.trend[k]=v;document.querySelectorAll('[data-t="'+k+'"] 
 const seg=(k,opts)=>`<div class="seg" data-t="${k}">`+opts.map(([v,n])=>`<button data-v="${v}" class="${S.trend[k]===v?'on':''}" onclick="setTrend('${k}','${v}')">${n}</button>`).join('')+'</div>';
 
 function renderContent(){destroyCharts();const c=$('#ct');
-  if(!S.all.length){c.innerHTML='<div class="card empty">Belum ada data. Periksa koneksi lalu tekan “Segarkan”.</div>';return}
+  if(!S.all.length){c.innerHTML=ST.loading?'<div class="card empty">⏳ Memuat data…</div>':'<div class="card empty">Belum ada data. Periksa koneksi lalu tekan “Segarkan”.</div>';return}
   ({dashboard:vDash,evaluasi:vEval,penormalan:vNorm,sistem:vSys,log:vLog})[S.tab](c)}
 
-function kpi(cls,t,v,s){return `<div class="card kpi ${cls}"><small>${t}</small><b>${v}</b><span>${s}</span></div>`}
+function kpi(cls,t,v,s,k){return `<div class="card kpi ${cls}"${k?` onclick="openRecap('${k}')" role="button" tabindex="0"`:''}><small>${t}</small><b>${v}</b><span>${s}</span>${k?'<em>Klik untuk detail ›</em>':''}</div>`}
 function vDash(c){const a=analyze(filtered());
   c.innerHTML=`<div class="grid g4" style="margin-bottom:14px">
-   ${kpi('k1','Laporan Tercatat >5 mnt',fmt(a.total),'Trip + pemeliharaan')}
-   ${kpi('k2','Padam Trip >5 mnt',fmt(a.T),fmt(a.avgDur,1)+' menit rata-rata pemulihan')}
-   ${kpi('k3','Pemeliharaan / Dilepas',fmt(a.dil.length),'Padam terencana & manuver')}
-   ${kpi('k4','% Trip thd Semua Laporan',fmt(a.pctAll,1)+'%',fmt(a.T)+' dari '+fmt(a.total)+' laporan')}
-   ${kpi('k5','% Trip thd Jumlah Aset',a.pctAset===null?'–':fmt(a.pctAset,2)+'%',a.aset?fmt(a.aset)+' aset pada cakupan ini':'Menunggu data aset')}
-   ${kpi('k8','ENS Padam Trip',fmt(a.ens,1),'kWh tidak tersalurkan')}
-   ${kpi('k6','Jam Paling Rawan',a.T?String(a.pk).padStart(2,'0')+':00':'–',a.T?a.pkN+' trip':'-')}
-   ${kpi('k7','Penyulang Terbanyak Trip',a.topF?a.topF[0]:'–',a.topF?a.topF[1].n+' trip • ULP '+a.topF[1].ulp:'-')}</div>
+   ${kpi('k1','Laporan Tercatat',fmt(a.total),'Trip + pemeliharaan','all')}
+   ${kpi('k2','Padam Trip >5 mnt',fmt(a.T),fmt(a.avgDur,1)+' menit rata-rata pemulihan','trip')}
+   ${kpi('k3','Pemeliharaan / Dilepas',fmt(a.dil.length),'Pemeliharaan, pengamanan & manuver','dil')}
+   ${kpi('k4','% Trip thd Semua Laporan',fmt(a.pctAll,1)+'%',fmt(a.T)+' dari '+fmt(a.total)+' laporan','pctAll')}
+   ${kpi('k5','% Trip thd Jumlah Aset',a.pctAset===null?'–':fmt(a.pctAset,2)+'%',a.aset?fmt(a.aset)+' aset pada cakupan ini':'Menunggu data aset','pctAset')}
+   ${kpi('k8','ENS Padam Trip',fmt(a.ens,1),'kWh tidak tersalurkan','ens')}
+   ${kpi('k6','Jam Paling Rawan',a.T?String(a.pk).padStart(2,'0')+':00':'–',a.T?a.pkN+' trip':'-','jam')}
+   ${kpi('k7','Penyulang Terbanyak Trip',a.topF?a.topF[0]:'–',a.topF?a.topF[1].n+' trip • ULP '+a.topF[1].ulp:'-','feeder')}</div>
   <div class="card" style="margin-bottom:14px"><div class="toolbar"><div><h2>Visualisasi & Tren Data Operasional</h2><p class="sub" style="margin:0">Grafik garis dinamis — ikut berubah mengikuti filter di atas.</p></div>
    <div style="display:flex;gap:8px;flex-wrap:wrap">${seg('gran',[['harian','Harian'],['bulanan','Bulanan'],['jam','Per Jam']])}${seg('metric',[['kejadian','Kejadian'],['durasi','Durasi'],['ens','ENS']])}</div></div>
    <div class="chartbox"><canvas id="cTrend"></canvas></div></div>
@@ -426,25 +414,30 @@ function vEval(c){const a=analyze(filtered());
   ket+=`Gangguan paling banyak terjadi pada pukul ${String(a.pk).padStart(2,'0')}:00–${String(a.pk+1).padStart(2,'0')}:00 WITA dengan kondisi cuaca dominan ${a.topW?a.topW[0].toLowerCase():'-'}. Rata-rata pemulihan ${fmt(a.avgDur,1)} menit dan energi tak tersalurkan ${fmt(a.ens,1)} kWh. `;
   ket+=`Pada penyulang SUTM 20 kV, gangguan temporer (pohon, petir, binatang) umumnya mendominasi kejadian trip, sehingga pengendalian ROW, proteksi petir, dan percepatan lokalisir gangguan menjadi pengungkit utama perbaikan keandalan${sesN?` — ${sesN} kejadian di antaranya berupa gangguan sesaat`:''}.`;
   const bars=a.causes.map(([k,v])=>`<div style="margin:8px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><b>${CAUSES[k]}</b><span class="mono">${v.n} • ${fmt(v.n/a.T*100,1)}%</span></div><div class="bar"><i style="width:${v.n/a.T*100}%"></i></div></div>`).join('');
-  const det=a.causes.map(([k,v])=>{const kb=KB[k],p0=p0For(k,a,v);
+  const det=a.causes.map(([k,v])=>{const kb=KB[k];
     const blk=(cls,tt,ar)=>ar.length?`<div class="ac ${cls}"><h4>${tt}</h4><ul>${ar.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:'';
     return `<div class="cause"><h3>${CAUSES[k]}</h3><div class="meta"><span class="badge b-k">${v.n} trip</span><span class="sub" style="margin:0">${fmt(v.n/a.T*100,1)}% dari padam trip • rata-rata pemulihan ${fmt(v.min/v.n,1)} mnt • ENS ${fmt(v.ens,1)} kWh</span></div>
-     <div class="acts4">${blk('a-i','🔍 Inspeksi',kb.I)}${blk('a-p','🛠 Pemeliharaan',kb.P)}${blk('a-r','🌿 ROW',kb.R)}${blk('a-y','⚡ P0 Yantek — Pekerjaan Direkomendasikan',p0)}</div></div>`}).join('');
+     <div class="acts4">${blk('a-i','🔍 Inspeksi',kb.I)}${blk('a-p','🛠 Pemeliharaan',kb.P)}${blk('a-r','🌿 ROW',kb.R)}</div></div>`}).join('');
   c.innerHTML=`<div class="grid g2" style="margin-bottom:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr)">
    <div class="card"><h2>Status Keandalan Jaringan</h2><p class="sub">${esc(S.f.feeder!=='SEMUA'?'Penyulang '+S.f.feeder:S.f.ulp!=='SEMUA'?'ULP '+S.f.ulp:S.f.up3!=='SEMUA'?'UP3 '+S.f.up3:S.f.dcc!=='SEMUA'?S.f.dcc:'Seluruh UP2D Suluttenggo')}</p>
     <div class="stat">${ring}<div><span class="badge ${bc}" style="font-size:14px;padding:5px 14px">${a.status}</span><p style="margin:10px 0 0;font-size:12.5px;color:var(--mut)">${kesimpulan}</p></div></div></div>
    <div class="card"><h2>Alasan Pemberian Status</h2><p class="sub">Rincian indikator dan pengurang skor</p><div class="why">${why}</div></div></div>
   <div class="card" style="margin-bottom:14px"><h2>Keterangan Evaluasi Otomatis</h2><p class="sub">Disusun otomatis dari data padam >5 menit dan data aset</p><div class="note">${ket}</div></div>
   <div class="card" style="margin-bottom:14px"><h2>Penyebab Padam Trip</h2><p class="sub">Pengelompokan otomatis berdasarkan sub kelompok & keterangan logsheet</p>${bars}</div>
-  <div class="card"><h2>Tindakan Berdasarkan Penyebab Padam Trip</h2><p class="sub">Inspeksi, pemeliharaan, ROW, dan P0 Yantek ditampilkan hanya bila sesuai dengan penyebab dan kondisi data</p>${det}</div>`}
+  <div class="card"><h2>Tindakan Berdasarkan Penyebab Padam Trip</h2><p class="sub">Inspeksi, pemeliharaan, dan ROW ditampilkan hanya bila sesuai dengan penyebab dan kondisi data</p>${det}</div>`}
 
-function vNorm(c){const a=analyze(filtered()),T=a.T;
-  if(!T){c.innerHTML='<div class="card empty">Tidak ada padam trip >5 menit pada filter ini.</div>';return}
-  const g={};a.trips.forEach(e=>{g[e.nor]=g[e.nor]||{n:0,m:0};g[e.nor].n++;g[e.nor].m+=e.menit});
-  const nm={Remote:'Penormalan Remote (SCADA)',Lokal:'Penormalan Lokal (manual di lapangan)','Gagal Remot':'Remote Gagal → Dikerjakan Lokal'};
-  const row=([k,v])=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12.5px"><b>${nm[k]||k}</b><span class="mono">${v.n} • ${fmt(v.n/T*100,1)}% • ${fmt(v.m/v.n,1)} mnt</span></div><div class="bar"><i style="width:${v.n/T*100}%"></i></div></div>`;
-  c.innerHTML=`<div class="grid g2"><div class="card"><h2>Metode Penormalan Padam Trip</h2><p class="sub">Jumlah, persentase, dan rata-rata durasi pemulihan</p>${Object.entries(g).sort((x,y)=>y[1].n-x[1].n).map(row).join('')}</div>
-   <div class="card"><h2>Kinerja Auto Reclose</h2><p class="sub">Status reclose pada padam trip</p>${Object.entries(a.ar).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12.5px"><b>${k}</b><span class="mono">${v} • ${fmt(v/T*100,1)}%</span></div><div class="bar"><i style="width:${v/T*100}%"></i></div></div>`).join('')}</div></div>`}
+function vNorm(c){const L=filtered(),tr=L.filter(e=>e.tipe==='Trip'),pk=L.filter(e=>e.tipe!=='Trip');
+  if(!L.length){c.innerHTML='<div class="card empty">Tidak ada data pada filter ini.</div>';return}
+  const M=['Remote','Lokal','Gagal Remot'],nm={Remote:'Penormalan Remote (SCADA)',Lokal:'Penormalan Lokal (manual di lapangan)','Gagal Remot':'Remote Gagal → Dikerjakan Lokal'};
+  const bars=list=>{const T=list.length;if(!T)return'<p class="sub">Tidak ada data.</p>';const g={};list.forEach(e=>{g[e.nor]=g[e.nor]||{n:0,m:0};g[e.nor].n++;g[e.nor].m+=e.menit});
+    return M.map(k=>{const v=g[k]||{n:0,m:0};return `<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px"><b>${nm[k]}</b><span class="mono">${v.n} • ${fmt(v.n/T*100,1)}% • ${v.n?fmt(v.m/v.n,1):0} mnt</span></div><div class="bar"><i style="width:${v.n/T*100}%"></i></div></div>`}).join('')};
+  const tb=(list,kf,h1)=>{if(!list.length)return'';const g={};list.forEach(e=>{const k=kf(e);g[k]=g[k]||{Remote:0,Lokal:0,'Gagal Remot':0,n:0,m:0};g[k][e.nor]++;g[k].n++;g[k].m+=e.menit});
+    return `<div class="tw" style="margin-top:12px"><table style="min-width:520px"><thead><tr><th>${h1}</th><th>Remote</th><th>Lokal</th><th>Gagal Remot</th><th>Total</th><th>Rata² mnt</th></tr></thead><tbody>`+
+    Object.entries(g).sort((x,y)=>y[1].n-x[1].n).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${v.Remote}</td><td>${v.Lokal}</td><td>${v['Gagal Remot']}</td><td><b>${v.n}</b></td><td>${fmt(v.m/v.n,1)}</td></tr>`).join('')+'</tbody></table></div>'};
+  const ar={};tr.forEach(e=>inc(ar,e.ar));
+  c.innerHTML=`<div class="grid g2"><div class="card"><h2>Padam Trip (>5 menit)</h2><p class="sub">${fmt(tr.length)} kejadian • jumlah, persentase, rata-rata durasi pemulihan</p>${bars(tr)}${tb(tr,e=>CAUSES[causeOf(e)],'Penyebab trip')}</div>
+   <div class="card"><h2>Padam Pekerjaan</h2><p class="sub">${fmt(pk.length)} kejadian • pemeliharaan, pengamanan, manuver (semua durasi)</p>${bars(pk)}${tb(pk,e=>e.alasan,'Alasan dilepas')}</div></div>
+   ${tr.length?`<div class="card" style="margin-top:14px"><h2>Kinerja Auto Reclose (Padam Trip)</h2><p class="sub">Status reclose</p>${Object.entries(ar).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div style="margin:10px 0"><div style="display:flex;justify-content:space-between;font-size:12.5px"><b>${k}</b><span class="mono">${v} • ${fmt(v/tr.length*100,1)}%</span></div><div class="bar"><i style="width:${v/tr.length*100}%"></i></div></div>`).join('')}</div>`:''}`}
 
 function vSys(c){const A=S.aset;
   if(!A.length){c.innerHTML='<div class="card empty">Data aset (gid=39281652) belum termuat.</div>';return}
@@ -456,7 +449,7 @@ function vSys(c){const A=S.aset;
 
 function vLog(c){const l=filtered().slice().sort((a,b)=>(b.date?+b.date:0)-(a.date?+a.date:0)),PS=25,pg=Math.max(1,Math.ceil(l.length/PS));S.page=Math.min(S.page,pg);
   const s=l.slice((S.page-1)*PS,S.page*PS);
-  c.innerHTML=`<div class="card"><div class="toolbar"><div><h2>Data Logsheet Padam >5 Menit</h2><p class="sub" style="margin:0">${fmt(l.length)} laporan sesuai filter</p></div></div>
+  c.innerHTML=`<div class="card"><div class="toolbar"><div><h2>Data Logsheet</h2><p class="sub" style="margin:0">${fmt(l.length)} laporan sesuai filter (trip >5 menit; pemeliharaan semua durasi)</p></div></div>
   <div class="tw"><table style="min-width:900px"><thead><tr><th>Tanggal</th><th>Tipe</th><th>UP3 / ULP</th><th>Penyulang</th><th>PMT</th><th>Padam</th><th>Masuk</th><th>Durasi</th><th>Keterangan</th></tr></thead><tbody>
   ${s.map(e=>`<tr><td>${esc(e.tanggal)}</td><td><span class="badge ${e.tipe==='Trip'?'b-k':'b-ok'}">${e.tipe==='Trip'?'Trip':'Pemeliharaan'}</span></td><td>${esc(e.up3)}<br><small style="color:var(--mut)">${esc(e.ulp)}</small></td><td><b>${esc(e.feeder)}</b></td><td>${esc(e.pmt)}</td><td class="mono">${esc(e.jamPadam)}</td><td class="mono">${esc(e.jamMasuk)}</td><td class="mono">${e.menit} mnt</td><td style="min-width:220px">${esc(e.ket)}</td></tr>`).join('')||'<tr><td colspan="9" class="empty">Tidak ada data</td></tr>'}
   </tbody></table></div><div class="pager"><button onclick="S.page=Math.max(1,S.page-1);renderContent()">‹ Sebelumnya</button><span>Hal ${S.page} / ${pg}</span><button onclick="S.page=Math.min(${pg},S.page+1);renderContent()">Berikutnya ›</button></div></div>`}
@@ -464,24 +457,74 @@ function vLog(c){const l=filtered().slice().sort((a,b)=>(b.date?+b.date:0)-(a.da
 /* ================= EXPORT ================= */
 function exportXlsx(){const l=filtered(),a=analyze(l);
   const d=l.map((e,i)=>({No:i+1,Tanggal:e.tanggal,Tipe:e.tipe==='Trip'?'Padam Trip':'Pemeliharaan',DCC:e.dcc,UP3:e.up3,ULP:e.ulp,Penyulang:e.feeder,PMT:e.pmt,'Jam Padam':e.jamPadam,'Jam Masuk':e.jamMasuk,'Durasi (menit)':e.menit,'Beban Hilang (A)':e.beban,'ENS (kWh)':e.ens,Penyebab:e.sub,Keterangan:e.ket,Penormalan:e.nor}));
-  const sm=[['Total laporan >5 menit',a.total],['Padam trip',a.T],['Pemeliharaan',a.dil.length],['% trip thd semua laporan',fmt(a.pctAll,1)+'%'],['Jumlah aset',a.aset],['% trip thd aset',a.pctAset===null?'-':fmt(a.pctAset,2)+'%'],['Status keandalan',a.status+' ('+a.score+'/100)'],['ENS trip (kWh)',fmt(a.ens,1)]].map(([k,v])=>({Parameter:k,Nilai:v}));
+  const sm=[['Total laporan tercatat',a.total],['Padam trip',a.T],['Pemeliharaan',a.dil.length],['% trip thd semua laporan',fmt(a.pctAll,1)+'%'],['Jumlah aset',a.aset],['% trip thd aset',a.pctAset===null?'-':fmt(a.pctAset,2)+'%'],['Status keandalan',a.status+' ('+a.score+'/100)'],['ENS trip (kWh)',fmt(a.ens,1)]].map(([k,v])=>({Parameter:k,Nilai:v}));
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(d),'Data Logsheet');XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sm),'Ringkasan');
   XLSX.writeFile(wb,'Laporan_Padam_UP2D_'+new Date().toISOString().slice(0,10)+'.xlsx')}
 
-/* ================= MUAT DATA ================= */
+/* ================= POP-UP REKAP ================= */
+let RC=null;
+function descFilter(){const f=S.f,p=[];if(f.bulan!=='SEMUA')p.push(f.bulan);if(f.dcc!=='SEMUA')p.push(f.dcc);if(f.up3!=='SEMUA')p.push('UP3 '+f.up3);if(f.ulp!=='SEMUA')p.push('ULP '+f.ulp);if(f.q)p.push('“'+f.q+'”');return p.length?p.join(' • '):'Semua wilayah & periode'}
+function openRecap(kind){
+  const L=filtered(),a=analyze(L),tr=a.trips,dl=a.dil,secs=[];let title='';
+  const pc=(n,t)=>t?fmt(n/t*100,1)+'%':'-';
+  const grp=(list,kf)=>{const g={};list.forEach(e=>{const k=kf(e);g[k]=g[k]||{n:0,m:0,ens:0};g[k].n++;g[k].m+=e.menit;g[k].ens+=e.ens});return Object.entries(g).sort((x,y)=>y[1].n-x[1].n)};
+  const rec=(name,list,h1,kf,withEns)=>({name,head:[h1,'Jumlah','%','Rata-rata durasi (mnt)'].concat(withEns?['ENS (kWh)']:[]),rows:grp(list,kf).map(([k,v])=>[k,v.n,pc(v.n,list.length),+(v.m/v.n).toFixed(1)].concat(withEns?[+v.ens.toFixed(1)]:[]))});
+  const det=(list,name,xonly)=>({name,xonly,head:['Tanggal','Tipe','DCC','UP3','ULP','Penyulang','PMT','Zona','Jam Padam','Jam Masuk','Durasi (mnt)','Penyebab / Alasan','Penormalan','Auto Reclose','ENS (kWh)','Keterangan'],
+    rows:list.map(e=>[e.tanggal,e.tipe==='Trip'?'Padam Trip':'Pemeliharaan/Dilepas',e.dcc,e.up3,e.ulp,e.feeder,e.pmt,e.zona,e.jamPadam,e.jamMasuk,e.menit,e.tipe==='Trip'?CAUSES[causeOf(e)]:e.alasan,e.nor,e.ar,e.ens,e.ket])});
+  const zn=e=>e.zona&&e.zona!=='-'?'Zona '+e.zona:'Zona tidak tercatat';
+  switch(kind){
+   case'all':title='Detail Semua Padam';secs.push(det(L,'Detail Semua Padam'));break;
+   case'trip':title='Rekapan Padam Trip >5 Menit';
+    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[['Total Trip',a.T],['Rata-rata durasi pemulihan (mnt)',+a.avgDur.toFixed(1)],['ENS (kWh)',+a.ens.toFixed(1)]]});
+    secs.push(rec('Trip per Zona',tr,'Zona',zn));secs.push(rec('Penyebab Trip',tr,'Penyebab',e=>CAUSES[causeOf(e)],true));secs.push(rec('Auto Reclose',tr,'Status Auto Reclose',e=>e.ar));secs.push(det(tr,'Detail Trip',true));break;
+   case'dil':title='Rekapan Pemeliharaan / Dilepas';
+    secs.push({name:'Ringkasan',head:['Parameter','Nilai'],rows:[['Total kejadian',dl.length],['Rata-rata durasi padam (mnt)',dl.length?+(dl.reduce((s,e)=>s+e.menit,0)/dl.length).toFixed(1):0],['Total durasi (jam)',+(dl.reduce((s,e)=>s+e.menit,0)/60).toFixed(1)]]});
+    secs.push(rec('Alasan Dilepas',dl,'Alasan (HAR, Emergency, Manuver, dll)',e=>e.alasan));secs.push(det(dl,'Detail Pemeliharaan',true));break;
+   case'pctAll':title='% Trip terhadap Semua Laporan';
+    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[['Padam trip >5 menit',a.T],['Pemeliharaan/pengamanan/manuver (semua durasi)',dl.length],['Total laporan tercatat',a.total],['% Trip thd semua laporan',pc(a.T,a.total)]]});break;
+   case'pctAset':{title='% Trip terhadap Jumlah Aset';const A=asetScope();
+    secs.push({name:'Perhitungan',head:['Parameter','Nilai'],rows:[['Jumlah aset pada cakupan filter',A.length],['Motorized',A.filter(x=>x.mode.startsWith('MOTOR')).length],['Manual',A.filter(x=>!x.mode.startsWith('MOTOR')).length],['Padam trip >5 menit',a.T],['% Trip thd aset',a.pctAset===null?'Data aset belum termuat':fmt(a.pctAset,2)+'%']]});break}
+   case'ens':title='ENS Padam Trip per Penyebab';secs.push(rec('ENS per Penyebab',tr,'Penyebab',e=>CAUSES[causeOf(e)],true));break;
+   case'jam':title='Padam Trip per Jam (WITA)';secs.push({name:'Per Jam',head:['Jam','Jumlah Trip','%'],rows:a.hr.map((n,h)=>[String(h).padStart(2,'0')+':00',n,pc(n,a.T)])});break;
+   case'feeder':{title='Penyulang dengan Trip Terbanyak';const g={};tr.forEach(e=>{if(e.feeder==='-')return;const k=e.feeder+'|'+e.ulp+'|'+e.up3;g[k]=g[k]||{n:0,m:0,ens:0};g[k].n++;g[k].m+=e.menit;g[k].ens+=e.ens});
+    secs.push({name:'Top Penyulang',head:['Penyulang','ULP','UP3','Jumlah Trip','Rata-rata durasi (mnt)','ENS (kWh)'],rows:Object.entries(g).sort((x,y)=>y[1].n-x[1].n).slice(0,15).map(([k,v])=>{const p=k.split('|');return[p[0],p[1],p[2],v.n,+(v.m/v.n).toFixed(1),+v.ens.toFixed(1)]})});break}
+  }
+  RC={title,secs,kind};
+  let h=`<div class="mdl" id="md" onclick="if(event.target===this)closeModal()"><div class="mbox"><div class="mh"><div><h2>${esc(title)}</h2><p class="sub" style="margin:0">${esc(descFilter())}</p></div><div class="mhb"><button class="xb" onclick="exportRecap()">⬇ Export Excel</button><button class="xc" onclick="closeModal()" aria-label="Tutup">✕</button></div></div><div class="mb">`;
+  secs.filter(s=>!s.xonly).forEach(s=>{const R=s.rows.slice(0,200);
+    h+=`<h3 style="margin:14px 0 8px;font-size:13.5px">${esc(s.name)}</h3><div class="tw"><table style="min-width:${s.head.length>6?900:360}px"><thead><tr>${s.head.map(x=>`<th>${esc(x)}</th>`).join('')}</tr></thead><tbody>${R.map(r=>`<tr>${r.map(x=>`<td>${esc(x)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan="${s.head.length}" class="empty">Tidak ada data</td></tr>`}</tbody></table></div>`+
+    (s.rows.length>200?`<p class="sub" style="margin-top:6px">Menampilkan 200 dari ${fmt(s.rows.length)} baris — file Excel berisi seluruh data.</p>`:'')});
+  h+='</div></div></div>';
+  closeModal();document.body.insertAdjacentHTML('beforeend',h);document.body.style.overflow='hidden'}
+function closeModal(){const m=document.getElementById('md');if(m)m.remove();document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+function exportRecap(){if(!RC)return;const wb=XLSX.utils.book_new();
+  RC.secs.forEach(s=>{const ws=XLSX.utils.aoa_to_sheet([s.head].concat(s.rows));XLSX.utils.book_append_sheet(wb,ws,s.name.slice(0,31))});
+  XLSX.writeFile(wb,'Rekap_'+RC.kind+'_'+new Date().toISOString().slice(0,10)+'.xlsx')}
+
+/* ================= MUAT DATA (cache instan + tarik paralel) ================= */
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const ST={u:[],b:[],loading:true};
+function uiRefresh(){const ae=document.activeElement;if(!(ae&&ae.id==='q'))buildFilters();renderContent()}
+function applyData(){const m=mergeSources(ST.u,ST.b);if(m.length)S.all=m;uiRefresh()}
+function setSync(cls,txt){$('#dot').className='dot'+(cls?' '+cls:'');$('#syncTxt').textContent=txt}
 async function loadAll(){
-  const dot=$('#dot'),tx=$('#syncTxt');dot.className='dot spin';tx.textContent='Menyinkronkan…';
-  const [u,b,as]=await Promise.allSettled([fetchCsv(SRC.utama,'utama',true).then(parseLog),fetchCsv(SRC.backup,'backup',true).then(parseLog),fetchCsv(SRC.aset,'aset',false).then(parseAset)]);
-  const A=u.status==='fulfilled'?u.value:[],B=b.status==='fulfilled'?b.value:[];
-  if(A.length||B.length)S.all=mergeSources(A,B);
-  if(as.status==='fulfilled'&&as.value.length){S.aset=as.value;try{localStorage.setItem('aset_cache',JSON.stringify(as.value))}catch(e){}}
-  else if(!S.aset.length){try{S.aset=JSON.parse(localStorage.getItem('aset_cache')||'[]')}catch(e){}}
-  const ok=A.length||B.length;
-  dot.className='dot'+(ok?'':' off');
-  tx.textContent=ok?`${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} WITA • ${(S.all.length)} data${A.length&&B.length?' (2 sumber)':' (1 sumber)'}`:'Offline';
-  if(!$('#fb').innerHTML)buildFilters();else buildFilters();renderContent()}
-$('#app').innerHTML='<div id="fb"></div><div id="ct"><div class="empty">Memuat data…</div></div>';
-buildNav();loadAll();setInterval(loadAll,REFRESH_MIN*60000);
+  setSync('spin','Menyinkronkan…');ST.loading=true;
+  const job=(tag,src,gas,parse,done)=>fetchCsv(src,tag,gas).then(t=>{LS.set('c_'+tag,t);done(parse(t))});
+  const r=await Promise.allSettled([
+    job('utama',SRC.utama,true,parseLog,v=>{ST.u=v;applyData()}),
+    job('backup',SRC.backup,true,parseLog,v=>{ST.b=v;applyData()}),
+    job('aset',SRC.aset,false,parseAset,v=>{if(v.length){S.aset=v;uiRefresh()}})]);
+  ST.loading=false;const ok=r[0].status==='fulfilled'||r[1].status==='fulfilled';
+  setSync(ok?'':'off',ok?`${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})} WITA • ${fmt(S.all.length)} data • aset ${fmt(S.aset.length)}`:'Gagal terhubung — memakai data cache');
+  uiRefresh()}
+(function boot(){
+  try{const cu=LS.get('c_utama'),cb=LS.get('c_backup'),ca=LS.get('c_aset');if(cu)ST.u=parseLog(cu);if(cb)ST.b=parseLog(cb);if(ca)S.aset=parseAset(ca)}catch(e){}
+  if(ST.u.length||ST.b.length)S.all=mergeSources(ST.u,ST.b);
+  $('#app').innerHTML='<div id="fb"></div><div id="ct"></div>';
+  buildNav();buildFilters();renderContent();loadAll();setInterval(loadAll,REFRESH_MIN*60000);
+  document.addEventListener('DOMContentLoaded',()=>renderContent());
+})();
 </script>
 </body>
 </html>
