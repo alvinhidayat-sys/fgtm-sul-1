@@ -913,11 +913,26 @@ function trFmt(m,v){if(v==null)return"-";if(m==="recovery"){if(v<=0)return"0 mnt
 function trChg(a,b){let d=b-a;return{d:d,p:a===0?b===0?0:null:d/a*100}}
 function trLbl(f){let t=(f.bulan!==TR_ALL?f.bulan:"Semua Bulan")+(f.tahun!==TR_ALL?" "+f.tahun:""),s=[];f.dcc!==TR_ALL&&s.push(f.dcc);f.up3!==TR_ALL&&s.push("UP3 "+f.up3);ulpOn(f.ulp)&&s.push("ULP "+ulpTxt(f.ulp));return t+" \u00B7 "+(s.length?s.join(" / "):"Semua Unit")}
 /* ===== KESIMPULAN ANALISIS TREN (otomatis dari dua periode) ===== */
+/* ===== helper rangkuman kesimpulan ===== */
+var TR_REF=["SPLN 52-3:1983 \u2013 Pola Pengamanan Sistem Bagian Tiga: Sistem Distribusi 6 kV dan 20 kV (PLN)","SPLN 59:1985 \u2013 Keandalan pada Sistem Distribusi 20 kV dan 6 kV (PLN)","SPLN 68-2:1986 \u2013 Tingkat Jaminan Sistem Tenaga Listrik Bagian Dua: Sistem Distribusi (PLN)","Buku 5: Standar Konstruksi Jaringan Tegangan Menengah Tenaga Listrik (PT PLN (Persero), 2010)","Modul PLN Corporate University (2013): Perangkat Sistem Proteksi Distribusi; Recloser dan Sectionalizer; Koordinasi Sistem Pengaman Distribusi","IEEE Std 1366 \u2013 Guide for Electric Power Distribution Reliability Indices"];
+function trCauseName(e){return e.subKelompok&&e.subKelompok!=="-"?e.subKelompok:"Lain-lain"}
+function trAksi(nm){let s=String(nm).toLowerCase();
+ if(/pohon|ranting|row|vegetasi|dahan/.test(s))return"lakukan pemangkasan pohon dan penyisiran ROW sepanjang jalur penyulang hingga jarak aman terhadap kawat SUTM sesuai standar konstruksi JTM terpenuhi, dimulai dari segmen yang paling sering trip";
+ if(/petir|cuaca|angin|hujan|badai|sambar/.test(s))return"periksa dan ganti lightning arrester yang rusak, ukur tahanan pentanahan tiang dan gardu, serta perkuat isolasi pada segmen yang rawan sambaran petir dan angin";
+ if(/layang/.test(s))return"lakukan patroli dan sosialisasi pada area rawan layang-layang serta bersihkan benang dan layangan yang tersangkut di jaringan";
+ if(/binatang|hewan|ular|tikus|burung|kelelawar|monyet|biawak/.test(s))return"pasang penutup isolasi (insulation cover) atau pelindung satwa pada bushing, jumper, dan konduktor terbuka di gardu dan tiang";
+ if(/pihak|tabrak|galian|kendaraan|crane|alat berat|konstruksi/.test(s))return"tingkatkan patroli dan koordinasi dengan pihak pelaksana pekerjaan di sekitar jaringan serta pasang rambu dan pelindung pada tiang yang rawan tertabrak";
+ if(/isolator|komponen|peralatan|jumper|arrester|bushing|kubikel|kontak|kawat|konduktor|trafo|jtm|sambungan/.test(s))return"lakukan inspeksi visual dan termovisi, kencangkan atau ganti sambungan dan isolator yang rusak, serta uji kelayakan peralatan sesuai jadwal pemeliharaan";
+ return"lakukan penyisiran jaringan pada segmen yang paling sering trip, tentukan titik penyebabnya, dan perbaiki sesuai temuan di lapangan"}
+function trZonaAksi(z){let k=Number(z);
+ if(k===1)return"evaluasi setelan relai OCR/GFR pada PMT penyulang di gardu induk dan uji fungsi proteksinya agar gangguan di zona 1 terlokalisir dengan benar";
+ if(k===2)return"periksa setelan, jumlah reclose, dan koordinasi recloser dengan sectionalizer agar gangguan temporer tidak menjadi padam permanen";
+ return"optimalkan LBS, sectionalizer, dan FCO sebagai pemisah seksi untuk memperkecil area padam serta mempercepat pelokalisiran gangguan di zona hilir, disertai koordinasi pengaman ke arah hulu"}
 function trTop(l,key){let m={};l.forEach(e=>{if(e.tipe!=="Trip")return;let k=e[key];if(!k||k==="-")return;m[k]=(m[k]||0)+1});let b=null;Object.entries(m).forEach(([k,v])=>{(!b||v>b[1])&&(b=[k,v])});return b}
 function trPct(p){return p==null?"dari nol":(p>0?"+":"")+p.toFixed(1).replace(".",",")+"%"}
 function trKesimpulan(S,LA,LB,stA,stB,gran,N){
  let ALL=TR_ALL,lA=trLbl(S.A),lB=trLbl(S.B),items=[],n=x=>Math.round(x).toLocaleString("id-ID");
- if(!LA.length&&!LB.length)return{items:[{h:"Data",t:"Tidak ada data padam pada kedua periode yang dipilih, sehingga tren belum dapat dianalisis. Ubah filter periode atau unit."}],tone:"tr-flat",verdict:"Belum ada data"};
+ if(!LA.length&&!LB.length)return{items:[{h:"Data",t:"Tidak ada data padam pada kedua periode yang dipilih, sehingga tren belum dapat dianalisis. Ubah filter periode atau unit."}],tone:"tr-flat",verdict:"Belum ada data",ringkasan:["Tidak ada data padam pada kedua periode yang dipilih, sehingga progres, penyebab, dan tindakan teknis belum dapat disimpulkan."],rujukan:[]};
  let wd=c=>c.d===0?"tetap":(c.p!=null&&Math.abs(c.p)<5)?"stabil":c.d>0?"naik":"turun",
  desc=(lb,a,b,m)=>{let c=trChg(a,b),w=wd(c);return w==="tetap"?lb+" tetap di "+trFmt(m,b):w==="stabil"?(trFmt(m,a)===trFmt(m,b)?lb+" relatif stabil di sekitar "+trFmt(m,b)+" ("+trPct(c.p)+")":lb+" relatif stabil ("+trFmt(m,a)+" menjadi "+trFmt(m,b)+", "+trPct(c.p)+")"):lb+" "+w+" dari "+trFmt(m,a)+" menjadi "+trFmt(m,b)+" ("+(c.d>0?"+":"-")+trFmt(m,Math.abs(c.d))+(c.p==null?"":", "+trPct(c.p))+")"},
  cT=trChg(stA.total,stB.total),cTr=trChg(stA.trip,stB.trip),cT5=trChg(stA.trip5,stB.trip5),cR=trChg(stA.recovery,stB.recovery),
@@ -971,7 +986,32 @@ function trKesimpulan(S,LA,LB,stA,stB,gran,N){
  if(wr==="naik")ac.push("tinjau kecepatan pelacakan dan penormalan gangguan agar recovery JTM kembali singkat");
  if(!ac.length)ac.push(verdict==="Cenderung membaik"?"pertahankan pola pemeliharaan dan penanganan gangguan yang berjalan saat ini":"pantau terus indikator pada periode berikutnya agar tren dapat terkonfirmasi");
  items.push({h:"Tindak lanjut",t:ac.join("; ").replace(/^./,x=>x.toUpperCase())+"."});
- return{items:items,tone:tone,verdict:verdict}
+ /* ===== RANGKUMAN KESIMPULAN (3 paragraf menyatu: progres, penyebab, tindakan teknis) ===== */
+ let cm=l=>{let m={};l.forEach(e=>{if(e.tipe!=="Trip")return;let k=trCauseName(e);m[k]=(m[k]||0)+1});return m},
+ mA=cm(LA),mB=cm(LB),ck=[...new Set([...Object.keys(mA),...Object.keys(mB)])],
+ dfc=ck.map(k=>[k,(mB[k]||0)-(mA[k]||0),mA[k]||0,mB[k]||0]),dir=wd(cTr),drv=null;
+ if(dir==="naik")drv=dfc.filter(x=>x[1]>0).sort((p,q)=>q[1]-p[1])[0];
+ else if(dir==="turun")drv=dfc.filter(x=>x[1]<0).sort((p,q)=>p[1]-q[1])[0];
+ if(!drv&&ck.length)drv=dfc.slice().sort((p,q)=>q[3]-p[3]||q[2]-p[2])[0];
+ let kind=null;
+ if(drv){let q=LA.concat(LB).filter(e=>e.tipe==="Trip"&&trCauseName(e)===drv[0]),ex=q.filter(e=>e.kategoriPenyebab==="Eksternal").length;kind=ex*2>=q.length?"eksternal (lingkungan dan cuaca)":"internal (peralatan dan jaringan)"}
+ let ei=l=>{let t=l.filter(e=>e.tipe==="Trip");return[t.filter(e=>e.kategoriPenyebab==="Eksternal").length,t.filter(e=>e.kategoriPenyebab==="Internal").length]},eA=ei(LA),eB=ei(LB),
+ arah=dir==="naik"?"kenaikan":dir==="turun"?"penurunan":"kondisi",
+ vt={"tr-up":"kecenderungan ini menunjukkan keandalan jaringan menurun dan perlu segera ditangani","tr-down":"kecenderungan ini menunjukkan keandalan jaringan membaik","tr-flat":"kecenderungan ini menunjukkan keandalan jaringan relatif tidak berubah","tr-warn":"hasilnya campuran sehingga indikator yang memburuk perlu dicermati lebih dahulu"},
+ p1="Berdasarkan perbandingan Periode Awal ("+lA+") dengan Periode Akhir ("+lB+"), progres gangguan "+(dir==="naik"?"mengalami kenaikan":dir==="turun"?"mengalami penurunan":dir==="stabil"?"relatif stabil":"tidak berubah")+": "+desc("padam trip",stA.trip,stB.trip,"n")+"; "+desc("padam trip >5 menit",stA.trip5,stB.trip5,"n")+"; serta "+desc("rata-rata recovery JTM",stA.recovery,stB.recovery,"recovery")+". Karena keandalan distribusi pada SPLN 59:1985 dan IEEE Std 1366 dinilai dari frekuensi dan lamanya gangguan, "+vt[tone]+"."+(warn.length?" Perlu dicatat bahwa "+warn.join(" dan ")+", sehingga selisih ini harus ditafsirkan dengan hati-hati.":""),
+ p2;
+ if(!drv)p2="Pada kedua periode tidak tercatat padam trip, sehingga penyebab yang paling berpengaruh terhadap progres belum dapat ditentukan dan tidak ada gangguan yang perlu diprioritaskan.";
+ else{
+  let sh=Math.abs(cTr.d)>0?Math.abs(drv[1])/Math.abs(cTr.d):0;
+  p2="Faktor yang paling berpengaruh terhadap "+arah+" tersebut adalah gangguan \""+drv[0]+"\" yang bersifat "+kind+", "+((dir==="naik"||dir==="turun")?"yang berubah dari "+n(drv[2])+" menjadi "+n(drv[3])+" kejadian trip ("+(drv[1]>0?"+":"-")+n(Math.abs(drv[1]))+")"+(sh>0&&sh<=1?", atau sekitar "+Math.round(sh*100)+"% dari selisih bersih padam trip":""):"yang mendominasi "+n(drv[3])+" kejadian trip pada Periode Akhir")+"."
+  +(db?" Dari sisi lokasi, gangguan terkonsentrasi pada Zona "+db[0]+(da&&da[0]!==db[0]?" (bergeser dari Zona "+da[0]+")":"")+(fB?", dengan penyulang "+fB[0]+" sebagai yang paling sering trip ("+n(fB[1])+" kali)":"")+".":"")
+  +(()=>{let c=[];(eA[0]+eB[0])>0&&c.push("gangguan eksternal (lingkungan dan cuaca) dari "+n(eA[0])+" menjadi "+n(eB[0])+" kejadian");(eA[1]+eB[1])>0&&c.push("gangguan internal (peralatan dan jaringan) dari "+n(eA[1])+" menjadi "+n(eB[1])+" kejadian");return c.length?" Secara kategori, "+c.join(" dan ")+".":""})()
+ }
+ let a1=drv?(dir==="turun"?"pertahankan dan standarkan program yang telah menekan gangguan \""+drv[0]+"\", yaitu "+trAksi(drv[0]):trAksi(drv[0])):trAksi(""),
+ a2=db?trZonaAksi(db[0]):"jaga setelan dan koordinasi pengaman (relai OCR/GFR, recloser, dan FCO) agar gangguan temporer tidak berkembang menjadi padam permanen",
+ a3=wr==="naik"?"percepat pelacakan dan penormalan dengan menyiagakan tim yantek pada jam rawan, memanfaatkan manuver beban, serta mengoptimalkan kendali jarak jauh LBS dan recloser agar recovery JTM kembali singkat":"lanjutkan inspeksi dan pemeliharaan berkala (termovisi, pemangkasan, pengukuran tahanan pentanahan) dan catat penyebab gangguan secara rinci agar analisis periode berikutnya lebih akurat",
+ p3="Dari sisi teknis di lapangan, langkah yang perlu dilakukan adalah, pertama, "+a1+(fB?" pada penyulang "+fB[0]+(uB?" di ULP "+uB[0]:""):"")+"; kedua, "+a2+"; dan ketiga, "+a3+". Seluruh langkah ini sejalan dengan pola pengamanan distribusi SPLN 52-3:1983 dan standar konstruksi jaringan tegangan menengah PLN, serta hasilnya perlu dievaluasi kembali pada periode berikutnya untuk memastikan tren gangguan terus menurun.";
+ return{items:items,tone:tone,verdict:verdict,ringkasan:[p1,p2,p3],rujukan:TR_REF}
 }
 function TrenView({entries:a}){
 let h=Ea.createElement,[S,setS]=Ea.useState(()=>trDefaults(a)),[auto,setAuto]=Ea.useState(!0),[metric,setMetric]=Ea.useState("total"),[smooth,setSmooth]=Ea.useState(!0),[cum,setCum]=Ea.useState(!1),[hv,setHv]=Ea.useState(null),
@@ -1086,6 +1126,11 @@ return h("div",{className:"space-y-6 animate-in fade-in-50 duration-200"},
   h("p",{className:"text-[11px] text-slate-500 mt-3"},"Catatan: untuk semua indikator, kenaikan berarti kondisi memburuk (lebih banyak padam atau pemulihan lebih lama) dan penurunan berarti membaik. Recovery JTM dihitung dari rata-rata durasi padam yang tercatat.")),
  h("div",{className:cardCls,id:"tren-kesimpulan"},
   h("div",{className:"flex flex-wrap items-center justify-between gap-2 mb-3"},h("h3",{className:"text-sm sm:text-base font-bold text-slate-900"},"Kesimpulan"),h("span",{className:"tr-chip "+ks.tone},ks.verdict)),
+  h("div",{className:"rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4 mb-4"},
+   h("div",{className:"text-xs font-bold uppercase tracking-wide text-slate-500 mb-2"},"Rangkuman Kesimpulan"),
+   ks.ringkasan.map((t,i)=>h("p",{key:i,className:"text-xs sm:text-sm text-slate-800 leading-relaxed text-justify"+(i?" mt-2.5":"")},t)),
+   ks.rujukan.length>0&&h("div",{className:"mt-3 pt-2 border-t border-slate-200"},h("div",{className:"text-[11px] font-semibold text-slate-500 mb-1"},"Rujukan:"),h("ol",{className:"text-[11px] text-slate-500 leading-snug list-decimal pl-4 space-y-0.5"},ks.rujukan.map((t,i)=>h("li",{key:i},t))))),
+  h("div",{className:"text-xs font-bold uppercase tracking-wide text-slate-500 mb-2"},"Rincian Analisis"),
   h("ul",{className:"space-y-2.5"},ks.items.map((it,i)=>h("li",{key:i,className:"text-xs sm:text-sm text-slate-700 leading-relaxed"},h("b",{className:"text-slate-900"},it.h+": "),it.t))),
   h("p",{className:"text-[11px] text-slate-500 mt-3"},"Kesimpulan dibuat otomatis dari data kedua periode yang dipilih dan ikut berubah saat filter diubah. Perubahan di bawah 5% dianggap relatif stabil.")))}
 
