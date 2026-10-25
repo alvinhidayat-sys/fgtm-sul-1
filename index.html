@@ -955,7 +955,7 @@ function trTop(l,key){let m={};l.forEach(e=>{if(e.tipe!=="Trip")return;let k=e[k
 function trPct(p){return p==null?"dari nol":(p>0?"+":"")+p.toFixed(1).replace(".",",")+"%"}
 function trKesimpulan(S,LA,LB,stA,stB,gran,N){
  let ALL=TR_ALL,lA=trLbl(S.A),lB=trLbl(S.B),items=[],n=x=>Math.round(x).toLocaleString("id-ID");
- if(!LA.length&&!LB.length)return{items:[{h:"Data",t:"Tidak ada data padam pada kedua periode yang dipilih, sehingga tren belum dapat dianalisis. Ubah filter periode atau unit."}],tone:"tr-flat",verdict:"Belum ada data",ringkasan:["Tidak ada data padam pada kedua periode yang dipilih, sehingga progres, penyebab, dan tindakan teknis belum dapat disimpulkan."],rujukan:[]};
+ if(!LA.length&&!LB.length)return{items:[{h:"Data",t:"Tidak ada data padam pada kedua periode yang dipilih, sehingga tren belum dapat dianalisis. Ubah filter periode atau unit."}],tone:"tr-flat",verdict:"Belum ada data",ringkasan:["Tidak ada data padam pada kedua periode yang dipilih, sehingga progres, penyebab, dan tindakan teknis belum dapat disimpulkan."],poin:[],tindak:[],rujukan:[]};
  let wd=c=>c.d===0?"tetap":(c.p!=null&&Math.abs(c.p)<5)?"stabil":c.d>0?"naik":"turun",
  desc=(lb,a,b,m)=>{let c=trChg(a,b),w=wd(c);return w==="tetap"?lb+" tetap di "+trFmt(m,b):w==="stabil"?(trFmt(m,a)===trFmt(m,b)?lb+" relatif stabil di sekitar "+trFmt(m,b)+" ("+trPct(c.p)+")":lb+" relatif stabil ("+trFmt(m,a)+" menjadi "+trFmt(m,b)+", "+trPct(c.p)+")"):lb+" "+w+" dari "+trFmt(m,a)+" menjadi "+trFmt(m,b)+" ("+(c.d>0?"+":"-")+trFmt(m,Math.abs(c.d))+(c.p==null?"":", "+trPct(c.p))+")"},
  cT=trChg(stA.total,stB.total),cTr=trChg(stA.trip,stB.trip),cT5=trChg(stA.trip5,stB.trip5),cR=trChg(stA.recovery,stB.recovery),
@@ -1101,7 +1101,13 @@ function trKesimpulan(S,LA,LB,stA,stB,gran,N){
  p5="Untuk tindak lanjut, ada "+ac2.length+" hal krusial yang perlu kita kerjakan. "+ac2.map((x,i)=>(i===0?"Pertama":(i===ac2.length-1?"dan "+nw[i]:nw[i]))+", "+x).join("; ")+". Hasilnya kita evaluasi kembali pada periode berikutnya untuk memastikan tren gangguan terus menurun.";
  items.splice(Math.max(0,items.length-1),0,...(wB?[{h:"Jam rawan",t:"Pukul "+wl(wB)+" ("+ph(wB)+") menyumbang "+n(wB.c)+" trip atau "+ps(wB.c,wB.tot)+" dari trip Periode Akhir yang jamnya tercatat."+(wA?" Periode Awal: pukul "+wl(wA)+" ("+n(wA.c)+" trip).":"")}]:[]),...(wxB?[{h:"Cuaca",t:"Cuaca terbanyak saat trip pada Periode Akhir: "+wxB[0]+" ("+n(wxB[1])+" kejadian). Trip saat cuaca buruk: "+n(rainB)+" kejadian (Periode Awal: "+n(rainA)+")."}]:[]));
  let verdictSub=worse+" indikator memburuk, "+better+" membaik, "+steady+" relatif stabil. Padam trip "+n(stA.trip)+" menjadi "+n(stB.trip)+" ("+trPct(cTr.p)+"); trip >5 menit "+n(stA.trip5)+" menjadi "+n(stB.trip5)+" ("+trPct(cT5.p)+"); recovery JTM "+trFmt("recovery",stA.recovery)+" menjadi "+trFmt("recovery",stB.recovery)+".";
- return{items:items,tone:tone,verdict:verdict,verdictSub:verdictSub,ringkasan:[p1,p2,p3,p4,p5].filter(Boolean),rujukan:[]}
+ let cap=x=>String(x).replace(/^./,c=>c.toUpperCase()),poin=[];
+ poin.push("Penilaian tren: "+verdict+". "+verdictSub);
+ if(drv)poin.push("Penyebab utama: "+nat(drv[0])+", bersifat "+kind+((dir==="naik"||dir==="turun")?", "+(drv[1]>0?"bertambah":"berkurang")+" dari "+n(drv[2])+" menjadi "+n(drv[3])+" kejadian trip ("+(drv[1]>0?"+":"-")+n(Math.abs(drv[1]))+")":", dengan "+n(drv[3])+" kejadian trip pada Periode Akhir")+".");
+ if(db||fT)poin.push("Lokasi paling rawan: "+(db?"Zona "+db[0]+" ("+n(db[1])+" trip)":"")+(fT?(db?"; ":"")+"penyulang "+fT[0]+(ulpF?" di ULP "+ulpF:"")+" ("+n(fT[1])+" trip, "+ps(fT[1],stB.trip)+" dari seluruh trip)":"")+".");
+ if(wB||wxB)poin.push("Waktu dan cuaca rawan: "+(wB?"pukul "+wl(wB)+" ("+n(wB.c)+" trip)":"")+(wxB?(wB?"; ":"")+"cuaca "+wxB[0]+" ("+n(wxB[1])+" kejadian)"+(rainB>0?", trip saat cuaca buruk "+n(rainB)+" kejadian":""):"")+".");
+ if(arB.length>0)poin.push("Proteksi: auto reclose berhasil pada "+lapD(arPB,1)+"% trip di penyulang ber-AR"+(arPB<70?", tergolong rendah":"")+(ensB>0?"; energi tidak tersalurkan akibat trip "+n(ensB)+" kWh":"")+".");
+ return{items:items,tone:tone,verdict:verdict,verdictSub:verdictSub,ringkasan:[p1,p2,p3,p4,p5].filter(Boolean),poin:poin,tindak:ac2.map(cap),rujukan:[]}
 }
 function TrenView({entries:a}){
 let h=Ea.createElement,[S,setS]=Ea.useState(()=>trDefaults(a)),[auto,setAuto]=Ea.useState(!0),[metric,setMetric]=Ea.useState("total"),[smooth,setSmooth]=Ea.useState(!0),[cum,setCum]=Ea.useState(!1),[hv,setHv]=Ea.useState(null),
@@ -1332,11 +1338,10 @@ function lapTren(ctx){let h=Ea.createElement,S=ctx.tren||{A:trBlank(),B:trBlank(
  h(LSec,{key:3,n:3,t:"Grafik Perbandingan ("+(gran==="hari"?"per tanggal":"per bulan")+")"},
   mets.map(m=>{let s=ser(m[0]);return h("div",{key:m[0],className:"lap-fig"},h("div",{className:"lap-figt"},m[1]),h(GenChart,{print:!0,xl:xl,height:220,fmt:m[0]==="recovery"?(v=>lapMin(v)):void 0,series:[{name:"Periode Awal",color:"#6d3d8c",values:s[0]},{name:"Periode Akhir",color:"#e0762a",values:s[1]}]}))}),
   h("div",{className:"lap-fig"},h("div",{className:"lap-figt"},"Zona Padam Trip"),h(GenChart,{print:!0,xl:zc.map(c=>"Zona "+c),height:220,series:[{name:"Periode Awal",color:"#6d3d8c",values:zc.map(c=>sA.zona[c]||0)},{name:"Periode Akhir",color:"#e0762a",values:zc.map(c=>sB.zona[c]||0)}]}))),
- h(LSec,{key:4,n:4,t:"Kesimpulan Otomatis"},h("ul",{className:"lap-ul"},
-  h("li",null,lapNarasi("Total padam",sA.total,sB.total,"")),h("li",null,lapNarasi("Padam trip",sA.trip,sB.trip,"")),h("li",null,lapNarasi("Padam dilepas",sA.dilepas,sB.dilepas,"")),
-  h("li",null,"Recovery JTM rata-rata "+(sB.recovery>sA.recovery?"meningkat":sB.recovery<sA.recovery?"menurun":"tidak berubah")+" dari "+lapMin(sA.recovery)+" menjadi "+lapMin(sB.recovery)+"."),
-  h("li",null,lapNarasi("Padam trip berdurasi lebih dari 5 menit",sA.trip5,sB.trip5,"")),
-  h("li",null,"Zona padam trip dominan: "+(trDom(sA.zona)?"Zona "+trDom(sA.zona)[0]:"-")+" (periode awal) dan "+(trDom(sB.zona)?"Zona "+trDom(sB.zona)[0]:"-")+" (periode akhir).")))]}
+ h(LSec,{key:4,n:4,t:"Kesimpulan"},(()=>{let ks=trKesimpulan(S,LA,LB,sA,sB,gran,N);return[
+  h("p",{key:"v",className:"lap-p",style:{fontWeight:700,fontSize:"12pt"}},"Penilaian tren: "+ks.verdict),
+  ks.poin.length?h("div",{key:"p"},h("p",{className:"lap-p",style:{fontWeight:700,marginBottom:"2px"}},"Poin penting"),h("ul",{className:"lap-ul"},ks.poin.map((t,i)=>h("li",{key:i},t)))):h("p",{key:"e",className:"lap-p"},ks.ringkasan[0]),
+  ks.tindak.length?h("div",{key:"t"},h("p",{className:"lap-p",style:{fontWeight:700,marginBottom:"2px"}},"Tindak lanjut"),h("ol",{className:"lap-ul"},ks.tindak.map((t,i)=>h("li",{key:i},t)))):null]})())]}
 function lapEval(ctx){let h=Ea.createElement,e=ctx.entries,dt=ctx.dt,trip=e.filter(x=>x.tipe==="Trip"),dccs=lapRows(e,x=>x.dcc),
  list=(arr)=>h("ol",{className:"lap-ul"},arr.map((t,i)=>h("li",{key:i},t)));
  return[
@@ -1374,12 +1379,12 @@ function LapModal({tab,ctx,onClose}){let h=Ea.createElement,[,force]=Ea.useState
   h("div",{className:"lap-bar no-print"},h("div",{className:"lap-bar-t"},"Pratinjau Laporan \u2022 "+ttl),
    h("div",{className:"lap-bar-b"},h("button",{type:"button",className:"lap-btn lap-btn-p",onClick:()=>window.print()},"Cetak / Simpan PDF"),h("button",{type:"button",className:"lap-btn",onClick:onClose},"Tutup"))),
   h("div",{className:"lap-sheet"},
-   h("div",{className:"lap-kop"},h("div",{className:"lap-logo"},h(LogoPlnNusaDaya,{compact:!1})),h("div",{className:"lap-kop-t"},h("div",{className:"lap-k1"},"PT PLN (PERSERO) \u2022 UNIT INDUK DISTRIBUSI"),h("div",{className:"lap-k2"},"UNIT PELAKSANA PENGATUR DISTRIBUSI (UP2D) SULUTTENGGO"),h("div",{className:"lap-k3"},"Wilayah Kerja: DCC Manado, DCC Gorontalo, DCC Palu, dan DCC Luwuk"))),
+   h("div",{className:"lap-kop"},h("div",{className:"lap-logo"},h(LogoPlnNusaDaya,{compact:!1})),h("div",{className:"lap-kop-t"},h("div",{className:"lap-k1"},"PT. PLN NUSA DAYA \u2022 UNIT PELAKSANA SULAWESI 1"),h("div",{className:"lap-k2"},"UNIT LAYANAN MANADO, TAHUNA & KOTAMOBAGU"))),
    h("div",{className:"lap-title"},"LAPORAN "+ttl.toUpperCase()),
    h("table",{className:"lap-meta"},h("tbody",null,
     h("tr",null,h("td",null,"Periode Data"),h("td",null,": "+per)),
     h("tr",null,h("td",null,"Tanggal Cetak"),h("td",null,": "+now)),
-    h("tr",null,h("td",null,"Sumber Data"),h("td",null,": Logsheet Padam UP2D Suluttenggo (sinkronisasi Google Sheets)")),
+    h("tr",null,h("td",null,"Sumber Data"),h("td",null,": Logsheet DCC Scada UP2D Suluttenggo")),
     isT?h("tr",null,h("td",null,"Filter Diterapkan"),h("td",null,": Dibandingkan menurut filter Periode Awal dan Periode Akhir (lihat Bab 1)")):h("tr",null,h("td",null,"Filter Diterapkan"),h("td",null,": "+(fl.filter(r=>!/^Semua|^-$|^Seluruh/.test(r[1])).map(r=>r[0]+" "+r[1]).join("; ")||"Tanpa filter (semua data)"))))),
    !isT&&h("p",{className:"lap-note",style:{marginTop:"-4px"}},"Jumlah kejadian pada laporan ini: "+lapN(ctx.entries.length)+" dari "+lapN(ctx.all.length)+" total data."),
    body,
