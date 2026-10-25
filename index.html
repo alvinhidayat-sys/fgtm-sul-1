@@ -912,6 +912,67 @@ function trPath(p,sm,y0,y1){if(!p.length)return"";let f=v=>v.toFixed(1);if(p.len
 function trFmt(m,v){if(v==null)return"-";if(m==="recovery"){if(v<=0)return"0 mnt";return v<60?v.toFixed(0)+" mnt":(v/60).toFixed(1).replace(".",",")+" jam"}return Math.round(v).toLocaleString("id-ID")}
 function trChg(a,b){let d=b-a;return{d:d,p:a===0?b===0?0:null:d/a*100}}
 function trLbl(f){let t=(f.bulan!==TR_ALL?f.bulan:"Semua Bulan")+(f.tahun!==TR_ALL?" "+f.tahun:""),s=[];f.dcc!==TR_ALL&&s.push(f.dcc);f.up3!==TR_ALL&&s.push("UP3 "+f.up3);ulpOn(f.ulp)&&s.push("ULP "+ulpTxt(f.ulp));return t+" \u00B7 "+(s.length?s.join(" / "):"Semua Unit")}
+/* ===== KESIMPULAN ANALISIS TREN (otomatis dari dua periode) ===== */
+function trTop(l,key){let m={};l.forEach(e=>{if(e.tipe!=="Trip")return;let k=e[key];if(!k||k==="-")return;m[k]=(m[k]||0)+1});let b=null;Object.entries(m).forEach(([k,v])=>{(!b||v>b[1])&&(b=[k,v])});return b}
+function trPct(p){return p==null?"dari nol":(p>0?"+":"")+p.toFixed(1).replace(".",",")+"%"}
+function trKesimpulan(S,LA,LB,stA,stB,gran,N){
+ let ALL=TR_ALL,lA=trLbl(S.A),lB=trLbl(S.B),items=[],n=x=>Math.round(x).toLocaleString("id-ID");
+ if(!LA.length&&!LB.length)return{items:[{h:"Data",t:"Tidak ada data padam pada kedua periode yang dipilih, sehingga tren belum dapat dianalisis. Ubah filter periode atau unit."}],tone:"tr-flat",verdict:"Belum ada data"};
+ let wd=c=>c.d===0?"tetap":(c.p!=null&&Math.abs(c.p)<5)?"stabil":c.d>0?"naik":"turun",
+ desc=(lb,a,b,m)=>{let c=trChg(a,b),w=wd(c);return w==="tetap"?lb+" tetap di "+trFmt(m,b):w==="stabil"?(trFmt(m,a)===trFmt(m,b)?lb+" relatif stabil di sekitar "+trFmt(m,b)+" ("+trPct(c.p)+")":lb+" relatif stabil ("+trFmt(m,a)+" menjadi "+trFmt(m,b)+", "+trPct(c.p)+")"):lb+" "+w+" dari "+trFmt(m,a)+" menjadi "+trFmt(m,b)+" ("+(c.d>0?"+":"-")+trFmt(m,Math.abs(c.d))+(c.p==null?"":", "+trPct(c.p))+")"},
+ cT=trChg(stA.total,stB.total),cTr=trChg(stA.trip,stB.trip),cT5=trChg(stA.trip5,stB.trip5),cR=trChg(stA.recovery,stB.recovery),
+ ind=[cT,cTr,cT5,cR],worse=ind.filter(c=>wd(c)==="naik").length,better=ind.filter(c=>wd(c)==="turun").length,steady=ind.length-worse-better,
+ tone,verdict;
+ if(worse>better){tone="tr-up";verdict="Cenderung memburuk"}else if(better>worse){tone="tr-down";verdict="Cenderung membaik"}else if(worse===0){tone="tr-flat";verdict="Relatif stabil"}else{tone="tr-warn";verdict="Campuran"}
+ /* 1. penilaian umum */
+ items.push({h:"Penilaian umum",t:"Membandingkan Periode Awal ("+lA+") dengan Periode Akhir ("+lB+"). Dari 4 indikator utama (total padam, padam trip, padam trip >5 menit, recovery JTM), "+worse+" memburuk, "+better+" membaik, dan "+steady+" relatif stabil/tetap, sehingga kinerja "+verdict.toLowerCase()+"."});
+ /* peringatan kesetaraan periode */
+ let un=f=>[f.dcc,f.up3,JSON.stringify(f.ulp)].join("|"),warn=[];
+ if(JSON.stringify(S.A)===JSON.stringify(S.B))warn.push("kedua periode memakai filter yang sama sehingga hasilnya identik");
+ else{if(un(S.A)!==un(S.B))warn.push("unit/wilayah kedua periode berbeda");if((S.A.bulan===ALL)!==(S.B.bulan===ALL))warn.push("rentang waktu berbeda (salah satu periode mencakup semua bulan)")}
+ if(warn.length)items.push({h:"Perhatian",t:"Perbandingan kurang setara karena "+warn.join(" dan ")+". Interpretasikan selisih dengan hati-hati."});
+ /* 2. volume padam */
+ let sh=(a,b)=>b?lapD(a/b*100,1)+"%":"0%";
+ items.push({h:"Total padam",t:desc("Total padam",stA.total,stB.total,"n")+". Padam trip menyumbang "+sh(stB.trip,stB.total)+" dari total pada Periode Akhir ("+sh(stA.trip,stA.total)+" pada Periode Awal)."});
+ items.push({h:"Padam trip",t:desc("Padam trip",stA.trip,stB.trip,"n")+"; "+desc("padam trip >5 menit (dasar perhitungan FGTM)",stA.trip5,stB.trip5,"n")+"."});
+ items.push({h:"Padam dilepas",t:desc("Padam dilepas (pekerjaan/pemeliharaan terencana)",stA.dilepas,stB.dilepas,"n")+"."});
+ let wr=wd(cR);
+ items.push({h:"Recovery JTM",t:desc("Rata-rata recovery",stA.recovery,stB.recovery,"recovery")+(wr==="naik"?", artinya pemulihan pasokan lebih lama (memburuk)":wr==="turun"?", artinya pemulihan pasokan lebih cepat (membaik)":"")+"."});
+ /* 3. zona */
+ let zk=[...new Set([...Object.keys(stA.zona),...Object.keys(stB.zona)])].filter(k=>k!=="-"),da=trDom(stA.zona),db=trDom(stB.zona);
+ if(da||db){
+  let zt=(da?"Zona dominan padam trip pada Periode Awal adalah Zona "+da[0]+" ("+n(da[1])+" kali)":"Periode Awal belum memiliki padam trip berzona")+(db?(da?", sedangkan pada Periode Akhir ":"; pada Periode Akhir ")+(da&&db&&da[0]===db[0]?"tetap Zona "+db[0]:"Zona "+db[0])+" ("+n(db[1])+" kali)":"; Periode Akhir belum memiliki padam trip berzona")+(da&&db&&da[0]!==db[0]?" sehingga zona dominan bergeser":"")+".";
+  let df=zk.map(k=>[k,(stB.zona[k]||0)-(stA.zona[k]||0)]),up=df.filter(x=>x[1]>0).sort((p,q)=>q[1]-p[1])[0],dn=df.filter(x=>x[1]<0).sort((p,q)=>p[1]-q[1])[0];
+  if(up)zt+=" Kenaikan terbesar terjadi pada Zona "+up[0]+" (+"+n(up[1])+" kali)"+(dn?", penurunan terbesar pada Zona "+dn[0]+" ("+n(dn[1])+" kali)":"")+".";
+  else if(dn)zt+=" Tidak ada zona yang naik; penurunan terbesar pada Zona "+dn[0]+" ("+n(dn[1])+" kali).";
+  items.push({h:"Zona padam trip",t:zt})
+ }
+ /* 4. pola waktu dalam periode akhir */
+ let sr=trSeries(LB,S.B,gran,N,"trip"),pts=[];sr.forEach((v,i)=>{v!=null&&pts.push([i,v])});
+ if(pts.length>=1){
+  let pk=pts.reduce((b,x)=>x[1]>b[1]?x:b,pts[0]),nm=i=>gran==="hari"?"tanggal "+(i+1):TR_BLN[i],tx="";
+  if(pk[1]>=2)tx="Puncak padam trip pada Periode Akhir terjadi pada "+nm(pk[0])+" ("+n(pk[1])+" kali)";else if(pk[1]===1)tx="Padam trip pada Periode Akhir tersebar tanpa lonjakan (maksimal 1 kali per "+(gran==="hari"?"hari":"bulan")+")";
+  let tot=pts.reduce((s,x)=>s+x[1],0);
+  if(pts.length>=4&&tot>=4){let mid=Math.floor(pts.length/2),f1=pts.slice(0,mid).reduce((s,x)=>s+x[1],0),f2=pts.slice(pts.length-mid).reduce((s,x)=>s+x[1],0);
+   tx+=(tx?". ":"")+"Di dalam periode, kejadian "+(f2>f1*1.2?"cenderung meningkat menjelang akhir periode ("+n(f1)+" kali di paruh awal vs "+n(f2)+" kali di paruh akhir)":f2<f1*0.8?"cenderung menurun menjelang akhir periode ("+n(f1)+" kali di paruh awal vs "+n(f2)+" kali di paruh akhir)":"tersebar relatif merata")}
+  tx&&items.push({h:"Pola waktu",t:tx+"."})
+ }
+ /* 5. titik rawan */
+ let fB=trTop(LB,"feeder"),fA=trTop(LA,"feeder"),uB=trTop(LB,"ulp"),uA=trTop(LA,"ulp");
+ if(fB||uB){
+  let t="";
+  if(fB)t+="Penyulang dengan padam trip terbanyak pada Periode Akhir: "+fB[0]+" ("+n(fB[1])+" kali)"+(fA?(fA[0]===fB[0]?", sama dengan Periode Awal ("+n(fA[1])+" kali)":"; pada Periode Awal: "+fA[0]+" ("+n(fA[1])+" kali)"):"")+".";
+  if(uB)t+=(t?" ":"")+"ULP dengan padam trip terbanyak: "+uB[0]+" ("+n(uB[1])+" kali)"+(uA?(uA[0]===uB[0]?", sama dengan Periode Awal.":"; pada Periode Awal: "+uA[0]+" ("+n(uA[1])+" kali)."):".");
+  items.push({h:"Titik rawan",t:t})
+ }
+ /* 6. tindak lanjut */
+ let ac=[];
+ if(wd(cTr)==="naik"||wd(cT5)==="naik")ac.push("prioritaskan evaluasi proteksi dan inspeksi jaringan"+(db?" pada Zona "+db[0]:"")+(fB?" serta penyulang "+fB[0]:"")+" untuk menekan padam trip");
+ if(wr==="naik")ac.push("tinjau kecepatan pelacakan dan penormalan gangguan agar recovery JTM kembali singkat");
+ if(!ac.length)ac.push(verdict==="Cenderung membaik"?"pertahankan pola pemeliharaan dan penanganan gangguan yang berjalan saat ini":"pantau terus indikator pada periode berikutnya agar tren dapat terkonfirmasi");
+ items.push({h:"Tindak lanjut",t:ac.join("; ").replace(/^./,x=>x.toUpperCase())+"."});
+ return{items:items,tone:tone,verdict:verdict}
+}
 function TrenView({entries:a}){
 let h=Ea.createElement,[S,setS]=Ea.useState(()=>trDefaults(a)),[auto,setAuto]=Ea.useState(!0),[metric,setMetric]=Ea.useState("total"),[smooth,setSmooth]=Ea.useState(!0),[cum,setCum]=Ea.useState(!1),[hv,setHv]=Ea.useState(null),
 key=a.length+"|"+(a.length?a[a.length-1].bulan:"");window.__trenS=S;
@@ -952,7 +1013,7 @@ dz=trDom(stA.zona),dzb=trDom(stB.zona),
 KP=[{id:"total",lb:"Total Padam",a:stA.total,b:stB.total},{id:"trip",lb:"Padam Trip",a:stA.trip,b:stB.trip},{id:"dilepas",lb:"Padam Dilepas",a:stA.dilepas,b:stB.dilepas},{id:"recovery",lb:"Recovery JTM",a:stA.recovery,b:stB.recovery},{id:"trip5",lb:"Padam Trip >5 Menit",a:stA.trip5,b:stB.trip5}],
 chip=(c,m)=>{let cls=c.d===0?"tr-flat":c.d>0?"tr-up":"tr-down",ar=c.d===0?"\u25AC":c.d>0?"\u25B2":"\u25BC",txt=m==="recovery"?(c.d>0?"+":"")+trFmt(m,Math.abs(c.d)).replace(/^/,c.d<0?"-":""):(c.d>0?"+":"")+Math.round(c.d).toLocaleString("id-ID");return h("span",{className:"tr-chip "+cls},ar+" "+txt+(c.p==null?" (baru)":" ("+(c.p>0?"+":"")+c.p.toFixed(1).replace(".",",")+"%)"))},
 mname={total:"Total Padam",trip:"Padam Trip",dilepas:"Padam Dilepas",recovery:"Recovery JTM (rata-rata menit pulih)",trip5:"Padam Trip >5 Menit",zona:"Zona Padam Trip"},
-hasData=LA.length>0||LB.length>0,same=JSON.stringify(S.A)===JSON.stringify(S.B);
+hasData=LA.length>0||LB.length>0,same=JSON.stringify(S.A)===JSON.stringify(S.B),ks=trKesimpulan(S,LA,LB,stA,stB,gran,N);
 let tipX=hv==null?0:Math.max(14,Math.min(86,xp(hv)/W*100)),
 xName=hv==null?"":isZ?xl[hv]:gran==="hari"?"Tanggal "+(hv+1):TR_BLN[hv];
 return h("div",{className:"space-y-6 animate-in fade-in-50 duration-200"},
@@ -1022,7 +1083,11 @@ return h("div",{className:"space-y-6 animate-in fade-in-50 duration-200"},
      h("td",{className:"pr-3"},(c.d>0?"+":c.d<0?"-":"")+trFmt(m,Math.abs(c.d))),
      h("td",{className:"pr-3"},c.p==null?"baru":(c.p>0?"+":"")+c.p.toFixed(1).replace(".",",")+"%"),
      h("td",null,h("span",{className:"tr-chip "+(c.d===0?"tr-flat":c.d>0?"tr-up":"tr-down")},c.d===0?"Tetap":c.d>0?"Naik":"Turun")))})))),
-  h("p",{className:"text-[11px] text-slate-500 mt-3"},"Catatan: untuk semua indikator, kenaikan berarti kondisi memburuk (lebih banyak padam atau pemulihan lebih lama) dan penurunan berarti membaik. Recovery JTM dihitung dari rata-rata durasi padam yang tercatat.")))}
+  h("p",{className:"text-[11px] text-slate-500 mt-3"},"Catatan: untuk semua indikator, kenaikan berarti kondisi memburuk (lebih banyak padam atau pemulihan lebih lama) dan penurunan berarti membaik. Recovery JTM dihitung dari rata-rata durasi padam yang tercatat.")),
+ h("div",{className:cardCls,id:"tren-kesimpulan"},
+  h("div",{className:"flex flex-wrap items-center justify-between gap-2 mb-3"},h("h3",{className:"text-sm sm:text-base font-bold text-slate-900"},"Kesimpulan"),h("span",{className:"tr-chip "+ks.tone},ks.verdict)),
+  h("ul",{className:"space-y-2.5"},ks.items.map((it,i)=>h("li",{key:i,className:"text-xs sm:text-sm text-slate-700 leading-relaxed"},h("b",{className:"text-slate-900"},it.h+": "),it.t))),
+  h("p",{className:"text-[11px] text-slate-500 mt-3"},"Kesimpulan dibuat otomatis dari data kedua periode yang dipilih dan ikut berubah saat filter diubah. Perubahan di bawah 5% dianggap relatif stabil.")))}
 
 /* ===== util umum laporan & grafik ===== */
 var LAP_BLN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"],LAP_SH=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"],
