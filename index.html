@@ -139,7 +139,8 @@ html[data-theme="dark"] .tr-ptA,html[data-theme="dark"] .tr-ptB{stroke:#12162a}
 @media (prefers-reduced-motion:reduce){.tr-line,.tr-fade{animation:none;stroke-dashoffset:0;opacity:1}}
 
 /* ===== LAPORAN RESMI (PDF) ===== */
-.lap-overlay{position:fixed;inset:0;z-index:70;background:rgba(15,10,30,.84);overflow:auto;padding:12px}
+@media print{html,body{overflow:visible !important;height:auto !important;padding-right:0 !important}}
+.lap-overlay{position:fixed;inset:0;z-index:70;background:rgba(15,10,30,.84);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px}
 .lap-bar{position:sticky;top:0;z-index:3;max-width:210mm;margin:0 auto 10px;display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.6rem .9rem;background:#fff;border-radius:.8rem;color:#2a1735;box-shadow:0 8px 20px -10px #000;flex-wrap:wrap}
 .lap-bar-t{font-size:.8rem;font-weight:700}.lap-bar-b{display:flex;gap:.5rem}
 .lap-btn{padding:.45rem .9rem;font-size:.75rem;font-weight:700;border-radius:.6rem;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer}
@@ -1371,7 +1372,7 @@ function lapSys(ctx){let h=Ea.createElement,e=ctx.entries,trip=e.filter(x=>x.tip
  h(LSec,{key:3,n:3,t:"10 PMT / Peralatan Terbanyak Padam Trip"},tbl(top(x=>x.pmt),"PMT / Peralatan")),
  h(LSec,{key:4,n:4,t:"Penyebab Dominan pada Padam Trip"},h(LTbl,{cols:["Penyebab (sub-kelompok)","Jumlah Trip","Persentase"],rows:lapRows(trip,x=>x.subKelompok||"Lainnya").slice(0,10).map(r=>[r.k,lapN(r.all),lapPct(r.all,trip.length)])}))]}
 function LapModal({tab,ctx,onClose}){let h=Ea.createElement,[,force]=Ea.useState(0);
- Ea.useEffect(()=>{document.body.classList.add("lap-printing");return()=>document.body.classList.remove("lap-printing")},[]);
+ Ea.useEffect(()=>{let d=document.documentElement,b=document.body,pd=d.style.overflow,pb=b.style.overflow,pp=b.style.paddingRight,sw=window.innerWidth-d.clientWidth;b.classList.add("lap-printing");d.style.overflow="hidden";b.style.overflow="hidden";sw>0&&(b.style.paddingRight=sw+"px");return()=>{b.classList.remove("lap-printing");d.style.overflow=pd;b.style.overflow=pb;b.style.paddingRight=pp}},[]);
  let ttl=LAP_TTL[tab]||"Laporan",isT=tab==="tren",fl=isT?null:lapFilterRows(ctx.filters),now=new Date().toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"}),
  body=tab==="tren"?lapTren(ctx):tab==="evaluasi"?lapEval(ctx):tab==="penormalan"?lapNorm(ctx):tab==="kondisi-sistem"?lapSys(ctx):lapDash(ctx),
  S=ctx.tren||{A:trBlank(),B:trBlank()},per=isT?lapPeriod(ctx.all.filter(x=>trMatch(x,S.A)||trMatch(x,S.B))):lapPeriod(ctx.entries);
@@ -1388,7 +1389,7 @@ function LapModal({tab,ctx,onClose}){let h=Ea.createElement,[,force]=Ea.useState
     isT?h("tr",null,h("td",null,"Filter Diterapkan"),h("td",null,": Dibandingkan menurut filter Periode Awal dan Periode Akhir (lihat Bab 1)")):h("tr",null,h("td",null,"Filter Diterapkan"),h("td",null,": "+(fl.filter(r=>!/^Semua|^-$|^Seluruh/.test(r[1])).map(r=>r[0]+" "+r[1]).join("; ")||"Tanpa filter (semua data)"))))),
    !isT&&h("p",{className:"lap-note",style:{marginTop:"-4px"}},"Jumlah kejadian pada laporan ini: "+lapN(ctx.entries.length)+" dari "+lapN(ctx.all.length)+" total data."),
    body,
-   h("div",{className:"lap-foot"},"Dokumen ini dihasilkan otomatis oleh Portal Monitoring Sistem Distribusi 20kV UID Suluttenggo berdasarkan data dan filter yang diterapkan pada saat pencetakan.")))}
+   h("div",{className:"lap-foot"},"Portal Monitoring Sistem Distribusi 20kV \u2022 PLN Nusa Daya UL Manado, Tahuna & Kotamobagu")))}
 
 /* ===================== REKAP FGTM : LOGIKA ===================== */
 var FG_ALL="SEMUA",FG_LS="fgtm_target_v1";
