@@ -2370,6 +2370,23 @@ function fgXlsxDetail(M,f){
  })
 }
 
+var FG_RULE_M=["Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUSI_GN dari database sumber utama, sesuai periode (tahun / bulan) yang dipilih.",
+ "Hanya padam trip dengan durasi lebih dari 5 menit.",
+ "Tabel A = gangguan Zona 1 (kolom PMT GI/ PLTD/ GH). Tabel B = gangguan Zona 2 (kolom REC/ LBS). Tabel C = gangguan Zona 3 dan seterusnya (kolom PMT dan Zona). Ringkasan total = Tabel A + B + C.",
+ "Gangguan UFR atau yang berasal dari pembangkit tidak dihitung.",
+ "Gangguan binatang / hewan dan gangguan pihak ke-3 tidak dihitung (dipisahkan pada kartu rekap).",
+ "Data ganda tidak dihitung: baris dengan penyulang, tanggal (format 6-Okt-26 dan 6-Oct-26 dianggap sama), dan jam trip yang sama hanya dihitung 1x, yaitu baris paling atas pada sumber data. Baris tanpa jam yang memiliki PMT, tanggal, dan durasi sama dengan baris berjam juga dianggap ganda.",
+ "Trip beruntun dihitung 1 gangguan: bila jam masuk suatu baris sama dengan jam trip baris berikutnya (UP3, ULP, penyulang, dan zona sama), dianggap gagal remote lalu trip kembali. Durasi dihitung dari jam trip baris pertama sampai jam masuk baris terakhir, dan durasi > 5 menit diuji setelah penggabungan.",
+ "Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini."];
+var FG_RULE_K=["Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUSI_GN dari database sumber utama, sesuai periode (tahun / bulan) yang dipilih.",
+ "Hanya padam trip dengan durasi di atas 2 menit.",
+ "Gangguan UFR atau yang berasal dari pembangkit tidak dihitung.",
+ "Gangguan pihak ke-3 tidak dihitung.",
+ "Bencana alam tidak masuk hitungan.",
+ "Data ganda tidak dihitung: baris dengan penyulang, tanggal (format 6-Okt-26 dan 6-Oct-26 dianggap sama), dan jam trip yang sama hanya dihitung 1x, yaitu baris paling atas pada sumber data. Baris tanpa jam yang memiliki PMT, tanggal, dan durasi sama dengan baris berjam juga dianggap ganda.",
+ "Trip beruntun dihitung 1 gangguan: bila jam masuk suatu baris sama dengan jam trip baris berikutnya (UP3, ULP, penyulang, dan zona sama), dianggap gagal remote lalu trip kembali. Durasi dihitung dari jam trip baris pertama sampai jam masuk baris terakhir, dan durasi > 2 menit diuji setelah penggabungan.",
+ "Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini."];
+var FG_RULE_N="Khusus UP3 Kotamobagu aturannya berbeda: durasi di atas 2 menit, gangguan binatang tetap dihitung, dan bencana alam tidak dihitung. Pilih UP3 Kotamobagu untuk melihat aturan lengkapnya.";
 /* --- Download Log Sheet: baris asli Logsheet UP2D (semua kelompok & tipe) sesuai filter Tahun/Bulan/DCC/UP3/ULP --- */
 var FG_LOGCOL=[[0,"NO"],[1,"UP3"],[2,"ULP"],[3,"TANGGAL"],[4,"PENYULANG"],[5,"PMT"],[6,"ZONA"],[7,"REMOTE / MANUAL"],[8,"JAM PADAM"],[9,"JAM TRIP"],[10,"JAM DILEPAS"],[12,"JAM MASUK"],[14,"LAMA PADAM"],[15,"KETERANGAN"],[16,"INDIKASI"],[17,"BEBAN HILANG (A)"],[22,"KELOMPOK PADAM_EVENT"],[23,"SUB KELOMPOK"],[24,"CUACA"],[25,"DISPATCHER"],[28,"JUSTIFIKASI TRIP"],[29,"RC1"],[31,"ENS (kWh)"],[33,"DURASI (MENIT)"]];
 function fgLogRows(a,f){return a.filter(function(e){return e&&fgMatch(e,f)})}
@@ -2567,27 +2584,7 @@ var empty=M.groups.length===0,
    chip("Data ganda",R.dups.length,R.dups.map(function(d){return{r:d,k:"dup"}}),"fg-c-d"),
    chip("Trip beruntun digabung",R.folded.length,R.folded.map(function(r){return{r:r,k:"merge"}}),"fg-c-d")),
   h("details",{className:"fg-rule"},h("summary",null,"Aturan perhitungan"),
-   h("div",{className:"fg-rule-h"},"Aturan UP3 Manado (berlaku saat ini; UP3 lain selain Kotamobagu sementara mengikuti aturan ini)"),
-   h("ul",null,
-    
-    h("li",null,"Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUSI_GN dari database sumber utama, sesuai periode (tahun / bulan) yang dipilih."),
-    h("li",null,"Hanya padam trip dengan durasi lebih dari 5 menit."),
-    h("li",null,"Tabel A = gangguan Zona 1 (kolom PMT GI/ PLTD/ GH). Tabel B = gangguan Zona 2 (kolom REC/ LBS). Tabel C = gangguan Zona 3 dan seterusnya (kolom PMT dan Zona). Ringkasan total = Tabel A + B + C."),
-    h("li",null,"Gangguan UFR atau yang berasal dari pembangkit tidak dihitung."),
-    h("li",null,"Gangguan binatang / hewan dan gangguan pihak ke-3 tidak dihitung (dipisahkan pada kartu rekap)."),
-    h("li",null,"Data ganda tidak dihitung: baris dengan penyulang, tanggal (format 6-Okt-26 dan 6-Oct-26 dianggap sama), dan jam trip yang sama hanya dihitung 1x, yaitu baris paling atas pada sumber data. Baris tanpa jam yang memiliki PMT, tanggal, dan durasi sama dengan baris berjam juga dianggap ganda."),
-    h("li",null,"Trip beruntun dihitung 1 gangguan: bila jam masuk suatu baris sama dengan jam trip baris berikutnya (UP3, ULP, penyulang, dan zona sama), dianggap gagal remote lalu trip kembali. Durasi dihitung dari jam trip baris pertama sampai jam masuk baris terakhir, dan durasi > 5 menit diuji setelah penggabungan."),
-    h("li",null,"Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini.")),
-   h("div",{className:"fg-rule-h"},"Aturan UP3 Kotamobagu (terpisah)"),
-   h("ul",null,
-    h("li",null,"Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUSI_GN dari database sumber utama, sesuai periode (tahun / bulan) yang dipilih."),
-    h("li",null,"Hanya padam trip dengan durasi di atas 2 menit."),
-    h("li",null,"Gangguan UFR atau yang berasal dari pembangkit tidak dihitung."),
-    h("li",null,"Gangguan pihak ke-3 tidak dihitung."),
-    h("li",null,"Bencana alam tidak masuk hitungan."),
-    h("li",null,"Data ganda tidak dihitung: baris dengan penyulang, tanggal (format 6-Okt-26 dan 6-Oct-26 dianggap sama), dan jam trip yang sama hanya dihitung 1x, yaitu baris paling atas pada sumber data. Baris tanpa jam yang memiliki PMT, tanggal, dan durasi sama dengan baris berjam juga dianggap ganda."),
-    h("li",null,"Trip beruntun dihitung 1 gangguan: bila jam masuk suatu baris sama dengan jam trip baris berikutnya (UP3, ULP, penyulang, dan zona sama), dianggap gagal remote lalu trip kembali. Durasi dihitung dari jam trip baris pertama sampai jam masuk baris terakhir, dan durasi > 2 menit diuji setelah penggabungan."),
-    h("li",null,"Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini."))),
+   h("ul",null,(/kotamobagu/i.test(f.up3)?FG_RULE_K:FG_RULE_M.concat(f.up3===FG_ALL?[FG_RULE_N]:[])).map(function(t,i){return h("li",{key:i},t)}))),
   (empty&&!ldv)?h("div",{className:"fg-none"},f.ulp==="NONE"?"Tidak ada ULP yang dipilih. Centang minimal satu ULP untuk menampilkan data.":"Tidak ada padam trip DISTRIBUSI_GN "+fgDurTxt(f)+" untuk filter ini ("+fgPeriod(f)+" \u00B7 "+unitTxt+")."):
   h("div",{className:"space-y-5 mt-4"},
    FG_SECS.map(function(sc){return h("div",{key:sc.k},h("div",{className:"fg-sec"},sc.t+" ("+sc.d+")"),h("div",{className:"fg-wrap"},mkTable(sc)))}),
