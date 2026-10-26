@@ -1533,68 +1533,100 @@ function LapModal({tab,ctx,onClose}){let h=Ea.createElement,[,force]=Ea.useState
    h("div",{className:"lap-foot"},"Portal Monitoring Sistem Distribusi 20kV \u2022 PLN Nusa Daya UL Manado, Tahuna & Kotamobagu")))}
 
 /* ===================== PEMAPARAN (PPT) : TEMPLATE & GENERATOR ===================== */
-var PPT_C={navy:"0B2A5B",blue:"1F5FA8",cyan:"28A8E0",yellow:"F7E82E",red:"E62A2B",amber:"F59E0B",green:"16A34A",ink:"1E293B",mute:"64748B",line:"D9E2EF",bg:"F4F7FB",white:"FFFFFF",soft:"EAF1FB",purple:"6D3D8C",orange:"E0762A",teal:"0E9F8E",zebra:"F1F5FB",pale:"CBD5E1"};
-var PPT_FONT="Calibri",PPT_W=13.333,PPT_H=7.5,PPT_MX=0.55,PPT_CW=12.233;
+/* Layout mengikuti "tamplate svg" (kit UI 4:3): bilah 3 warna atas, judul oranye, nomor halaman, kartu abu, grafik oranye-biru-abu. Materi diringkas: poin terpenting tiap BAB. */
+var PPT_C={or:"F47D29",or2:"F15A29",bl:"2C71A2",gr:"BCBEC0",gr2:"E6E7E8",lg:"F1F2F2",lb:"D1D3D4",mg:"808285",dg:"6D6E71",tx:"58595B",wh:"FFFFFF",red:"E62A2B",grn:"16A34A",ylw:"F7E82E",amb:"F99D27",sky:"0580AD"};
+var PPT_FONT="Calibri",PPT_HF="Century Gothic",PPT_W=10,PPT_H=7.5,PPT_MX=0.6,PPT_CW=8.8,PPT_CY=1.95,PPT_CB=6.65;
 var PPT_SEC=[
- {n:1,t:"Executive Summary",d:"Ringkasan kondisi operasional dari Dashboard Utama"},
- {n:2,t:"Analisis Tren",d:"Perbandingan dengan bulan sebelumnya (MoM) dan tahun sebelumnya (YoY)"},
- {n:3,t:"Evaluasi dan Tindak Lanjut Trip",d:"Temuan utama, rekomendasi manajerial, dan langkah tindakan lapangan"},
- {n:4,t:"Penormalan (Remote/Lokal)",d:"Perbandingan penormalan Remote dan Lokal serta prioritas remotisasi"},
- {n:5,t:"Kondisi Sistem dan Aset",d:"Penyulang, PMT/peralatan, penyebab dominan, dan pola waktu gangguan"},
- {n:6,t:"Penutup",d:"Kesimpulan dan tindak lanjut prioritas untuk periode selanjutnya"}];
+ {n:1,t:"Executive Summary",d:"Ringkasan kondisi operasional dan sebaran padam"},
+ {n:2,t:"Gambaran Singkat Realisasi FGTM",d:"Realisasi frekuensi gangguan tegangan menengah"},
+ {n:3,t:"Analisis Tren",d:"Perbandingan dengan bulan sebelumnya (MoM) dan tahun sebelumnya (YoY)"},
+ {n:4,t:"Evaluasi dan Tindak Lanjut Trip",d:"Temuan utama, rekomendasi, dan tindakan lapangan"},
+ {n:5,t:"Penormalan (Remote/Lokal)",d:"Perbandingan penormalan Remote dan Lokal"},
+ {n:6,t:"Kondisi Sistem dan Aset",d:"Penyulang, PMT, penyebab dominan, dan pola waktu"},
+ {n:7,t:"Penutup",d:"Kesimpulan dan tindak lanjut prioritas"}];
+var PPT_LOGO_SVG="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"495.83 77.47 83.5 30.6\" width=\"1670\" height=\"612\"><style>.c2{fill:#fff}.c25{fill:#f7e82e}.c26,.c28{fill:#28a8e0}.c26,.c27{fill-rule:evenodd}.c27{fill:#e62a2b}.c29{fill:#0d5b71}.c30{font-size:5.04px;font-family:Arial,Helvetica,sans-serif;font-weight:500}</style><rect class=\"c25\" x=\"495.83\" y=\"77.48\" width=\"23.74\" height=\"23.74\"/><path class=\"c26\" d=\"M476.32,119a5.2,5.2,0,0,1,2.24-.63c1.37,0,1.68.63,2.35.63s1.36-.63,2.6-.63,1.72.63,2.72.63.8-.63,2.21-.63a3,3,0,0,1,2,.63v1.6a3.09,3.09,0,0,0-1.93-.68c-1.16,0-1.13.68-2.32.68s-1.28-.68-2.67-.68-1.6.68-2.67.68-1.28-.71-2.4-.7a4.64,4.64,0,0,0-2.17.7Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c26\" d=\"M476.32,122.72a5.06,5.06,0,0,1,2.24-.63c1.37,0,1.68.63,2.35.63s1.36-.63,2.6-.63,1.72.63,2.72.63.8-.63,2.21-.63a3,3,0,0,1,2,.63v1.6a3.16,3.16,0,0,0-1.93-.69c-1.17,0-1.14.69-2.32.69s-1.28-.69-2.68-.69-1.6.69-2.67.69-1.27-.71-2.4-.7a4.6,4.6,0,0,0-2.16.7Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c26\" d=\"M476.32,126.45a5.06,5.06,0,0,1,2.24-.63c1.37,0,1.68.63,2.35.63s1.36-.63,2.6-.63,1.72.63,2.72.63.8-.63,2.21-.63a3,3,0,0,1,2,.63v1.6a3.22,3.22,0,0,0-1.93-.69c-1.17,0-1.14.69-2.32.69s-1.28-.69-2.68-.69-1.6.69-2.67.69-1.27-.71-2.4-.7a4.6,4.6,0,0,0-2.16.7Z\" transform=\"translate(24.3 -32.9)\"/><polygon class=\"c27\" points=\"507.03 98.73 508.82 89.7 502.44 92.51 506.17 80.65 509.21 80.65 505.67 88.87 511.98 86.32 507.03 98.73\"/><path class=\"c28\" d=\"M509.49,114.18a3.81,3.81,0,0,1-1.27,3.08,5.45,5.45,0,0,1-3.62,1.1h-1v4h-3.49V110.38h4.46a5.71,5.71,0,0,1,3.66,1A3.39,3.39,0,0,1,509.49,114.18Zm-5.87,1.54h.64a1.76,1.76,0,0,0,1.24-.41,1.35,1.35,0,0,0,.46-1.12c0-.81-.48-1.21-1.45-1.21h-.9Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c28\" d=\"M513.89,122.31V110.38h3.48v9.33h5v2.6Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c28\" d=\"M539,122.31h-4.56l-4.71-8.4h-.08c.11,1.32.16,2.33.16,3v5.37h-3.08V110.38h4.54l4.69,8.29h0c-.08-1.2-.12-2.17-.12-2.89v-5.4H539Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M506.42,132.48h-1.08l-4.44-6.84h0c.06.81.09,1.55.09,2.21v4.63h-.87v-8.14h1.06l4.44,6.8h.05c0-.1,0-.43-.06-1s0-.93,0-1.16v-4.66h.88Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M509.39,126.37v4a1.58,1.58,0,0,0,.34,1.11,1.38,1.38,0,0,0,1.06.37,1.75,1.75,0,0,0,1.4-.52,2.6,2.6,0,0,0,.44-1.7v-3.22h.92v6.11h-.76l-.14-.82h0a1.86,1.86,0,0,1-.78.69,2.56,2.56,0,0,1-1.15.24,2.3,2.3,0,0,1-1.67-.53,2.24,2.24,0,0,1-.55-1.7v-4Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M519.45,130.81a1.51,1.51,0,0,1-.64,1.31,3,3,0,0,1-1.78.46,3.87,3.87,0,0,1-1.89-.38v-.86a4.63,4.63,0,0,0,.94.35,3.62,3.62,0,0,0,1,.13,2.15,2.15,0,0,0,1.11-.24.8.8,0,0,0,.08-1.32,4.85,4.85,0,0,0-1.21-.59,6.74,6.74,0,0,1-1.22-.56,1.52,1.52,0,0,1-.53-.54,1.31,1.31,0,0,1-.18-.72,1.37,1.37,0,0,1,.61-1.18,2.87,2.87,0,0,1,1.66-.43,4.9,4.9,0,0,1,1.93.4l-.33.75a4.52,4.52,0,0,0-1.66-.38,1.89,1.89,0,0,0-1,.21.64.64,0,0,0-.34.56.7.7,0,0,0,.13.42,1.16,1.16,0,0,0,.4.33,10.07,10.07,0,0,0,1.07.45,4,4,0,0,1,1.46.8A1.39,1.39,0,0,1,519.45,130.81Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M524.7,132.48l-.18-.87h0a2.63,2.63,0,0,1-.91.78,3,3,0,0,1-1.14.2,2.05,2.05,0,0,1-1.42-.47,1.73,1.73,0,0,1-.52-1.34c0-1.23,1-1.88,3-1.94l1,0v-.36a1.49,1.49,0,0,0-.3-1.06,1.26,1.26,0,0,0-1-.34,3.93,3.93,0,0,0-1.73.47l-.28-.71a4.25,4.25,0,0,1,1-.39,4.3,4.3,0,0,1,1.07-.14,2.29,2.29,0,0,1,1.62.49,2,2,0,0,1,.53,1.55v4.17Zm-2.08-.65a1.87,1.87,0,0,0,1.35-.49,1.74,1.74,0,0,0,.49-1.32v-.55l-.93,0a3.43,3.43,0,0,0-1.58.34,1,1,0,0,0-.49,1,1,1,0,0,0,.3.76,1.27,1.27,0,0,0,.86.26Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M536.88,128.33a4.11,4.11,0,0,1-1.09,3.08,4.34,4.34,0,0,1-3.16,1.06h-2.25v-8.13h2.49a4,4,0,0,1,3,1A3.94,3.94,0,0,1,536.88,128.33Zm-1,0a3.25,3.25,0,0,0-.8-2.4,3.22,3.22,0,0,0-2.37-.8h-1.38v6.5h1.15a3.46,3.46,0,0,0,2.54-.83A3.33,3.33,0,0,0,535.89,128.35Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M542.31,132.48l-.18-.87h0a2.63,2.63,0,0,1-.91.78,2.9,2.9,0,0,1-1.13.2,2,2,0,0,1-1.42-.47,1.73,1.73,0,0,1-.52-1.34c0-1.23,1-1.88,3-1.94l1,0v-.36a1.59,1.59,0,0,0-.3-1.06,1.26,1.26,0,0,0-1-.34,3.86,3.86,0,0,0-1.73.47l-.28-.71a4.47,4.47,0,0,1,2.06-.53,2.34,2.34,0,0,1,1.62.49,2,2,0,0,1,.52,1.55v4.17Zm-2.09-.65a1.89,1.89,0,0,0,1.36-.49,1.74,1.74,0,0,0,.48-1.32v-.55l-.92,0a3.48,3.48,0,0,0-1.59.34,1,1,0,0,0-.48,1,1,1,0,0,0,.3.76,1.25,1.25,0,0,0,.85.26Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M543.93,126.37h1l1.34,3.48a13.18,13.18,0,0,1,.54,1.72h.05a9.4,9.4,0,0,1,.3-1c.15-.46.66-1.87,1.51-4.23h1L547,133.32a3.5,3.5,0,0,1-.91,1.45,1.86,1.86,0,0,1-1.28.43,3.84,3.84,0,0,1-.83-.09v-.73a3.08,3.08,0,0,0,.68.07,1.41,1.41,0,0,0,1.36-1.07l.34-.87Z\" transform=\"translate(24.3 -32.9)\"/><path class=\"c29\" d=\"M554.39,132.48l-.18-.87h-.05a2.54,2.54,0,0,1-.91.78,2.87,2.87,0,0,1-1.13.2,2,2,0,0,1-1.42-.48,1.65,1.65,0,0,1-.51-1.33c0-1.23,1-1.88,2.95-1.94l1,0v-.36a1.61,1.61,0,0,0-.32-1.06,1.29,1.29,0,0,0-1-.35,4.22,4.22,0,0,0-1.73.47l-.28-.7a4.31,4.31,0,0,1,2.07-.53,2.28,2.28,0,0,1,1.61.49,2,2,0,0,1,.53,1.55v4.17Zm-2.08-.65a1.88,1.88,0,0,0,1.35-.49,1.74,1.74,0,0,0,.49-1.32v-.55l-.93,0a3.48,3.48,0,0,0-1.59.34,1,1,0,0,0-.48,1,1,1,0,0,0,.3.76,1.26,1.26,0,0,0,.86.26Z\" transform=\"translate(24.3 -32.9)\"/><text class=\"c30\" transform=\"translate(495.83 107.05)\" textLength=\"83.3\" lengthAdjust=\"spacingAndGlyphs\">UL. Manado, Tahuna &amp; Kotamobagu</text></svg>";
+var PPT_PAT_SVG="<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"170.75 40.92 435.31 326.49\" width=\"1600\" height=\"1200\"><g opacity=\"0.2\"><path fill=\"#bdbec0\" transform=\"translate(24.3 -32.9)\" d=\"M58.23,552.46a1.12,1.12,0,0,0,.43.23h0a.93.93,0,0,0,.47,0h0L164.43,518l81.71,76.75,0,0a1,1,0,0,0,.41.22h.08l.21,0,.21,0h0l105.8-34.88,0,0a1.09,1.09,0,0,0,.41-.27,1.22,1.22,0,0,0,.22-.44s0,0,0-.05L377.1,448l105-34.63,0,0a1.21,1.21,0,0,0,.2-.09,1.1,1.1,0,0,0,.16-.15l.05-.05a1.11,1.11,0,0,0,.21-.42l0,0,23.64-112.06s0,0,0-.05a1.17,1.17,0,0,0,0-.49h0a1.07,1.07,0,0,0-.26-.42s0,0,0,0L424.45,222.8,448,111.35s0,0,0-.06a1,1,0,0,0,0-.49h0a1.07,1.07,0,0,0-.26-.42s0,0,0,0L365.5,33.17l0,0a.94.94,0,0,0-.43-.23h0a1,1,0,0,0-.48,0h-.05L258.71,67.83l0,0-.2.09a1.71,1.71,0,0,0-.2.18,1.14,1.14,0,0,0-.25.49h0L234.54,179.86l-105,34.63s0,0-.05,0a1.63,1.63,0,0,0-.19.09.91.91,0,0,0-.21.18,1.15,1.15,0,0,0-.24.48h0L105.29,326.73.06,361.43l0,0a1.09,1.09,0,0,0-.41.27,1.08,1.08,0,0,0-.22.44s0,0,0,0L-24.27,474.26a1.08,1.08,0,0,0,.31,1l82.15,77.17ZM445,110.67,342.55,144.44,365.44,36ZM261,69.29,363.43,35.52,340.55,144Zm82.15,77.16,102.42-33.76L422.7,221.15ZM481.65,408.31l-27.78-89.84,50.22-16.56Zm-30.36-91.22-50.23,16.57,22.45-106.4Zm52.18-17.2-50.23,16.56-27.78-89.84Zm-82.15-77.17L318.91,256.49,341.79,148ZM317.34,254l-27.78-89.84,50.23-16.56Zm21.83-108.42-50.24,16.56L261.16,72.27Zm-80-72.63L287,162.76l-50.23,16.56ZM237.76,181.21l49.85-16.44,27.57,89.16Zm81.77,77.29,102.41-33.76L399.06,333.21Zm82.15,77.17,50.23-16.56L479.69,409Zm78.15,76.27L377.42,445.71,400.3,337.24Zm-82.15-77.17L295.45,368.48,318.3,260.21Zm-82.31-77.31-102,33.64L236.14,183ZM131.81,216l102.42-33.76L211.34,290.65ZM214,293.12l102.22-33.7L293.34,367.68Zm82.3,77.31,102-33.64L375.5,444.85Zm77.62,76.25-102,33.64,22.8-108.06Zm-81.78-77.29L189.7,403.15l22.89-108.46Zm-104,31.25L160.36,310.8l50.23-16.56ZM210,292.22l-50.23,16.56L132,218.94Zm-80-72.63,27.78,89.83L107.55,326ZM108.17,328l50.23-16.56,27.78,89.84Zm82.16,77.17L292.74,371.4,269.85,479.87Zm82.15,77.17,102.41-33.77L352,557Zm78.15,76.27L248.21,592.37,271.1,483.9ZM218.87,500l50.22-16.57L246.64,589.86Zm-2.58-1.38-50.23,16.57,22.45-106.4Zm52.18-17.2L218.24,498l-27.78-89.84Zm-81.28-76.35-22.7,107.6L108.31,331ZM2.37,362.89l102.42-33.77L81.9,437.59Zm81.28,76.34,22.7-107.59,56.19,181.69Zm83,78,50.23-16.56,27.78,89.84Zm-4-.9L60.26,550.09,83.15,441.62ZM-22.14,474.11,1,364.45,81.4,440,58.26,549.64Z\"/></g></svg>";
+
 
 /* ---------- util kecil ---------- */
 function pptCut(s,n){s=String(s==null?"":s).replace(/\s+/g," ").trim();return s.length>n?s.slice(0,n-1).trim()+"\u2026":s}
 function pptLn(t,fs,w){var per=Math.max(1,Math.floor(w/(fs*0.0078))),n=0;String(t).split("\n").forEach(function(p){n+=Math.max(1,Math.ceil(p.length/per))});return n}
 function pptFit(t,w,h,mx,mn){for(var f=mx;f>mn;f--)if(pptLn(t,f,w)*f*1.22/72<=h)return f;return mn}
-function pptFitList(arr,w,h,mx,mn,gap){gap=gap==null?0.1:gap;for(var f=mx;f>mn;f--){var tot=0;arr.forEach(function(t){tot+=pptLn(t,f,w-0.25)*f*1.22/72+gap});if(tot<=h)return f}return mn}
+function pptFitList(arr,w,h,mx,mn,gap){gap=gap==null?0.08:gap;for(var f=mx;f>mn;f--){var tot=0;arr.forEach(function(t){tot+=pptLn(t,f,w-0.25)*f*1.22/72+gap});if(tot<=h)return f}return mn}
 function pptSum(l,k){return l.reduce(function(s,x){return s+(x[k]||0)},0)}
 function pptPos(a){return a.some(function(v){return v>0})}
-function pptShadow(){return{type:"outer",color:"0B2A5B",blur:8,offset:2,angle:90,opacity:0.1}}
+function pptSan(v){return v.map(function(n){return n==null||isNaN(n)?0:n})}
 function pptStrip(d){return d?String(d).replace(/^data:/,""):null}
-function pptTone(c){return c==="tr-up"?PPT_C.red:c==="tr-down"?PPT_C.green:c==="tr-warn"?PPT_C.amber:PPT_C.blue}
-function pptBul(items,fs,color){return items.map(function(t,i){return{text:t,options:{bullet:{indent:14},breakLine:i<items.length-1,fontSize:fs,color:color||PPT_C.ink,paraSpaceAfter:6,fontFace:PPT_FONT}}})}
+function pptTone(c){return c==="tr-up"?PPT_C.red:c==="tr-down"?PPT_C.grn:c==="tr-warn"?PPT_C.amb:PPT_C.bl}
+function pptStatusCol(sc){return sc>=80?PPT_C.grn:sc>=60?PPT_C.amb:PPT_C.red}
+function pptSn(t){return t}
+function pptShadow(){return{type:"outer",color:"58595B",blur:6,offset:1.5,angle:90,opacity:0.12}}
+function pptBul(items,fs,color,gap){return items.map(function(t,i){return{text:t,options:{bullet:{indent:12},breakLine:i<items.length-1,fontSize:fs,color:color||PPT_C.tx,paraSpaceAfter:gap==null?5:gap,fontFace:PPT_FONT}}})}
+function pptHF(t,w,mx,mn){var f=Math.floor(w/(String(t).length*0.0098));return Math.max(mn||12,Math.min(mx||24,f))}
 
-/* ---------- elemen dasar ---------- */
-function pptTx(s,t,x,y,w,h,o){o=o||{};var b={x:x,y:y,w:w,h:h,fontFace:PPT_FONT,fontSize:o.fs||14,color:o.c||PPT_C.ink,bold:!!o.b,align:o.al||"left",valign:o.va||"top",margin:o.m==null?0:o.m,isTextBox:true};if(o.i)b.italic=true;if(o.cs)b.charSpacing=o.cs;if(o.ls)b.lineSpacingMultiple=o.ls;s.addText(t,b)}
-function pptCard(P,s,x,y,w,h,fill,noShadow){var o={x:x,y:y,w:w,h:h,fill:{color:fill||PPT_C.white},line:{color:PPT_C.line,width:0.75},rectRadius:0.1};if(!noShadow)o.shadow=pptShadow();s.addShape(P.ShapeType.roundRect,o)}
-function pptPill(P,s,t,x,y,w,h,col,fs){s.addShape(P.ShapeType.roundRect,{x:x,y:y,w:w,h:h,fill:{color:col},line:{color:col,width:0},rectRadius:Math.min(h/2,0.3)});pptTx(s,t,x,y,w,h,{fs:fs||12,b:true,c:PPT_C.white,al:"center",va:"middle"})}
-function pptDot(P,s,t,x,y,d,col,fs,tc){s.addShape(P.ShapeType.ellipse,{x:x,y:y,w:d,h:d,fill:{color:col},line:{color:col,width:0}});pptTx(s,String(t),x,y,d,d,{fs:fs||14,b:true,c:tc||PPT_C.white,al:"center",va:"middle"})}
-function pptEmpty(s,x,y,w,h,msg){pptTx(s,msg||"Tidak ada data pada filter ini.",x,y,w,h,{fs:13,c:PPT_C.mute,al:"center",va:"middle",i:true})}
-function pptHead(P,s,sec,title,sub){
- var S=PPT_SEC[sec-1],tw=PPT_CW-2.1;
- pptTx(s,sec+"  \u2022  "+S.t.toUpperCase(),PPT_MX,0.34,8,0.25,{fs:11,b:true,c:PPT_C.blue,cs:1});
- pptTx(s,title,PPT_MX,0.6,tw,0.55,{fs:pptFit(title,tw,0.55,28,18),b:true,c:PPT_C.navy,va:"middle"});
- if(sub){var sw=PPT_CW-0.2,fs=pptFit(sub,sw,0.5,15,12);pptTx(s,sub,PPT_MX,1.2,sw,0.5,{fs:fs,c:PPT_C.mute});try{s.addNotes(String(title)+". "+sub)}catch(er){}}
+/* ---------- elemen dasar (gaya kit: kartu abu muda, tab judul, pil, dokumen berlipat) ---------- */
+function pptTx(s,t,x,y,w,h,o){o=o||{};var b={x:x,y:y,w:w,h:h,fontFace:o.f||PPT_FONT,fontSize:o.fs||12,color:o.c||PPT_C.tx,bold:!!o.b,align:o.al||"left",valign:o.va||"top",margin:o.m==null?0:o.m,isTextBox:true};if(o.i)b.italic=true;if(o.cs)b.charSpacing=o.cs;if(o.ls)b.lineSpacingMultiple=o.ls;s.addText(t,b)}
+function pptRect(P,s,x,y,w,h,fill,o){o=o||{};var r={x:x,y:y,w:w,h:h,fill:{color:fill},line:{color:o.line||fill,width:o.lw||0}};if(o.tr!=null)r.fill.transparency=o.tr;s.addShape(P.ShapeType.rect,r)}
+function pptRound(P,s,x,y,w,h,fill,o){o=o||{};var r={x:x,y:y,w:w,h:h,fill:{color:fill},line:{color:o.line||fill,width:o.lw||0},rectRadius:o.r==null?0.08:o.r};if(o.sh)r.shadow=pptShadow();s.addShape(P.ShapeType.roundRect,r)}
+function pptPill(P,s,t,x,y,w,h,col,fs){pptRound(P,s,x,y,w,h,col,{r:Math.min(h/2,0.2)});pptTx(s,t,x,y,w,h,{fs:fs||11,b:true,c:PPT_C.wh,al:"center",va:"middle"})}
+function pptDot(P,s,t,x,y,d,col,fs,tc){s.addShape(P.ShapeType.ellipse,{x:x,y:y,w:d,h:d,fill:{color:col},line:{color:col,width:0}});pptTx(s,String(t),x,y,d,d,{fs:fs||12,b:true,f:PPT_HF,c:tc||PPT_C.wh,al:"center",va:"middle"})}
+function pptEmpty(s,x,y,w,h,msg){pptTx(s,msg||"Tidak ada data pada filter ini.",x,y,w,h,{fs:12,c:PPT_C.mg,al:"center",va:"middle",i:true})}
+/* kartu "price table": tab judul abu di atas, badan abu muda */
+function pptPanel(P,s,x,y,w,h,title,col){
+ pptRound(P,s,x,y,w,h,PPT_C.lg,{r:0.1});
+ s.addShape(P.ShapeType.round2SameRect,{x:x,y:y,w:w,h:0.36,fill:{color:PPT_C.lb},line:{color:PPT_C.lb,width:0},rectRadius:0.1});
+ pptTx(s,title,x+0.1,y,w-0.2,0.36,{fs:pptFit(title,w-0.2,0.36,12,9),b:true,f:PPT_HF,c:col||PPT_C.dg,al:"center",va:"middle"})
+}
+/* ikon dokumen dengan sudut terlipat (gaya slide Timeline) */
+function pptDoc(P,s,x,y,w,h,col,fold,num){
+ var f=Math.min(w,h)*0.26;
+ s.addShape(P.ShapeType.custGeom,{x:x,y:y,w:w,h:h,fill:{color:col},line:{color:col,width:0},points:[{x:0,y:0,moveTo:true},{x:w-f,y:0},{x:w,y:f},{x:w,y:h},{x:0,y:h},{close:true}]});
+ s.addShape(P.ShapeType.custGeom,{x:x+w-f,y:y,w:f,h:f,fill:{color:fold},line:{color:fold,width:0},points:[{x:0,y:0,moveTo:true},{x:f,y:f},{x:0,y:f},{close:true}]});
+ if(num!=null)pptTx(s,String(num),x,y+f*0.5,w,h-f*0.5,{fs:30,b:true,f:PPT_HF,c:PPT_C.wh,al:"center",va:"middle"})
+}
+function pptCap(s,t,y,h){pptTx(s,t,0.8,y==null?6.72:y,8.4,h==null?0.55:h,{fs:pptFit(t,8.4,h==null?0.55:h,10.5,8.5),c:PPT_C.dg,al:"center",va:"middle"})}
+function pptHead(s,sec,title,sub,pg){
+ var S=PPT_SEC[sec-1],tw=6.9,sb=pptCut(sub,210);
+ pptTx(s,"BAB "+sec+"  \u2022  "+S.t.toUpperCase(),PPT_MX,0.4,7,0.18,{fs:8,b:true,c:PPT_C.mg,cs:1});
+ pptTx(s,title,PPT_MX,0.6,tw,0.42,{fs:pptHF(title,tw,24,15),b:true,f:PPT_HF,c:PPT_C.or2,va:"middle"});
+ pptTx(s,sb,PPT_MX,1.06,tw,0.46,{fs:pptFit(sb,tw,0.46,11,8.5),c:PPT_C.dg});
+ pptTx(s,"PAGE",8.2,0.5,1.2,0.14,{fs:7,c:PPT_C.mg,al:"right"});
+ pptTx(s,("0"+pg).slice(-2),8.0,0.64,1.4,0.7,{fs:34,b:true,f:PPT_HF,c:PPT_C.mg,al:"right",va:"middle"});
+ try{s.addNotes(String(title)+". "+sub)}catch(er){}
 }
 function pptTable(s,x,y,colW,head,rows,o){
- o=o||{};var fs=o.fs||11,rh=o.rh||0.36,al=o.al||[],w=colW.reduce(function(a,b){return a+b},0);
- var hr=head.map(function(t,i){return{text:String(t),options:{bold:true,color:PPT_C.white,fill:{color:PPT_C.navy},align:al[i]||"left",valign:"middle",fontFace:PPT_FONT,fontSize:fs}}});
- var body=rows.map(function(r,ri){return r.map(function(t,i){var c=(t&&typeof t==="object")?t:{text:t},op={color:PPT_C.ink,fill:{color:ri%2?PPT_C.zebra:PPT_C.white},align:al[i]||"left",valign:"middle",fontFace:PPT_FONT,fontSize:fs};if(c.o)for(var k in c.o)op[k]=c.o[k];return{text:String(c.text==null?"":c.text),options:op}})});
- if(!body.length)body=[head.map(function(_,i){return{text:i===0?"Tidak ada data":"",options:{color:PPT_C.mute,italic:true,fontFace:PPT_FONT,fontSize:fs,align:"left",valign:"middle",fill:{color:PPT_C.white}}}})];
- s.addTable([hr].concat(body),{x:x,y:y,w:w,colW:colW,rowH:rh,border:{type:"solid",pt:0.5,color:PPT_C.line}})
+ o=o||{};var fs=o.fs||10,rh=o.rh||0.32,al=o.al||[],w=colW.reduce(function(a,b){return a+b},0);
+ var hr=head.map(function(t,i){return{text:String(t),options:{bold:true,color:PPT_C.wh,fill:{color:PPT_C.bl},align:al[i]||"left",valign:"middle",fontFace:PPT_FONT,fontSize:fs}}});
+ var body=rows.map(function(r,ri){return r.map(function(t,i){var c=(t&&typeof t==="object")?t:{text:t},op={color:PPT_C.tx,fill:{color:ri%2?PPT_C.lg:PPT_C.wh},align:al[i]||"left",valign:"middle",fontFace:PPT_FONT,fontSize:fs};if(c.o)for(var k in c.o)op[k]=c.o[k];return{text:String(c.text==null?"":c.text),options:op}})});
+ if(!body.length)body=[head.map(function(_,i){return{text:i===0?"Tidak ada data":"",options:{color:PPT_C.mg,italic:true,fontFace:PPT_FONT,fontSize:fs,align:"left",valign:"middle",fill:{color:PPT_C.wh}}}})];
+ s.addTable([hr].concat(body),{x:x,y:y,w:w,colW:colW,rowH:rh,border:{type:"solid",pt:0.5,color:PPT_C.lb}})
 }
-/* ---------- grafik native ---------- */
-function pptBase(o){var b={catAxisLabelFontFace:PPT_FONT,valAxisLabelFontFace:PPT_FONT,dataLabelFontFace:PPT_FONT,legendFontFace:PPT_FONT,catAxisLabelFontSize:10,valAxisLabelFontSize:10,catAxisLabelColor:PPT_C.mute,valAxisLabelColor:PPT_C.mute,valGridLine:{color:"E2E8F0",size:0.5},catGridLine:{style:"none"},legendFontSize:11,legendColor:PPT_C.ink,dataLabelFontSize:10,dataLabelColor:PPT_C.ink};for(var k in o)b[k]=o[k];return b}
-function pptSan(v){return v.map(function(n){return n==null||isNaN(n)?0:n})}
-function pptLine(P,s,x,y,w,h,labels,ser,colors,o){
- var d=ser.map(function(q){return{name:q.name,labels:labels,values:pptSan(q.values)}});
- s.addChart(P.charts.LINE,d,pptBase(Object.assign({x:x,y:y,w:w,h:h,chartColors:colors,lineSize:2.5,lineDataSymbolSize:6,showLegend:ser.length>1,legendPos:"b",showValue:false,catAxisLabelFontSize:labels.length>20?9:10},o||{})))
-}
+/* ---------- grafik native (palet kit: oranye, biru, abu) ---------- */
+function pptBase(o){var b={catAxisLabelFontFace:PPT_FONT,valAxisLabelFontFace:PPT_FONT,dataLabelFontFace:PPT_FONT,legendFontFace:PPT_FONT,catAxisLabelFontSize:9,valAxisLabelFontSize:9,catAxisLabelColor:PPT_C.dg,valAxisLabelColor:PPT_C.mg,valGridLine:{color:"D1D3D4",size:0.5},catGridLine:{style:"none"},legendFontSize:9,legendColor:PPT_C.dg,dataLabelFontSize:9,dataLabelColor:PPT_C.tx};for(var k in o)b[k]=o[k];return b}
 function pptCol(P,s,x,y,w,h,labels,ser,colors,o){
  o=o||{};var st=!!o.stacked,hz=!!o.horizontal;
  var d=ser.map(function(q){return{name:q.name,labels:labels,values:pptSan(q.values)}});
- var op={x:x,y:y,w:w,h:h,chartColors:colors,barDir:hz?"bar":"col",barGrouping:st?"stacked":"clustered",barGapWidthPct:o.gap||(hz?40:55),showLegend:ser.length>1,legendPos:"b",showValue:o.vals!==false,dataLabelPosition:st?"ctr":"outEnd",dataLabelColor:st?PPT_C.white:PPT_C.ink,valAxisHidden:hz,valAxisLabelFormatCode:"#,##0",dataLabelFormatCode:"#,##0"};
+ var op={x:x,y:y,w:w,h:h,chartColors:colors,barDir:hz?"bar":"col",barGrouping:st?"stacked":"clustered",barGapWidthPct:o.gap||(hz?45:60),showLegend:ser.length>1,legendPos:"b",showValue:o.vals!==false,dataLabelPosition:st?"ctr":"outEnd",dataLabelColor:st?PPT_C.wh:PPT_C.tx,valAxisHidden:hz,valAxisLabelFormatCode:"#,##0",dataLabelFormatCode:st?"#,##0;-#,##0;;":"#,##0",valAxisMinVal:0};
  if(hz)op.catAxisOrientation="maxMin";
  for(var k in o)if(["stacked","horizontal","gap","vals"].indexOf(k)<0)op[k]=o[k];
  s.addChart(P.charts.BAR,d,pptBase(op))
 }
 function pptDonut(P,s,x,y,w,h,labels,vals,colors,o){
  o=o||{};
- s.addChart(P.charts.DOUGHNUT,[{name:"Data",labels:labels,values:pptSan(vals)}],pptBase(Object.assign({x:x,y:y,w:w,h:h,holeSize:58,chartColors:colors,showLegend:o.legend!==false,legendPos:o.lpos||"b",showPercent:o.pct!==false,showValue:false,showLabel:false,dataLabelColor:PPT_C.white,dataLabelFontSize:11,dataLabelFontBold:true,dataBorder:{pt:1.5,color:"FFFFFF"}},o.extra||{})))
+ s.addChart(P.charts.DOUGHNUT,[{name:"Data",labels:labels,values:pptSan(vals)}],pptBase(Object.assign({x:x,y:y,w:w,h:h,holeSize:58,chartColors:colors,showLegend:o.legend!==false,legendPos:o.lpos||"b",showPercent:o.pct!==false,showValue:false,showLabel:false,dataLabelColor:PPT_C.wh,dataLabelFontSize:10,dataLabelFontBold:true,dataBorder:{pt:1.5,color:"FFFFFF"}},o.extra||{})))
 }
-/* ---------- logo ---------- */
-function pptLogoSvg(){var n=document.querySelector("svg.pln-logo");if(!n)return null;var c=n.cloneNode(true);c.removeAttribute("class");c.removeAttribute("style");c.setAttribute("width","1032");c.setAttribute("height","307");return new XMLSerializer().serializeToString(c)}
+function pptDonutScore(P,s,x,y,d,sc,col){
+ pptDonut(P,s,x,y,d,d,["Skor","Sisa"],[sc,Math.max(0,100-sc)],[col,PPT_C.gr2],{legend:false,pct:false,extra:{holeSize:76}});
+ pptTx(s,String(sc),x,y+d*0.3,d,d*0.28,{fs:38,b:true,f:PPT_HF,c:col,al:"center",va:"middle"});pptTx(s,"dari 100",x,y+d*0.58,d,0.25,{fs:10,c:PPT_C.mg,al:"center"})
+}
+function pptKpi(P,s,x,y,w,h,label,val,sub,col){
+ pptRound(P,s,x,y,w,h,PPT_C.lg,{r:0.08});pptRect(P,s,x,y+0.12,0.06,h-0.24,col);
+ pptTx(s,label.toUpperCase(),x+0.18,y+0.1,w-0.28,0.24,{fs:8,b:true,c:PPT_C.mg,cs:0.4});
+ pptTx(s,val,x+0.18,y+0.36,w-0.28,0.5,{fs:pptHF(val,w-0.28,24,10),b:true,f:PPT_HF,c:col,va:"middle"});
+ pptTx(s,sub||"",x+0.18,y+0.88,w-0.28,h-0.92,{fs:pptFit(sub||"",w-0.28,h-0.92,9.5,7.5),c:PPT_C.dg})
+}
+
+/* ---------- aset template: logo & pola garis cover (diambil dari kit SVG) ---------- */
 function pptSvgPng(svg,w,h){return new Promise(function(res){try{var im=new Image();im.onload=function(){try{var c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(im,0,0,w,h);res(c.toDataURL("image/png"))}catch(er){res(null)}};im.onerror=function(){res(null)};im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)}catch(er){res(null)}})}
 function pptLoadLib(){return new Promise(function(res,rej){if(window.PptxGenJS)return res(window.PptxGenJS);var el=document.getElementById("pptxgen-src");if(!el)return rej(new Error("Pustaka PPT tidak ditemukan di halaman."));try{var sc=document.createElement("script");sc.text=el.textContent;document.head.appendChild(sc);window.PptxGenJS?res(window.PptxGenJS):rej(new Error("Pustaka PPT gagal dimuat."))}catch(er){rej(er)}})}
 
@@ -1648,413 +1680,330 @@ function pptModel(ctx,sel){
  return M
 }
 function pptPct(a,b){return lapPct(a,b)}
-function pptDelta(a,b,m){var c=trChg(a,b),col=c.d===0?PPT_C.mute:(c.d>0?PPT_C.red:PPT_C.green),ar=c.d===0?"\u25AC":(c.d>0?"\u25B2":"\u25BC");
+function pptDelta(a,b,m){var c=trChg(a,b),col=c.d===0?PPT_C.mg:(c.d>0?PPT_C.red:PPT_C.grn),ar=c.d===0?"\u25AC":(c.d>0?"\u25B2":"\u25BC");
  return{c:col,t:ar+" "+(c.d>0?"+":c.d<0?"-":"")+trFmt(m,Math.abs(c.d))+(c.p==null?" (baru)":" ("+(c.p>0?"+":"")+lapD(c.p,1)+"%)"),d:c.d}}
 
-/* ================= SLIDE: COVER, DAFTAR ISI, PEMBATAS, PENUTUP ================= */
-function pptDeco(P,s,mode){
- s.addShape(P.ShapeType.ellipse,{x:8.4,y:-1.5,w:7.0,h:7.0,fill:{color:PPT_C.blue,transparency:55},line:{color:PPT_C.blue,width:0}});
- s.addShape(P.ShapeType.ellipse,{x:10.2,y:3.3,w:5.2,h:5.2,fill:{color:PPT_C.cyan,transparency:68},line:{color:PPT_C.cyan,width:0}});
- s.addShape(P.ShapeType.ellipse,{x:9.55,y:4.95,w:1.0,h:1.0,fill:{color:PPT_C.yellow},line:{color:PPT_C.yellow,width:0}})
+
+/* ---------- model FGTM ringkas (memakai logika yang sama dengan menu Rekap FGTM) ---------- */
+function pptFgtm(M){
+ var sel=M.sel,all=M.all,G={ok:false,n:0,A:0,B:0,C:0,T:null,rows:[],mon:[],ex:{ufr:0,bin:0,p3:0,dup:0},per:""};
+ try{
+  var F={tahun:String(sel.tahun),bulan:sel.bulan,dcc:sel.dcc,up3:sel.up3,ulp:sel.ulp},B=fgBuild(all,F,false),tg=fgLoadT(),T=0,anyT=false;
+  B.groups.forEach(function(g){
+   var a=g.sec.A.all.length,b=g.sec.B.all.length,c=g.sec.C.all.length;
+   FG_SECS.forEach(function(sc){var v=fgTVal(tg,F,sc.k,g);if(v!=null){T+=v;anyT=true}});
+   G.A+=a;G.B+=b;G.C+=c;G.rows.push({k:g.ulp,up3:g.up3,a:a,b:b,c:c,n:a+b+c})
+  });
+  G.rows.sort(function(x,y){return y.n-x.n});G.n=G.A+G.B+G.C;G.T=anyT?T:null;G.per=fgPeriod(F);
+  G.ex={ufr:B.R.exU.length,bin:B.R.exB.length,p3:B.R.exP.length,dup:B.R.dups.length};
+  var mi=TR_BLN.indexOf(sel.bulan);
+  for(var i=0;i<=mi;i++){
+   var mn=TR_BLN[i];
+   if(!all.some(function(e){return trYear(e)===F.tahun&&trMon(e)===mn}))continue;
+   var R2=fgRun(all,Object.assign({},F,{bulan:mn})),n=0;R2.kept.forEach(function(r){fgSec(r.e)&&n++});G.mon.push({k:mn,n:n})
+  }
+  G.ok=true
+ }catch(er){console.error("FGTM ringkas gagal:",er)}
+ return G
 }
-function pptCover(P,M,L){
- var s=P.addSlide({masterName:"PPT_DARK"});pptDeco(P,s,"front");
- if(L.white)s.addImage({data:L.white,x:0.7,y:0.65,w:2.7,h:0.802});
- pptTx(s,"PEMAPARAN EVALUASI",0.7,2.15,7.5,0.35,{fs:15,b:true,c:PPT_C.yellow,cs:3});
- pptTx(s,"Monitoring Sistem\nDistribusi 20kV",0.7,2.55,7.6,1.9,{fs:46,b:true,c:PPT_C.white,va:"top",ls:0.95});
- pptTx(s,"UID Suluttenggo \u2022 PLN Nusa Daya\nUL Manado, Tahuna & Kotamobagu",0.7,4.5,7.6,0.9,{fs:18,c:PPT_C.pale});
- var per="Periode data: "+M.period,fl=M.fil.length?M.fil.join("  \u2022  "):"Tanpa filter (seluruh data)";
- pptCard(P,s,0.7,5.6,7.4,1.15,"123F7A",true);
- pptTx(s,per,0.95,5.7,6.95,0.4,{fs:14,b:true,c:PPT_C.white,va:"middle"});
- pptTx(s,"Filter: "+pptCut(fl,150),0.95,6.1,6.95,0.6,{fs:pptFit("Filter: "+pptCut(fl,150),6.95,0.6,12,10),c:PPT_C.pale});
- pptTx(s,"Disusun otomatis dari Portal Monitoring \u2022 "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}),0.7,6.95,7.4,0.3,{fs:11,c:PPT_C.pale});
- try{s.addNotes("Cover pemaparan evaluasi. Periode data: "+M.period+".")}catch(er){}
+function pptFgTgt(G){if(G.T==null)return"Target belum diisi pada menu Rekap FGTM.";var d=G.n-G.T;return"Target "+lapN(G.T)+" kali \u2022 realisasi "+lapN(G.n)+" kali ("+(d>0?"melebihi target "+lapN(d)+" kali":d<0?"di bawah target "+lapN(-d)+" kali":"tepat sesuai target")+")."}
+
+/* ================= COVER, DAFTAR ISI, PENUTUP ================= */
+function pptBars(P,s){[PPT_C.or,PPT_C.bl,PPT_C.gr].forEach(function(c,i){pptRect(P,s,i*PPT_W/3,0,PPT_W/3+0.01,0.31,c)})}
+function pptCover(P,M,A,closing){
+ var s=P.addSlide({masterName:"PPT_COVER"});
+ if(A.pat)s.addImage({data:A.pat,x:0,y:0,w:PPT_W,h:PPT_H});
+ pptBars(P,s);
+ if(A.logo)s.addImage({data:A.logo,x:7.3,y:0.85,w:2.1,h:0.77});
+ pptRect(P,s,0,4.71,PPT_W,2.04,PPT_C.bl);
+ if(!closing){
+  pptTx(s,"PEMAPARAN EVALUASI",0.9,4.95,7.5,0.28,{fs:12,b:true,c:PPT_C.ylw,cs:3});
+  pptTx(s,"Monitoring Sistem Distribusi 20kV",0.9,5.28,8.3,0.55,{fs:26,b:true,f:PPT_HF,c:PPT_C.wh,va:"middle"});
+  pptTx(s,"UID Suluttenggo \u2022 PLN Nusa Daya\nUL Manado, Tahuna & Kotamobagu\nPeriode data: "+M.period,0.9,5.92,8.2,0.7,{fs:12,c:PPT_C.wh});
+  var fl=M.fil.length?M.fil.join("  \u2022  "):"Tanpa filter (seluruh data)",ft="Filter: "+pptCut(fl,170);
+  pptTx(s,ft,0.9,6.9,8.2,0.3,{fs:pptFit(ft,8.2,0.3,9,7),c:PPT_C.mg});
+  pptTx(s,"Disusun otomatis dari Portal Monitoring \u2022 "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}),0.9,7.12,8.2,0.22,{fs:8,c:PPT_C.mg});
+  try{s.addNotes("Cover pemaparan evaluasi. Periode data: "+M.period+".")}catch(er){}
+ }else{
+  pptTx(s,"Terima Kasih",0.9,4.95,8.3,0.8,{fs:40,b:true,f:PPT_HF,c:PPT_C.wh,va:"middle"});
+  pptTx(s,"Pemaparan evaluasi Monitoring Sistem Distribusi 20kV",0.9,5.78,8.3,0.3,{fs:14,b:true,c:PPT_C.ylw});
+  pptTx(s,"UID Suluttenggo \u2022 PLN Nusa Daya UL Manado, Tahuna & Kotamobagu",0.9,6.1,8.3,0.28,{fs:11.5,c:PPT_C.wh});
+  pptTx(s,"Periode data: "+M.period+"\nSumber data: Logsheet DCC Scada UP2D Suluttenggo \u2022 dibuat otomatis "+new Date().toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"}),0.9,6.9,8.2,0.4,{fs:8.5,c:PPT_C.mg});
+  try{s.addNotes("Penutup dan ucapan terima kasih.")}catch(er){}
+ }
 }
 function pptToc(P,M,pages){
- var s=P.addSlide({masterName:"PPT_CONTENT"});
- pptTx(s,"AGENDA",PPT_MX,0.34,8,0.25,{fs:11,b:true,c:PPT_C.blue,cs:1});
- pptTx(s,"Daftar Isi",PPT_MX,0.6,8,0.55,{fs:28,b:true,c:PPT_C.navy,va:"middle"});
- pptTx(s,"Materi pemaparan disusun berurutan dari gambaran umum hingga tindak lanjut.",PPT_MX,1.2,PPT_CW,0.4,{fs:14,c:PPT_C.mute});
- var y0=1.75,rh=0.74,gap=0.12;
+ var s=P.addSlide({masterName:"PPT_CONTENT"}),sub="Materi disusun ringkas dalam 7 BAB, dari gambaran umum hingga tindak lanjut.";
+ pptTx(s,"AGENDA",PPT_MX,0.4,7,0.18,{fs:8,b:true,c:PPT_C.mg,cs:1});
+ pptTx(s,"Daftar Isi",PPT_MX,0.6,6.9,0.42,{fs:24,b:true,f:PPT_HF,c:PPT_C.or2,va:"middle"});
+ pptTx(s,sub,PPT_MX,1.06,6.9,0.4,{fs:11,c:PPT_C.dg});
+ pptTx(s,"PAGE",8.2,0.5,1.2,0.14,{fs:7,c:PPT_C.mg,al:"right"});pptTx(s,"02",8.0,0.64,1.4,0.7,{fs:34,b:true,f:PPT_HF,c:PPT_C.mg,al:"right",va:"middle"});
+ var y0=1.95,rh=0.56,gap=0.1,cols=[PPT_C.or,PPT_C.bl,PPT_C.gr];
  PPT_SEC.forEach(function(S,i){
-  var y=y0+i*(rh+gap);pptCard(P,s,PPT_MX,y,PPT_CW,rh);
-  pptDot(P,s,S.n,PPT_MX+0.2,y+0.12,0.5,i===5?PPT_C.yellow:PPT_C.navy,18,i===5?PPT_C.navy:PPT_C.white);
-  pptTx(s,S.t,PPT_MX+0.95,y+0.08,8.4,0.34,{fs:19,b:true,c:PPT_C.navy,va:"middle"});
-  pptTx(s,S.d,PPT_MX+0.95,y+0.42,9.6,0.26,{fs:12,c:PPT_C.mute,va:"middle"});
-  pptTx(s,"Hal. "+pages[S.n],PPT_W-PPT_MX-1.6,y,1.4,rh,{fs:14,b:true,c:PPT_C.blue,al:"right",va:"middle"})
+  var y=y0+i*(rh+gap),c=cols[i%3];
+  pptRound(P,s,PPT_MX,y,PPT_CW,rh,PPT_C.lg,{r:0.08});pptRect(P,s,PPT_MX,y+0.1,0.06,rh-0.2,c);
+  pptDot(P,s,S.n,PPT_MX+0.22,y+0.08,0.4,c,14);
+  pptTx(s,S.t,PPT_MX+0.78,y+0.04,6.4,0.26,{fs:pptFit(S.t,6.4,0.26,15,11),b:true,f:PPT_HF,c:c===PPT_C.gr?PPT_C.dg:c,va:"middle"});
+  pptTx(s,S.d,PPT_MX+0.78,y+0.3,6.4,0.22,{fs:9.5,c:PPT_C.mg,va:"middle"});
+  pptTx(s,"Hal. "+pages[S.n],PPT_MX+PPT_CW-1.3,y,1.15,rh,{fs:12,b:true,f:PPT_HF,c:PPT_C.mg,al:"right",va:"middle"})
  });
- try{s.addNotes("Daftar isi: Executive Summary, Analisis Tren, Evaluasi dan Tindak Lanjut Trip, Penormalan, Kondisi Sistem dan Aset, serta Penutup.")}catch(er){}
+ try{s.addNotes("Daftar isi: Executive Summary, Realisasi FGTM, Analisis Tren, Evaluasi dan Tindak Lanjut Trip, Penormalan, Kondisi Sistem dan Aset, serta Penutup.")}catch(er){}
 }
-function pptDivider(P,sec,titles){
- var S=PPT_SEC[sec-1],s=P.addSlide({masterName:"PPT_DARK"});pptDeco(P,s,"front");
- pptDot(P,s,S.n,0.8,2.35,1.7,PPT_C.yellow,60,PPT_C.navy);
- pptTx(s,"BAGIAN "+S.n+" DARI 6",2.9,2.25,6,0.3,{fs:13,b:true,c:PPT_C.yellow,cs:2});
- pptTx(s,S.t,2.9,2.6,6.6,1.5,{fs:pptFit(S.t,6.6,1.4,40,28),b:true,c:PPT_C.white,va:"top",ls:0.95});
- pptTx(s,S.d,2.9,4.1,6.2,0.7,{fs:16,c:PPT_C.pale});
- if(titles.length){pptTx(s,"Isi bagian ini",0.8,5.2,6,0.3,{fs:12,b:true,c:PPT_C.cyan,cs:1});
-  var tx=pptCut(titles.join("   \u2022   "),170);pptTx(s,tx,0.8,5.55,8.2,0.9,{fs:pptFit(tx,8.2,0.9,14,11),c:PPT_C.white})}
- try{s.addNotes("Bagian "+S.n+": "+S.t+". "+S.d+".")}catch(er){}
-}
-function pptBack(P,M,L){
- var s=P.addSlide({masterName:"PPT_DARK"});pptDeco(P,s,"back");
- if(L.white)s.addImage({data:L.white,x:0.7,y:0.65,w:2.7,h:0.802});
- pptTx(s,"Terima Kasih",0.7,2.5,8,1.1,{fs:60,b:true,c:PPT_C.white,va:"middle"});
- pptTx(s,"Pemaparan evaluasi Monitoring Sistem Distribusi 20kV",0.7,3.7,7.6,0.45,{fs:20,c:PPT_C.yellow,b:true});
- pptTx(s,"UID Suluttenggo \u2022 PLN Nusa Daya UL Manado, Tahuna & Kotamobagu",0.7,4.2,7.6,0.4,{fs:16,c:PPT_C.pale});
- pptCard(P,s,0.7,5.4,7.4,1.2,"123F7A",true);
- pptTx(s,"Periode data: "+M.period+"\nSumber data: Logsheet DCC Scada UP2D Suluttenggo\nDibuat otomatis pada "+new Date().toLocaleString("id-ID",{dateStyle:"long",timeStyle:"short"}),0.95,5.5,6.9,1.0,{fs:12,c:PPT_C.pale,va:"middle"});
- try{s.addNotes("Penutup dan ucapan terima kasih.")}catch(er){}
-}
-/* ================= BAGIAN 1 : EXECUTIVE SUMMARY ================= */
-function pptKpi(P,s,x,y,w,h,label,val,sub,col){
- pptCard(P,s,x,y,w,h);
- pptTx(s,label.toUpperCase(),x+0.2,y+0.15,w-0.4,0.28,{fs:10.5,b:true,c:PPT_C.mute,cs:0.5});
- pptTx(s,val,x+0.2,y+0.45,w-0.4,0.62,{fs:pptFit(val,w-0.4,0.62,32,18),b:true,c:col||PPT_C.navy,va:"middle"});
- pptTx(s,sub||"",x+0.2,y+1.1,w-0.4,h-1.15,{fs:11,c:PPT_C.mute})
-}
-function pptStatusCol(sc){return sc>=80?PPT_C.green:sc>=60?PPT_C.amber:PPT_C.red}
-function pptS11(P,s,M){
+
+/* ================= BAB 1 : EXECUTIVE SUMMARY ================= */
+function pptS11(P,s,M,pg){
  var dt=M.dt,e=M.e,sc=dt.skorKesehatan,col=pptStatusCol(sc);
- pptHead(P,s,1,"Ringkasan Kondisi Operasional",pptSn("Terjadi "+lapN(e.length)+" kejadian padam pada "+M.period+": "+lapN(M.trip.length)+" padam trip ("+pptPct(M.trip.length,e.length)+") dan "+lapN(M.dil.length)+" padam dilepas. Status sistem "+dt.statusKesehatan+" dengan skor "+sc+"/100."));
- pptCard(P,s,0.55,1.8,3.5,5.1);
- pptTx(s,"INDEKS KESEHATAN SISTEM",0.55,1.98,3.5,0.3,{fs:11,b:true,c:PPT_C.mute,al:"center",cs:0.5});
- pptDonutScore(P,s,0.85,2.3,2.9,sc,col);
- pptPill(P,s,dt.statusKesehatan,1.15,5.3,2.3,0.5,col,18);
- pptTx(s,"Skor mulai 100, dikurangi porsi trip, rata-rata durasi pulih, dan konsentrasi trip pada satu penyulang.\n\u226580 Baik \u00B7 60\u201379 Waspada \u00B7 <60 Kritis",0.8,5.95,3.0,0.85,{fs:10,c:PPT_C.mute,al:"center"});
- var x0=4.3,cw=(12.783-x0-0.4)/3,ch=1.5,g=0.2,k=[
-  ["Total kejadian padam",lapN(e.length),"Seluruh kejadian pada filter",PPT_C.navy],
-  ["Padam trip (gangguan)",lapN(M.trip.length),pptPct(M.trip.length,e.length)+" dari total kejadian",PPT_C.red],
-  ["Padam dilepas",lapN(M.dil.length),pptPct(M.dil.length,e.length)+" dari total kejadian",PPT_C.amber],
-  ["Recovery JTM \u2013 trip",lapMin(M.recT),"Rata-rata durasi pemulihan",PPT_C.blue],
-  ["Trip > 5 menit",lapN(M.trip5),"Dasar perhitungan FGTM",PPT_C.purple],
-  ["Energi tak tersalurkan",lapD(M.ens,1)+" kWh","Akumulasi seluruh kejadian",PPT_C.teal]];
- k.forEach(function(q,i){pptKpi(P,s,x0+(i%3)*(cw+g),1.8+Math.floor(i/3)*(ch+g),cw,ch,q[0],q[1],q[2],q[3])});
- var py=1.8+2*(ch+g),ph=6.9-py;pptCard(P,s,x0,py,12.783-x0,ph);
- pptTx(s,"Poin utama",x0+0.25,py+0.14,3,0.3,{fs:14,b:true,c:PPT_C.navy});
+ pptHead(s,1,"Ringkasan Kondisi","Terjadi "+lapN(e.length)+" kejadian padam pada "+M.period+": "+lapN(M.trip.length)+" padam trip ("+lapPct(M.trip.length,e.length)+") dan "+lapN(M.dil.length)+" padam dilepas. Status sistem "+dt.statusKesehatan+" dengan skor "+sc+"/100.",pg);
+ pptPanel(P,s,0.6,PPT_CY,2.8,4.7,"Indeks Kesehatan",PPT_C.dg);
+ pptDonutScore(P,s,0.78,2.5,2.44,sc,col);
+ pptPill(P,s,dt.statusKesehatan,1.0,5.1,2.0,0.4,col,13);
+ pptTx(s,"Skor mulai 100, dikurangi porsi trip, durasi pulih, dan konsentrasi trip pada satu penyulang.",0.78,5.62,2.44,0.5,{fs:8.5,c:PPT_C.mg,al:"center"});
+ pptTx(s,"\u226580 Baik \u2022 60\u201379 Waspada \u2022 <60 Kritis",0.78,6.15,2.44,0.3,{fs:8.5,b:true,c:PPT_C.dg,al:"center"});
+ var x0=3.6,cw=(9.4-x0-0.3)/3,ch=1.2,g=0.15,k=[
+  ["Total kejadian padam",lapN(e.length),"Seluruh kejadian pada filter",PPT_C.bl],
+  ["Padam trip",lapN(M.trip.length),lapPct(M.trip.length,e.length)+" dari total kejadian",PPT_C.or],
+  ["Padam dilepas",lapN(M.dil.length),lapPct(M.dil.length,e.length)+" dari total kejadian",PPT_C.dg],
+  ["Recovery JTM trip",lapMin(M.recT),"Rata-rata durasi pemulihan",PPT_C.bl],
+  ["Trip > 5 menit",lapN(M.trip5),"Dasar perhitungan FGTM",PPT_C.or],
+  ["Energi tak tersalurkan",lapD(M.ens,1)+" kWh","Akumulasi seluruh kejadian",PPT_C.dg]];
+ k.forEach(function(q,i){pptKpi(P,s,x0+(i%3)*(cw+0.15),PPT_CY+Math.floor(i/3)*(ch+g),cw,ch,q[0],q[1],q[2],q[3])});
+ var py=PPT_CY+2*(ch+g),ph=PPT_CB-py;
+ pptRound(P,s,x0,py,9.4-x0,ph,PPT_C.lg,{r:0.08});pptTx(s,"Poin utama",x0+0.2,py+0.1,3,0.26,{fs:12,b:true,f:PPT_HF,c:PPT_C.bl});
  var pts=[];
- if(M.trip.length){pts.push("Penyebab trip dominan: "+dt.penyebabUtama.nama+" ("+lapN(dt.penyebabUtama.jumlah)+" trip, "+dt.penyebabUtama.persentase+"%).");
-  pts.push("Penyulang paling rawan: "+dt.feederPalingRawan.feeder+" (UP3 "+dt.feederPalingRawan.up3+", "+lapN(dt.feederPalingRawan.tripCount)+" trip); ULP paling terdampak: "+dt.ulpTerdampak.ulp+".");
-  pts.push("Waktu paling rawan "+dt.waktuPalingRawan+"; cuaca dominan saat trip: "+dt.cuacaDominan+".")}
- else pts.push("Tidak ada padam trip pada filter yang diterapkan.");
- var bw=12.783-x0-0.5,bf=pptFitList(pts,bw,ph-0.6,15,11);
- s.addText(pptBul(pts,bf),{x:x0+0.25,y:py+0.5,w:bw,h:ph-0.6,fontFace:PPT_FONT,margin:0,valign:"top",isTextBox:true})
+ if(M.trip.length){
+  pts.push("Penyebab trip dominan: "+dt.penyebabUtama.nama+" ("+lapN(dt.penyebabUtama.jumlah)+" trip, "+dt.penyebabUtama.persentase+"%).");
+  pts.push("Penyulang paling rawan: "+dt.feederPalingRawan.feeder+" (UP3 "+dt.feederPalingRawan.up3+", "+lapN(dt.feederPalingRawan.tripCount)+" trip); ULP terdampak: "+dt.ulpTerdampak.ulp+".");
+  pts.push("Waktu paling rawan "+dt.waktuPalingRawan+"; cuaca dominan saat trip: "+dt.cuacaDominan+".")
+ }else pts.push("Tidak ada padam trip pada filter yang diterapkan.");
+ var bw=9.4-x0-0.4,bf=pptFitList(pts,bw,ph-0.5,11.5,9);
+ s.addText(pptBul(pts,bf),{x:x0+0.2,y:py+0.42,w:bw,h:ph-0.5,fontFace:PPT_FONT,margin:0,valign:"top",isTextBox:true})
 }
-function pptSn(t){return t}
-function pptS12(P,s,M){
- var bk=M.bk,u=bk.gran==="hari"?"tanggal":"bulan",mx=0,mi=0;M.sTot.forEach(function(v,i){v>mx&&(mx=v,mi=i)});
- var avg=bk.xl.length?M.e.length/bk.xl.length:0;
- pptHead(P,s,1,"Tren Kejadian Padam",pptSn("Puncak kejadian pada "+(bk.titles[mi]||"-")+" ("+lapN(mx)+" kejadian); rata-rata "+lapD(avg,1)+" kejadian per "+(bk.gran==="hari"?"hari":"bulan")+"."));
- pptCard(P,s,0.55,1.8,8.4,5.1);pptTx(s,"Kejadian padam per "+u,0.8,1.95,7,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(bk.xl.length)pptLine(P,s,0.7,2.3,8.1,4.5,bk.xl,[{name:"Total",values:M.sTot},{name:"Padam Trip",values:M.sTr},{name:"Padam Dilepas",values:M.sDl}],[PPT_C.blue,PPT_C.red,PPT_C.amber]);else pptEmpty(s,0.7,2.3,8.1,4.5);
- pptCard(P,s,9.15,1.8,3.633,5.1);pptTx(s,"Komposisi kejadian",9.4,1.95,3.2,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(M.e.length)pptDonut(P,s,9.3,2.3,3.33,2.7,["Padam Trip","Padam Dilepas"],[M.trip.length,M.dil.length],[PPT_C.red,PPT_C.amber],{lpos:"b"});else pptEmpty(s,9.3,2.3,3.33,2.7);
- pptTx(s,lapN(M.trip.length),9.4,5.2,1.5,0.5,{fs:28,b:true,c:PPT_C.red});pptTx(s,"padam trip\n"+pptPct(M.trip.length,M.e.length),9.4,5.72,1.6,0.55,{fs:11,c:PPT_C.mute});
- pptTx(s,lapN(M.dil.length),11.1,5.2,1.5,0.5,{fs:28,b:true,c:PPT_C.amber});pptTx(s,"padam dilepas\n"+pptPct(M.dil.length,M.e.length),11.1,5.72,1.6,0.55,{fs:11,c:PPT_C.mute})
-}
-function pptS13(P,s,M){
- var r=M.dcc.slice(0,8),top=r.slice().sort(function(a,b){return b.trip-a.trip})[0],fast=r.filter(function(q){return q.rec>0}).sort(function(a,b){return a.rec-b.rec})[0];
- pptHead(P,s,1,"Rekapitulasi per Unit DCC",pptSn(top?"Padam trip terbanyak di "+top.k+" ("+lapN(top.trip)+" trip, "+pptPct(top.trip,M.trip.length)+" dari seluruh trip)"+(fast?"; recovery JTM tercepat di "+fast.k+" ("+lapMin(fast.rec)+")":"")+".":"Tidak ada data per Unit DCC."));
- pptCard(P,s,0.55,1.8,5.6,5.1);pptTx(s,"Padam trip dan dilepas per Unit DCC",0.8,1.95,5.1,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(r.length)pptCol(P,s,0.7,2.3,5.3,4.5,r.map(function(q){return pptCut(q.k,14)}),[{name:"Trip",values:r.map(function(q){return q.trip})},{name:"Dilepas",values:r.map(function(q){return q.dil})}],[PPT_C.red,PPT_C.amber],{stacked:true});else pptEmpty(s,0.7,2.3,5.3,4.5);
- pptCard(P,s,6.35,1.8,6.433,5.1);pptTx(s,"Rekapitulasi per Unit DCC",6.6,1.95,5.8,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,6.55,2.4,[1.95,0.8,0.75,0.9,0.95,0.9],["Unit DCC","Total","Trip","Dilepas","Recovery","ENS kWh"],r.map(function(q){return[pptCut(q.k,22),lapN(q.all),lapN(q.trip),lapN(q.dil),lapMin(q.rec),lapD(q.ens,1)]}),{al:["left","right","right","right","right","right"],rh:0.44})
-}
-function pptS14(P,s,M){
- var u=M.up3.slice(0,8),l=M.ulp.slice(0,8);
- pptHead(P,s,1,"Rekapitulasi per UP3 dan ULP",pptSn(l[0]?"ULP dengan padam trip terbanyak: "+l[0].k+" (UP3 "+l[0].up3+", "+lapN(l[0].trip)+" trip). Tabel menampilkan maksimal 8 baris teratas.":"Tidak ada data per UP3/ULP."));
- pptCard(P,s,0.55,1.8,6.0,5.1);pptTx(s,"Per UP3",0.8,1.95,5,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,0.7,2.4,[2.0,0.8,0.8,0.9,1.0],["UP3","Total","Trip","Dilepas","Recovery"],u.map(function(q){return[pptCut(q.k,24),lapN(q.all),lapN(q.trip),lapN(q.dil),lapMin(q.rec)]}),{al:["left","right","right","right","right"],rh:0.44});
- pptCard(P,s,6.783,1.8,6.0,5.1);pptTx(s,"Per ULP (urut padam trip terbanyak)",7.0,1.95,5.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,6.93,2.4,[1.75,1.5,0.7,0.85,0.9],["ULP","UP3","Trip","Dilepas","Recovery"],l.map(function(q){return[pptCut(q.k,20),pptCut(q.up3,16),lapN(q.trip),lapN(q.dil),lapMin(q.rec)]}),{al:["left","left","right","right","right"],rh:0.44})
-}
-function pptS15(P,s,M){
- var z=M.zona.slice().sort(function(a,b){return b.n-a.n})[0],c=M.cause.slice(0,8);
- pptHead(P,s,1,"Sebaran Zona dan Penyebab Padam Trip",pptSn(M.trip.length?(z&&z.n?z.k+" paling sering terdampak ("+lapN(z.n)+" trip, "+pptPct(z.n,M.trip.length)+"). ":"")+(c[0]?"Penyebab terbesar: "+c[0].k+" ("+lapN(c[0].all)+" trip, "+pptPct(c[0].all,M.trip.length)+").":""):"Tidak ada padam trip pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,5.0,5.1);pptTx(s,"Zona padam trip",0.8,1.95,4.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(pptPos(M.zona.map(function(q){return q.n})))pptDonut(P,s,0.7,2.3,4.7,4.5,M.zona.map(function(q){return q.k}),M.zona.map(function(q){return q.n}),[PPT_C.navy,PPT_C.blue,PPT_C.cyan,PPT_C.teal]);else pptEmpty(s,0.7,2.3,4.7,4.5);
- pptCard(P,s,5.75,1.8,7.033,5.1);pptTx(s,"Penyebab padam trip (sub-kelompok)",6.0,1.95,6.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(c.length)pptCol(P,s,5.9,2.3,6.75,4.5,c.map(function(q){return pptCut(q.k,34)}),[{name:"Jumlah trip",values:c.map(function(q){return q.all})}],[PPT_C.red],{horizontal:true,catAxisLabelFontSize:10});else pptEmpty(s,5.9,2.3,6.75,4.5)
-}
-function pptS16(P,s,M){
- var f=M.fd.slice().sort(function(a,b){return b.trip-a.trip}).slice(0,10);
- pptHead(P,s,1,"10 Penyulang dengan Padam Trip Terbanyak",pptSn(f[0]?f[0].k+" menjadi penyulang paling rawan ("+lapN(f[0].trip)+" trip, ENS "+lapD(f[0].ens,1)+" kWh); 10 penyulang teratas menyumbang "+pptPct(f.reduce(function(a,q){return a+q.trip},0),M.trip.length)+" dari seluruh padam trip.":"Tidak ada padam trip pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,4.9,5.1);pptTx(s,"Jumlah padam trip",0.8,1.95,4.4,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(f.length)pptCol(P,s,0.65,2.3,4.7,4.5,f.map(function(q){return pptCut(q.k,16)}),[{name:"Trip",values:f.map(function(q){return q.trip})}],[PPT_C.red],{horizontal:true});else pptEmpty(s,0.65,2.3,4.7,4.5);
- pptCard(P,s,5.65,1.8,7.133,5.1);pptTx(s,"Rincian penyulang",5.9,1.95,6,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,5.8,2.35,[1.95,1.15,1.45,0.65,0.95,0.8],["Penyulang","UP3","ULP","Trip","Recovery","ENS kWh"],f.map(function(q){return[pptCut(q.k,22),pptCut(q.up3,13),pptCut(q.ulp,17),lapN(q.trip),lapMin(lapAvg(q.list)),lapD(q.ens,1)]}),{al:["left","left","left","right","right","right"],rh:0.38,fs:10.5})
-}
-/* skor: donut kecil + angka */
-function pptDonutScore(P,s,x,y,d,sc,col){
- pptDonut(P,s,x,y,d,d,["Skor","Sisa"],[sc,Math.max(0,100-sc)],[col,"E2E8F0"],{legend:false,pct:false,extra:{holeSize:74}});
- pptTx(s,String(sc),x,y+d*0.3,d,d*0.3,{fs:46,b:true,c:col,al:"center",va:"middle"});pptTx(s,"dari 100",x,y+d*0.58,d,0.3,{fs:12,c:PPT_C.mute,al:"center"})
+function pptS12(P,s,M,pg){
+ var d=M.dcc.slice(0,6),c=M.cause.slice(0,5),top=d.slice().sort(function(a,b){return b.trip-a.trip})[0],tn=M.trip.length;
+ pptHead(s,1,"Sebaran Padam",tn?"Padam trip terbanyak di "+(top?top.k:"-")+" ("+lapN(top?top.trip:0)+" trip, "+lapPct(top?top.trip:0,tn)+" dari seluruh trip)"+(c[0]?"; penyebab terbesar: "+c[0].k+" ("+lapN(c[0].all)+" trip, "+lapPct(c[0].all,tn)+").":"."):"Tidak ada padam trip pada filter yang diterapkan; sebaran menampilkan seluruh kejadian padam per Unit DCC.",pg);
+ if(d.length)pptCol(P,s,0.6,2.0,4.1,3.75,d.map(function(q){return pptCut(q.k.replace(/^DCC\s+/,""),12)}),[{name:"Padam trip",values:d.map(function(q){return q.trip})},{name:"Padam dilepas",values:d.map(function(q){return q.dil})}],[PPT_C.or,PPT_C.bl],{stacked:true,gap:55});else pptEmpty(s,0.6,2.0,4.1,3.75);
+ pptRect(P,s,5.0,2.05,0.015,3.9,PPT_C.lb);
+ if(c.length)pptCol(P,s,5.3,2.0,4.1,3.75,c.map(function(q){return pptCut(q.k,26)}),[{name:"Jumlah trip",values:c.map(function(q){return q.all})}],[PPT_C.or],{horizontal:true,catAxisLabelFontSize:8.5});else pptEmpty(s,5.3,2.0,4.1,3.75,"Tidak ada padam trip.");
+ pptTx(s,"Padam trip dan dilepas per Unit DCC",0.6,5.85,4.1,0.3,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptTx(s,"5 penyebab padam trip terbanyak",5.3,5.85,4.1,0.3,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptCap(s,"Sebaran menunjukkan unit dan penyebab yang perlu menjadi fokus pengendalian pada periode ini.",6.35,0.45)
 }
 
-/* ================= BAGIAN 2 : ANALISIS TREN ================= */
-function pptS21(P,s,M){
- var T=M.tren,ok=T.ok&&T.hasC;
- pptHead(P,s,2,"Parameter dan Ketersediaan Data",pptSn(ok?"Periode analisis "+T.nC+" dibandingkan dengan bulan sebelumnya (MoM)"+(T.hasY?" dan bulan yang sama tahun sebelumnya (YoY).":"; data tahun sebelumnya belum tersedia sehingga YoY tidak ditampilkan."):"Data pada periode analisis belum tersedia."));
- var tiles=[
-  ["Periode analisis",T.nC||"-",T.hasC?lapN(T.Lc.length)+" kejadian":"Tidak ada data",PPT_C.navy,true],
-  ["MoM \u2013 bulan sebelumnya",T.nM||"-",T.hasM?lapN(T.Lm.length)+" kejadian \u2022 tersedia":"Data belum tersedia",T.hasM?PPT_C.blue:PPT_C.mute,T.hasM],
-  ["YoY \u2013 tahun sebelumnya",T.nY||"-",T.hasY?lapN(T.Ly.length)+" kejadian \u2022 tersedia":"Data belum tersedia \u2022 slide YoY dilewati",T.hasY?PPT_C.purple:PPT_C.mute,T.hasY]];
- tiles.forEach(function(q,i){var x=0.55+i*(3.9+0.266);pptCard(P,s,x,1.8,3.9,1.75,q[4]?PPT_C.white:"EEF2F7");
-  pptTx(s,q[0].toUpperCase(),x+0.25,1.97,3.4,0.28,{fs:10.5,b:true,c:PPT_C.mute,cs:0.5});
-  pptTx(s,q[1],x+0.25,2.3,3.4,0.6,{fs:pptFit(q[1],3.4,0.6,30,18),b:true,c:q[3],va:"middle"});
-  pptTx(s,q[2],x+0.25,3.0,3.4,0.4,{fs:12,c:q[4]?PPT_C.ink:PPT_C.mute})});
- pptCard(P,s,0.55,3.75,6.2,3.15);pptTx(s,"Cakupan dan catatan analisis",0.8,3.9,5.7,0.3,{fs:14,b:true,c:PPT_C.navy});
- var nt=["Cakupan unit: "+pptScope(M.sel)+" (sama untuk seluruh periode pembanding).","Kenaikan nilai indikator berarti kondisi memburuk; penurunan berarti membaik."];
- if(T.hasC&&T.lastDay&&T.lastDay<T.days)nt.push("Data periode analisis baru tersedia sampai tanggal "+T.lastDay+" dari "+T.days+" hari; periode pembanding dihitung satu bulan penuh.");
- if(T.ok&&!T.hasM)nt.push("Data "+T.nM+" belum tersedia sehingga perbandingan MoM belum dapat ditampilkan.");
- if(T.ok&&!T.hasY)nt.push("Data "+T.nY+" belum tersedia sehingga perbandingan YoY tidak ditampilkan.");
- var nf=pptFitList(nt,5.7,2.5,14,11);s.addText(pptBul(nt,nf),{x:0.8,y:4.3,w:5.7,h:2.5,fontFace:PPT_FONT,margin:0,valign:"top",isTextBox:true});
- pptCard(P,s,6.95,3.75,5.833,3.15);pptTx(s,"Total kejadian padam per periode",7.2,3.9,5.3,0.3,{fs:14,b:true,c:PPT_C.navy});
- var lb=[],vl=[],cl=[];if(T.hasY){lb.push(T.nY);vl.push(T.Ly.length);cl.push(PPT_C.purple)}if(T.hasM){lb.push(T.nM);vl.push(T.Lm.length);cl.push(PPT_C.blue)}if(T.hasC){lb.push(T.nC);vl.push(T.Lc.length);cl.push(PPT_C.navy)}
- if(lb.length)s.addChart(P.charts.BAR,[{name:"Total padam",labels:lb,values:vl}],pptBase({x:7.1,y:4.25,w:5.5,h:2.55,chartColors:["1F5FA8"],barDir:"col",barGapWidthPct:70,showLegend:false,showValue:true,dataLabelPosition:"outEnd",valAxisHidden:true,valGridLine:{style:"none"}}));else pptEmpty(s,7.1,4.25,5.5,2.55)
+/* ================= BAB 2 : GAMBARAN SINGKAT REALISASI FGTM ================= */
+function pptS21(P,s,M,pg){
+ var G=M.fg,sel=M.sel,per=sel.bulan+" "+sel.tahun;
+ pptHead(s,2,"Realisasi FGTM",G.ok?"FGTM menghitung padam trip dengan durasi > 5 menit, di luar gangguan UFR/pembangkit, binatang, dan pihak ke-3. Periode "+per+", cakupan: "+pptScope(sel)+".":"Data FGTM belum dapat dihitung pada periode dan cakupan ini.",pg);
+ if(!G.ok){pptRound(P,s,0.6,PPT_CY,8.8,4.7,PPT_C.lg);pptEmpty(s,0.8,2.2,8.4,4.2,"Realisasi FGTM tidak dapat dihitung. Periksa filter periode dan unit.");return}
+ pptRound(P,s,0.6,PPT_CY,8.8,1.3,PPT_C.lg,{r:0.08});pptRect(P,s,0.6,PPT_CY+0.14,0.07,1.02,PPT_C.or);
+ pptTx(s,"TOTAL REALISASI FGTM",0.9,PPT_CY+0.12,3.2,0.24,{fs:8.5,b:true,c:PPT_C.mg,cs:0.5});
+ pptTx(s,lapN(G.n),0.9,PPT_CY+0.36,2.3,0.8,{fs:46,b:true,f:PPT_HF,c:PPT_C.or,va:"middle"});
+ pptTx(s,"kali gangguan",3.0,PPT_CY+0.62,1.4,0.4,{fs:12,c:PPT_C.dg,va:"middle"});
+ var ex=G.ex,tg=pptFgTgt(G),nt="Tidak dihitung: UFR/pembangkit "+lapN(ex.ufr)+", binatang "+lapN(ex.bin)+", pihak ke-3 "+lapN(ex.p3)+", data ganda "+lapN(ex.dup)+".";
+ pptRect(P,s,4.45,PPT_CY+0.18,0.012,0.94,PPT_C.lb);
+ pptTx(s,"Target dan capaian",4.65,PPT_CY+0.14,4.5,0.24,{fs:10,b:true,c:PPT_C.bl});
+ pptTx(s,tg,4.65,PPT_CY+0.4,4.6,0.4,{fs:pptFit(tg,4.6,0.4,10.5,8.5),c:PPT_C.tx});
+ pptTx(s,nt,4.65,PPT_CY+0.82,4.6,0.4,{fs:pptFit(nt,4.6,0.4,9,7.5),c:PPT_C.mg});
+ var zs=[["Zona 1",G.A,"Penyulang (PMT GI/PLTD/GH)",PPT_C.or],["Zona 2",G.B,"Recloser / GH (REC/LBS)",PPT_C.bl],["Zona 3+",G.C,"Zona lanjutan (PMT)",PPT_C.dg]];
+ zs.forEach(function(z,i){
+  var x0=0.6+i*3.0,cx=x0+0.5,d=1.9,cy=3.55,share=G.n?z[1]/G.n*100:0;
+  pptDonut(P,s,cx,cy,d,d,["Zona","Lainnya"],[G.n?z[1]:0,G.n?G.n-z[1]:1],[z[3]===PPT_C.dg?PPT_C.gr:z[3],PPT_C.gr2],{legend:false,pct:false,extra:{holeSize:72}});
+  pptTx(s,lapN(z[1]),cx,cy+0.55,d,0.55,{fs:26,b:true,f:PPT_HF,c:z[3],al:"center",va:"middle"});pptTx(s,"kali",cx,cy+1.07,d,0.22,{fs:9,c:PPT_C.mg,al:"center"});
+  pptDot(P,s,Math.round(share)+"%",cx+d-0.62,cy-0.02,0.62,z[3],11);
+  pptTx(s,z[0],x0,5.62,2.9,0.34,{fs:15,b:true,f:PPT_HF,c:z[3],al:"center",va:"middle"});
+  pptTx(s,z[2],x0,5.98,2.9,0.3,{fs:9.5,c:PPT_C.dg,al:"center"})
+ });
+ pptCap(s,G.rows[0]&&G.n?"ULP dengan realisasi tertinggi: ULP "+G.rows[0].k+" ("+lapN(G.rows[0].n)+" kali, "+lapPct(G.rows[0].n,G.n)+" dari total FGTM).":"Tidak ada gangguan yang masuk perhitungan FGTM pada periode ini.",6.4,0.5)
 }
-function pptCmpTiles(P,s,C,y){
- var a=C.sA,b=C.sB,m=[["Total padam","total","n",a.total,b.total],["Padam trip","trip","n",a.trip,b.trip],["Padam dilepas","dilepas","n",a.dilepas,b.dilepas],["Trip > 5 menit","trip5","n",a.trip5,b.trip5],["Recovery JTM","recovery","recovery",a.recovery,b.recovery]],w=(PPT_CW-4*0.2)/5;
- m.forEach(function(q,i){var x=PPT_MX+i*(w+0.2),d=pptDelta(q[3],q[4],q[2]);pptCard(P,s,x,y,w,1.5);
-  pptTx(s,q[0].toUpperCase(),x+0.18,y+0.14,w-0.3,0.26,{fs:10,b:true,c:PPT_C.mute,cs:0.5});
-  pptTx(s,trFmt(q[2],q[4]),x+0.18,y+0.42,w-0.3,0.55,{fs:pptFit(trFmt(q[2],q[4]),w-0.3,0.55,28,16),b:true,c:PPT_C.navy,va:"middle"});
-  pptTx(s,d.t,x+0.18,y+0.98,w-0.3,0.26,{fs:11.5,b:true,c:d.c});
-  pptTx(s,C.nP+": "+trFmt(q[2],q[3]),x+0.18,y+1.24,w-0.3,0.22,{fs:10,c:PPT_C.mute})})
-}
-function pptS2Cmp(P,s,M,C){
- var T=M.tren,v=C.ks.verdict;
- pptHead(P,s,2,"Perbandingan "+C.tag+": "+C.nC+" vs "+C.nP,pptSn(C.ks.verdictSub||("Penilaian: "+v)));
- pptCmpTiles(P,s,C,1.8);
- pptCard(P,s,0.55,3.5,7.0,3.4);pptTx(s,"Perbandingan jumlah kejadian",0.8,3.62,6.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptCol(P,s,0.65,3.95,6.8,2.9,["Total padam","Padam trip","Padam dilepas","Trip > 5 menit"],[{name:C.nP,values:[C.sA.total,C.sA.trip,C.sA.dilepas,C.sA.trip5]},{name:C.nC,values:[C.sB.total,C.sB.trip,C.sB.dilepas,C.sB.trip5]}],[PPT_C.purple,PPT_C.orange],{gap:60});
- var zk=Object.keys(C.sA.zona).concat(Object.keys(C.sB.zona)).filter(function(k,i,a){return k!=="-"&&a.indexOf(k)===i}).sort();["1","2","3","4"].forEach(function(z){zk.indexOf(z)<0&&zk.push(z)});zk=zk.sort();
- pptCard(P,s,7.75,3.5,5.033,3.4);pptTx(s,"Padam trip per zona",8.0,3.62,4.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,7.95,4.05,[1.2,1.1,1.1,1.45],["Zona",C.nP.split(" ")[0].slice(0,3)+" "+C.nP.split(" ")[1],C.nC.split(" ")[0].slice(0,3)+" "+C.nC.split(" ")[1],"Perubahan"],zk.slice(0,5).map(function(z){var x=C.sA.zona[z]||0,y=C.sB.zona[z]||0,d=pptDelta(x,y,"n");return["Zona "+z,lapN(x),lapN(y),{text:(d.d>0?"\u25B2 +":d.d<0?"\u25BC -":"\u25AC ")+lapN(Math.abs(d.d)),o:{color:d.c,bold:true}}]}),{al:["left","right","right","right"],rh:0.44,fs:11.5})
-}
-function pptS2Harian(P,s,M,C){
- var N=C.N,lb=[];for(var i=1;i<=N;i++)lb.push(String(i));
- var ct=C.sT[0].some(function(v){return v>0})||C.sT[1].some(function(v){return v>0}),pk=0,pi=0;C.sT[1].forEach(function(v,i){v!=null&&v>pk&&(pk=v,pi=i)});
- pptHead(P,s,2,"Pola Harian "+C.tag+": "+C.nC+" vs "+C.nP,pptSn(pk>0?"Puncak padam trip pada "+C.nC+" terjadi pada tanggal "+(pi+1)+" ("+lapN(pk)+" kejadian). Grafik membandingkan kejadian per tanggal.":"Tidak ada padam trip pada periode analisis."));
- [["Padam trip per tanggal",C.sT,1.8],["Total padam per tanggal",C.sO,4.4]].forEach(function(q){
-  pptCard(P,s,0.55,q[2],PPT_CW,2.5);pptTx(s,q[0],0.8,q[2]+0.1,6,0.3,{fs:13,b:true,c:PPT_C.navy});
-  pptCol(P,s,0.65,q[2]+0.35,11.95,2.1,lb,[{name:C.nP,values:q[1][0]},{name:C.nC,values:q[1][1]}],[PPT_C.purple,PPT_C.orange],{vals:false,gap:35,legendPos:"r",catAxisLabelFontSize:9})})
-}
-function pptS2Kes(P,s,M,C){
- var ks=C.ks,col=pptTone(ks.tone),pt=ks.poin.slice(1,6),tk=ks.tindak.slice(0,5);
- pptHead(P,s,2,"Kesimpulan "+C.tag,pptSn("Penilaian otomatis berdasarkan 4 indikator utama: total padam, padam trip, trip >5 menit, dan recovery JTM."));
- pptCard(P,s,0.55,1.8,7.4,5.1);pptPill(P,s,ks.verdict,0.8,2.0,3.2,0.5,col,15);
- pptTx(s,C.nC+" vs "+C.nP,4.2,2.0,3.6,0.5,{fs:12,c:PPT_C.mute,va:"middle"});
- if(pt.length){var f=pptFitList(pt,6.9,4.0,15,11);s.addText(pptBul(pt,f),{x:0.8,y:2.75,w:6.9,h:4.0,fontFace:PPT_FONT,margin:0,valign:"top",isTextBox:true})}
- else pptTx(s,pptCut(ks.ringkasan[0]||"",300),0.8,2.75,6.9,3,{fs:14,c:PPT_C.ink});
- pptCard(P,s,8.15,1.8,4.633,5.1,"EAF1FB");pptTx(s,"Tindak lanjut",8.4,1.95,4,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(tk.length){var f2=pptFitList(tk,4.2,4.4,14,11);s.addText(tk.map(function(t,i){return{text:t,options:{bullet:{type:"number"},breakLine:i<tk.length-1,fontSize:f2,color:PPT_C.ink,paraSpaceAfter:6,fontFace:PPT_FONT}}}),{x:8.4,y:2.4,w:4.2,h:4.4,fontFace:PPT_FONT,margin:0,valign:"top",isTextBox:true})}
- else pptTx(s,"Pertahankan pemeliharaan dan pantau terus pada periode berikutnya.",8.4,2.4,4.2,2,{fs:13,c:PPT_C.ink})
-}
-function pptS2Tiga(P,s,M){
- var T=M.tren,y=T.sy,m=T.sm,c=T.sc;
- pptHead(P,s,2,"Ringkasan Tiga Periode",pptSn("Posisi "+T.nC+" terhadap "+T.nM+" (MoM) dan "+T.nY+" (YoY): padam trip "+lapN(y.trip)+" \u2192 "+lapN(m.trip)+" \u2192 "+lapN(c.trip)+"."));
- pptCard(P,s,0.55,1.8,7.6,5.1);pptTx(s,"Jumlah kejadian per indikator",0.8,1.95,7,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptCol(P,s,0.65,2.3,7.4,4.5,["Total padam","Padam trip","Padam dilepas","Trip > 5 menit"],[{name:T.nY+" (YoY)",values:[y.total,y.trip,y.dilepas,y.trip5]},{name:T.nM+" (MoM)",values:[m.total,m.trip,m.dilepas,m.trip5]},{name:T.nC,values:[c.total,c.trip,c.dilepas,c.trip5]}],[PPT_C.purple,PPT_C.blue,PPT_C.navy],{gap:50});
- pptCard(P,s,8.35,1.8,4.433,5.1);pptTx(s,"Recovery JTM rata-rata",8.6,1.95,4,0.3,{fs:14,b:true,c:PPT_C.navy});
- [[T.nY+" (YoY)",y.recovery,PPT_C.purple],[T.nM+" (MoM)",m.recovery,PPT_C.blue],[T.nC,c.recovery,PPT_C.navy]].forEach(function(q,i){var yy=2.5+i*1.4;pptCard(P,s,8.6,yy,3.95,1.2,PPT_C.bg,true);pptTx(s,q[0].toUpperCase(),8.8,yy+0.12,3.6,0.26,{fs:10,b:true,c:PPT_C.mute,cs:0.5});pptTx(s,trFmt("recovery",q[1]),8.8,yy+0.42,3.6,0.6,{fs:30,b:true,c:q[2],va:"middle"})})
-}
-function pptS2Kosong(P,s,M,msg){
- pptHead(P,s,2,"Perbandingan MoM",pptSn(msg));
- pptCard(P,s,0.55,1.8,PPT_CW,5.1);pptEmpty(s,0.8,2.2,PPT_CW-0.5,4.3,msg)
+function pptS22(P,s,M,pg){
+ var G=M.fg,r=G.rows.slice(0,8),mon=G.mon,l=mon.length>1?mon[mon.length-1].n-mon[mon.length-2].n:null;
+ pptHead(s,2,"Realisasi FGTM per ULP dan Bulan",G.ok&&G.n?(r[0]?"ULP tertinggi: ULP "+r[0].k+" ("+lapN(r[0].n)+" kali). ":"")+(l==null?"Data bulan sebelumnya belum tersedia untuk perbandingan.":"Realisasi "+(l>0?"naik "+lapN(l):l<0?"turun "+lapN(-l):"tidak berubah")+" kali dibanding "+mon[mon.length-2].k+".")+" Tabel lengkap tersedia di menu Rekap FGTM.":"Tidak ada realisasi FGTM pada periode dan cakupan ini.",pg);
+ if(r.length)pptCol(P,s,0.6,2.0,4.4,3.75,r.map(function(q){return pptCut("ULP "+q.k,16)}),[{name:"Zona 1",values:r.map(function(q){return q.a})},{name:"Zona 2",values:r.map(function(q){return q.b})},{name:"Zona 3+",values:r.map(function(q){return q.c})}],[PPT_C.or,PPT_C.bl,PPT_C.gr],{stacked:true,horizontal:true,catAxisLabelFontSize:8.5});else pptEmpty(s,0.6,2.0,4.4,3.75);
+ pptRect(P,s,5.15,2.05,0.015,3.9,PPT_C.lb);
+ if(mon.length)pptCol(P,s,5.3,2.0,4.1,3.75,mon.map(function(q){return q.k.slice(0,3)}),[{name:"Realisasi FGTM",values:mon.map(function(q){return q.n})}],[PPT_C.bl],{gap:55});else pptEmpty(s,5.3,2.0,4.1,3.75);
+ pptTx(s,"Realisasi FGTM per ULP (kali)",0.6,5.85,4.4,0.3,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptTx(s,"Realisasi FGTM per bulan "+(M.sel.tahun||"")+" (kali)",5.3,5.85,4.1,0.3,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptCap(s,"Realisasi dihitung dari padam trip durasi > 5 menit setelah gangguan beruntun digabung dan data ganda dibuang.",6.35,0.45)
 }
 
-/* ================= BAGIAN 3 : EVALUASI DAN TINDAK LANJUT TRIP ================= */
-function pptS31(P,s,M){
- var dt=M.dt,sc=dt.skorKesehatan,col=pptStatusCol(sc);
- pptHead(P,s,3,"Status Kesehatan dan Ringkasan Eksekutif",pptSn("Status sistem "+dt.statusKesehatan+" (skor "+sc+"/100) dari "+lapN(M.e.length)+" kejadian padam, "+lapN(M.trip.length)+" di antaranya padam trip."));
- pptCard(P,s,0.55,1.8,PPT_CW,1.6);pptDot(P,s,sc,0.8,2.1,1.0,col,26);
- pptTx(s,"Status kesehatan sistem: "+dt.statusKesehatan,2.05,1.93,6,0.4,{fs:20,b:true,c:col});
- var pj=pptCut(dt.penjelasanAwam,520);pptTx(s,pj,2.05,2.35,10.5,1.0,{fs:pptFit(pj,10.5,1.0,14,11),c:PPT_C.ink});
- pptCard(P,s,0.55,3.6,7.6,3.3);pptTx(s,"Ringkasan eksekutif",0.8,3.75,6,0.3,{fs:14,b:true,c:PPT_C.navy});
- var re=pptCut(dt.ringkasanEksekutif,700);pptTx(s,re,0.8,4.15,7.1,2.6,{fs:pptFit(re,7.1,2.6,17,11),c:PPT_C.ink});
- pptCard(P,s,8.35,3.6,4.433,3.3);pptTx(s,"Titik rawan",8.6,3.75,4,0.3,{fs:14,b:true,c:PPT_C.navy});
- var it=[["Waktu paling rawan",dt.waktuPalingRawan],["Cuaca dominan saat trip",dt.cuacaDominan],["Penyebab dominan",dt.penyebabUtama.nama],["Penyulang paling rawan",dt.feederPalingRawan.feeder+(dt.feederPalingRawan.up3&&dt.feederPalingRawan.up3!=="-"?" (UP3 "+dt.feederPalingRawan.up3+")":"")]];
- it.forEach(function(q,i){var yy=4.15+i*0.66;pptTx(s,q[0].toUpperCase(),8.6,yy,4,0.22,{fs:10,b:true,c:PPT_C.mute,cs:0.5});var v=pptCut(q[1],60);pptTx(s,v,8.6,yy+0.24,3.95,0.42,{fs:pptFit(v,3.95,0.42,15,11),b:true,c:PPT_C.navy})})
+/* ================= BAB 3 : ANALISIS TREN ================= */
+function pptCmpCard(P,s,x,y,w,h,C,tag,nm,col){
+ pptPanel(P,s,x,y,w,h,tag+" \u2022 "+nm,col);
+ if(!C){pptTx(s,"Data pembanding belum tersedia sehingga "+tag+" tidak ditampilkan.",x+0.2,y+0.5,w-0.4,h-0.6,{fs:10,c:PPT_C.mg,i:true,al:"center",va:"middle"});return}
+ var ks=C.ks,tc=pptTone(ks.tone),a=C.sA,b=C.sB;
+ pptPill(P,s,pptCut(ks.verdict,22),x+0.15,y+0.48,1.75,0.3,tc,9.5);
+ pptTx(s,C.nC+" vs "+C.nP,x+1.98,y+0.48,w-2.1,0.3,{fs:8.5,c:PPT_C.mg,va:"middle"});
+ [["Padam trip",a.trip,b.trip,"n"],["Trip > 5 menit",a.trip5,b.trip5,"n"],["Recovery JTM",a.recovery,b.recovery,"recovery"]].forEach(function(q,i){
+  var yy=y+0.9+i*0.27,d=pptDelta(q[1],q[2],q[3]);
+  pptTx(s,q[0],x+0.18,yy,1.15,0.25,{fs:9.5,c:PPT_C.dg,va:"middle"});
+  pptTx(s,trFmt(q[3],q[1])+" \u2192 "+trFmt(q[3],q[2]),x+1.3,yy,1.1,0.25,{fs:9.5,b:true,c:PPT_C.tx,va:"middle"});
+  pptTx(s,d.t,x+2.4,yy,w-2.5,0.25,{fs:8.5,b:true,c:d.c,va:"middle"})
+ });
+ var tk=pptCut(ks.tindak[0]||"Pertahankan pemeliharaan dan pantau terus pada periode berikutnya.",105);
+ pptTx(s,tk,x+0.18,y+1.75,w-0.36,h-1.8,{fs:pptFit(tk,w-0.36,h-1.8,9,7.5),c:PPT_C.dg,i:true})
 }
-function pptS32(P,s,M){
- var dt=M.dt,jam=lapD(dt.ulpTerdampak.totalDurasiJam,1);
- pptHead(P,s,3,"Temuan Utama",pptSn(M.trip.length?"Tiga temuan prioritas dari padam trip: penyebab dominan, penyulang paling rawan, dan ULP paling terdampak.":"Tidak ada padam trip pada filter yang diterapkan sehingga belum ada temuan prioritas."));
- var cards=[
-  ["1","Penyebab trip dominan",dt.penyebabUtama.nama,lapN(dt.penyebabUtama.jumlah)+" trip \u2022 "+dt.penyebabUtama.persentase+"% dari seluruh trip",dt.penyebabUtama.mitigasi,PPT_C.red],
-  ["2","Penyulang paling rawan",dt.feederPalingRawan.feeder,"UP3 "+dt.feederPalingRawan.up3+" \u2022 "+lapN(dt.feederPalingRawan.tripCount)+" trip \u2022 ENS "+lapD(dt.feederPalingRawan.ens,1)+" kWh",dt.feederPalingRawan.rekomendasi,PPT_C.blue],
-  ["3","ULP paling terdampak",dt.ulpTerdampak.ulp,"UP3 "+dt.ulpTerdampak.up3+" \u2022 "+lapN(dt.ulpTerdampak.tripCount)+" trip \u2022 "+jam+" jam padam","Prioritaskan inspeksi preventif dan kesiapan tim piket pada ULP ini, terutama pada jam rawan "+dt.waktuPalingRawan+".",PPT_C.teal]],w=(PPT_CW-0.5)/3;
- cards.forEach(function(q,i){var x=0.55+i*(w+0.25);pptCard(P,s,x,1.8,w,5.1);pptDot(P,s,q[0],x+0.25,2.0,0.5,q[5],18);
-  pptTx(s,q[1].toUpperCase(),x+0.9,2.0,w-1.1,0.5,{fs:11,b:true,c:PPT_C.mute,va:"middle",cs:0.5});
-  var n=pptCut(q[2],60);pptTx(s,n,x+0.25,2.75,w-0.5,0.95,{fs:pptFit(n,w-0.5,0.95,26,16),b:true,c:PPT_C.navy,va:"middle"});
-  pptTx(s,q[3],x+0.25,3.75,w-0.5,0.5,{fs:pptFit(q[3],w-0.5,0.5,13,10.5),b:true,c:q[5]});
-  pptTx(s,"REKOMENDASI / MITIGASI",x+0.25,4.4,w-0.5,0.25,{fs:10,b:true,c:PPT_C.mute,cs:0.5});
-  var r=pptCut(q[4],360);pptTx(s,r,x+0.25,4.7,w-0.5,2.05,{fs:pptFit(r,w-0.5,2.05,15,11),c:PPT_C.ink})})
+function pptS31(P,s,M,pg){
+ var T=M.tren,ok=T.ok&&T.hasC,main=T.mom||T.yoy;
+ pptHead(s,3,"Perbandingan MoM dan YoY",ok?"Periode "+T.nC+" dibandingkan dengan bulan sebelumnya (MoM)"+(T.hasY?" dan bulan yang sama tahun sebelumnya (YoY)":"; data tahun sebelumnya belum tersedia")+(main?". Penilaian: "+main.ks.verdict+".":"."):"Data pada periode analisis belum tersedia.",pg);
+ if(!ok||(!T.mom&&!T.yoy)){pptRound(P,s,0.6,PPT_CY,8.8,4.7,PPT_C.lg);pptEmpty(s,0.8,2.2,8.4,4.2,!ok?"Data pada periode analisis ("+(T.nC||"-")+") belum tersedia pada cakupan unit ini.":"Data bulan sebelumnya ("+T.nM+") dan tahun sebelumnya ("+T.nY+") belum tersedia sehingga perbandingan belum dapat ditampilkan.");return}
+ var ser=[],cl=[];
+ if(T.hasY){ser.push({name:T.nY+" (YoY)",values:[T.sy.total,T.sy.trip,T.sy.dilepas,T.sy.trip5]});cl.push(PPT_C.gr)}
+ if(T.hasM){ser.push({name:T.nM+" (MoM)",values:[T.sm.total,T.sm.trip,T.sm.dilepas,T.sm.trip5]});cl.push(PPT_C.bl)}
+ ser.push({name:T.nC,values:[T.sc.total,T.sc.trip,T.sc.dilepas,T.sc.trip5]});cl.push(PPT_C.or);
+ pptCol(P,s,0.6,2.0,4.8,4.1,["Total padam","Padam trip","Padam dilepas","Trip > 5 mnt"],ser,cl,{gap:50});
+ pptTx(s,"Jumlah kejadian per indikator",0.6,6.15,4.8,0.3,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptCmpCard(P,s,5.6,PPT_CY,3.8,2.28,T.mom,"MoM",T.nM,PPT_C.bl);
+ pptCmpCard(P,s,5.6,PPT_CY+2.42,3.8,2.28,T.yoy,"YoY",T.nY,PPT_C.or);
+ pptCap(s,"Kenaikan nilai indikator berarti kondisi memburuk; penurunan berarti membaik.",6.62,0.4)
 }
-function pptNumList(P,s,items,col){
- var n=items.length,gap=0.15,rh=Math.min(1.2,(5.1-gap*(n-1))/Math.max(n,1)),tw=PPT_CW-1.4,f=pptFitList(items.map(function(t){return pptCut(t,260)}),tw,rh-0.15,16,11,0);
- items.forEach(function(t,i){var y=1.8+i*(rh+gap);pptCard(P,s,0.55,y,PPT_CW,rh);pptDot(P,s,i+1,0.8,y+rh/2-0.25,0.5,col,17);pptTx(s,pptCut(t,260),1.55,y+0.05,tw,rh-0.1,{fs:f,c:PPT_C.ink,va:"middle"})})
+
+/* ================= BAB 4 : EVALUASI DAN TINDAK LANJUT TRIP ================= */
+function pptS41(P,s,M,pg){
+ var dt=M.dt,sc=dt.skorKesehatan,jam=lapD(dt.ulpTerdampak.totalDurasiJam,1);
+ pptHead(s,4,"Temuan Utama",M.trip.length?"Status sistem "+dt.statusKesehatan+" (skor "+sc+"/100). Tiga temuan prioritas dari padam trip: penyebab dominan, penyulang paling rawan, dan ULP paling terdampak.":"Tidak ada padam trip pada filter yang diterapkan sehingga belum ada temuan prioritas.",pg);
+ var f=[
+  ["Penyebab trip dominan",dt.penyebabUtama.nama,lapN(dt.penyebabUtama.jumlah)+" trip \u2022 "+dt.penyebabUtama.persentase+"% dari seluruh trip",dt.penyebabUtama.mitigasi,PPT_C.or,"D9680F"],
+  ["Penyulang paling rawan",dt.feederPalingRawan.feeder,"UP3 "+dt.feederPalingRawan.up3+" \u2022 "+lapN(dt.feederPalingRawan.tripCount)+" trip \u2022 ENS "+lapD(dt.feederPalingRawan.ens,1)+" kWh",dt.feederPalingRawan.rekomendasi,PPT_C.bl,"0580AD"],
+  ["ULP paling terdampak",dt.ulpTerdampak.ulp,"UP3 "+dt.ulpTerdampak.up3+" \u2022 "+lapN(dt.ulpTerdampak.tripCount)+" trip \u2022 "+jam+" jam padam","Prioritaskan inspeksi preventif dan kesiapan tim piket pada ULP ini, terutama pada jam rawan "+dt.waktuPalingRawan+".",PPT_C.gr,"A7A9AC"]];
+ f.forEach(function(q,i){
+  var y=PPT_CY+i*1.58,hh=1.42;
+  pptRound(P,s,0.6,y,8.8,hh,PPT_C.lg,{r:0.08});
+  pptDoc(P,s,0.8,y+0.14,1.0,1.14,q[4],q[5],i+1);
+  pptTx(s,q[0].toUpperCase(),2.05,y+0.1,7.2,0.22,{fs:8.5,b:true,c:q[4]===PPT_C.gr?PPT_C.dg:q[4],cs:0.6});
+  var n=pptCut(q[1],60);pptTx(s,n,2.05,y+0.32,7.2,0.36,{fs:pptHF(n,7.2,17,11),b:true,f:PPT_HF,c:PPT_C.tx,va:"middle"});
+  pptTx(s,q[2],2.05,y+0.7,7.2,0.22,{fs:9.5,b:true,c:PPT_C.mg});
+  var r="Mitigasi: "+pptCut(q[3],230);pptTx(s,r,2.05,y+0.93,7.2,0.45,{fs:pptFit(r,7.2,0.45,10,8),c:PPT_C.dg})
+ });
+ pptCap(s,"Titik rawan: waktu "+dt.waktuPalingRawan+" \u2022 cuaca dominan saat trip: "+dt.cuacaDominan+".",6.72,0.4)
 }
-function pptS33(P,s,M){
- var l=(M.dt.rekomendasiManajerial||[]).slice(0,6);
- pptHead(P,s,3,"Rekomendasi Kebijakan Manajerial",pptSn("Arah kebijakan yang disarankan untuk menekan padam trip berdasarkan data pada filter yang diterapkan."));
- pptNumList(P,s,l,PPT_C.navy)
+function pptNumCol(P,s,x,y,w,h,title,items,col){
+ pptPanel(P,s,x,y,w,h,title,col===PPT_C.gr?PPT_C.dg:col);
+ var n=Math.max(items.length,1),rh=(h-0.5)/n;
+ if(!items.length){pptEmpty(s,x+0.2,y+0.5,w-0.4,h-0.6,"Belum ada data.");return}
+ var f=11;items.forEach(function(t){f=Math.min(f,pptFit(pptCut(t,175),w-0.8,rh-0.14,11.5,8))});
+ items.forEach(function(t,i){var yy=y+0.45+i*rh;pptDot(P,s,i+1,x+0.15,yy+rh/2-0.17,0.34,col,11);pptTx(s,pptCut(t,175),x+0.6,yy+0.03,w-0.75,rh-0.06,{fs:f,c:PPT_C.tx,va:"middle"})})
 }
-function pptS34(P,s,M){
- var l=(M.dt.langkahTindakanLapangan||[]).slice(0,6);
- pptHead(P,s,3,"Langkah Tindakan Lapangan",pptSn("Langkah teknis yang perlu dilakukan tim lapangan, terutama pada penyulang dan ULP prioritas."));
- pptNumList(P,s,l,PPT_C.teal)
+function pptS42(P,s,M,pg){
+ var a=(M.dt.rekomendasiManajerial||[]).slice(0,3),b=(M.dt.langkahTindakanLapangan||[]).slice(0,3);
+ pptHead(s,4,"Rekomendasi dan Tindakan",M.trip.length?"Arah kebijakan manajerial dan langkah teknis lapangan yang diprioritaskan untuk menekan padam trip, berdasarkan data pada filter yang diterapkan.":"Tidak ada padam trip pada filter yang diterapkan; pertahankan pemeliharaan preventif rutin.",pg);
+ pptNumCol(P,s,0.6,PPT_CY,4.3,4.7,"Rekomendasi Manajerial",a,PPT_C.bl);
+ pptNumCol(P,s,5.1,PPT_CY,4.3,4.7,"Tindakan Lapangan",b,PPT_C.or)
 }
-function pptS35(P,s,M){
- var r=M.dcc.slice(0,8),rows=r.map(function(q){var d=Nl(q.list);return{q:q,sc:d.skorKesehatan,st:d.statusKesehatan}}),worst=rows.slice().sort(function(a,b){return a.sc-b.sc})[0];
- pptHead(P,s,3,"Kartu Skor Kinerja per Unit DCC",pptSn(worst?"Skor kesehatan terendah pada "+worst.q.k+" ("+worst.sc+"/100, "+worst.st+"). Skor dihitung dari porsi trip, durasi pulih, dan konsentrasi trip pada penyulang.":"Tidak ada data per Unit DCC."));
- pptCard(P,s,0.55,1.8,8.2,5.1);pptTx(s,"Kinerja per Unit DCC",0.8,1.95,7,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,0.7,2.4,[1.85,0.9,0.8,0.85,1.15,1.05,1.3],["Unit DCC","Total","Trip","% Trip","ENS kWh","Recovery","Skor"],rows.map(function(o){var q=o.q,c=pptStatusCol(o.sc);return[pptCut(q.k,20),lapN(q.all),lapN(q.trip),lapPct(q.trip,q.all),lapD(q.ens,1),lapMin(q.rec),{text:o.sc+" "+o.st,o:{bold:true,color:c}}]}),{al:["left","right","right","right","right","right","left"],rh:0.46,fs:11});
- pptCard(P,s,8.95,1.8,3.833,5.1);pptTx(s,"Skor kesehatan",9.2,1.95,3.3,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(rows.length)pptCol(P,s,9.05,2.3,3.65,4.5,rows.map(function(o){return pptCut(o.q.k,12)}),[{name:"Skor",values:rows.map(function(o){return o.sc})}],[PPT_C.blue],{valAxisMaxVal:100,valAxisMinVal:0});else pptEmpty(s,9.05,2.3,3.65,4.5)
-}
-/* ================= BAGIAN 4 : PENORMALAN (REMOTE/LOKAL) ================= */
-var PPT_NM={Remote:"1F7BB6",Lokal:"E0762A",Gagal:"94A3B8"};
+
+/* ================= BAB 5 : PENORMALAN (REMOTE/LOKAL) ================= */
+var PPT_NM={Remote:"2C71A2",Lokal:"F47D29",Gagal:"BCBEC0"};
 function pptRemPct(r){return r.n?r.R.length/r.n*100:0}
-function pptS41(P,s,M){
- var T=M.norm.Trip,D=M.norm.Dilepas;
- pptHead(P,s,4,"Ringkasan Penormalan Remote vs Lokal",pptSn(T.n+D.n?"Penormalan Remote mencapai "+lapD(pptRemPct(T),1)+"% pada padam trip ("+lapN(T.n)+" kejadian) dan "+lapD(pptRemPct(D),1)+"% pada padam dilepas ("+lapN(D.n)+" kejadian).":"Tidak ada data penormalan pada filter yang diterapkan."));
- [["Padam Trip",T,0.55],["Padam Dilepas",D,6.783]].forEach(function(q){
-  var r=q[1],x=q[2];pptCard(P,s,x,1.8,6.0,5.1);pptTx(s,q[0]+" ("+lapN(r.n)+" kejadian)",x+0.25,1.95,5.5,0.3,{fs:14,b:true,c:PPT_C.navy});
-  if(r.n)pptDonut(P,s,x+0.2,2.3,5.6,2.4,["Remote","Lokal","Gagal Remot"],[r.R.length,r.L.length,r.G.length],[PPT_NM.Remote,PPT_NM.Lokal,PPT_NM.Gagal],{lpos:"r"});else pptEmpty(s,x+0.2,2.3,5.6,2.4);
-  pptTable(s,x+0.2,4.85,[1.7,1.1,1.3,1.5],["Metode","Jumlah","Persentase","Rata-rata durasi"],[["Remote (SCADA)",lapN(r.R.length),lapPct(r.R.length,r.n),lapMin(r.aR)],["Lokal (manual)",lapN(r.L.length),lapPct(r.L.length,r.n),lapMin(r.aL)],["Gagal Remot",lapN(r.G.length),lapPct(r.G.length,r.n),lapMin(r.aG)],[{text:"Total",o:{bold:true}},{text:lapN(r.n),o:{bold:true}},{text:"100%",o:{bold:true}},{text:lapMin(lapAvg(r.l)),o:{bold:true}}]],{al:["left","right","right","right"],rh:0.4,fs:11})})
-}
-function pptS4Tipe(P,s,M,tp){
- var r=M.norm[tp],nm=tp==="Trip"?"Padam Trip":"Padam Dilepas",bk=r.bk,both=r.aR>0&&r.aL>0,df=r.aL-r.aR;
- pptHead(P,s,4,nm+" \u2013 Tren Penormalan Remote dan Lokal",pptSn(r.n?(both?"Penormalan Remote rata-rata "+lapMin(r.aR)+" dan Lokal "+lapMin(r.aL)+" \u2013 Remote "+(df>=0?"lebih cepat ":"lebih lambat ")+lapMin(Math.abs(df))+". ":"")+"Remote "+lapPct(r.R.length,r.n)+", Lokal "+lapPct(r.L.length,r.n)+" dari "+lapN(r.n)+" kejadian.":"Tidak ada kejadian "+nm.toLowerCase()+" pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,8.4,5.1);pptTx(s,"Penormalan per "+(bk.gran==="hari"?"tanggal":"bulan"),0.8,1.95,7,0.3,{fs:14,b:true,c:PPT_C.navy});
- var ser=[{name:"Remote",values:r.sR},{name:"Lokal",values:r.sL}],cl=[PPT_NM.Remote,PPT_NM.Lokal];if(r.G.length){ser.push({name:"Gagal Remot",values:r.sG});cl.push(PPT_NM.Gagal)}
- if(bk.xl.length&&r.cnt)pptCol(P,s,0.7,2.3,8.1,4.5,bk.xl,ser,cl,{stacked:true,vals:bk.xl.length<=14,gap:40,catAxisLabelFontSize:bk.xl.length>20?9:10});else pptEmpty(s,0.7,2.3,8.1,4.5);
- pptCard(P,s,9.15,1.8,3.633,5.1);pptTx(s,"Indikator penormalan",9.4,1.95,3.2,0.3,{fs:14,b:true,c:PPT_C.navy});
- var t=[["Remote",r.R.length,r.aR,PPT_NM.Remote],["Lokal",r.L.length,r.aL,PPT_NM.Lokal]];if(r.G.length)t.push(["Gagal Remot",r.G.length,r.aG,PPT_NM.Gagal]);
- var th=(4.3-0.15*(t.length-1))/t.length;
- t.forEach(function(q,i){var y=2.4+i*(th+0.15);pptCard(P,s,9.35,y,3.25,th,PPT_C.bg,true);pptTx(s,q[0].toUpperCase(),9.55,y+0.1,2.9,0.25,{fs:10,b:true,c:PPT_C.mute,cs:0.5});pptTx(s,lapN(q[1]),9.55,y+0.36,2.9,0.6,{fs:30,b:true,c:q[3],va:"middle"});pptTx(s,lapPct(q[1],r.n)+" dari kejadian \u2022 rata-rata "+lapMin(q[2]),9.55,y+th-0.5,2.95,0.4,{fs:11,c:PPT_C.mute,va:"bottom"})})
-}
-function pptS44(P,s,M){
- var rows=M.dcc.slice(0,8).map(function(q){var f=function(k){return q.list.filter(function(x){return x.metodePenormalan===k})},R=f("Remote"),L=f("Lokal"),G=f("Gagal Remot");return{k:q.k,n:q.all,R:R.length,L:L.length,G:G.length,aR:lapAvg(R),aL:lapAvg(L)}});
- var best=rows.filter(function(q){return q.n>0}).sort(function(a,b){return b.R/b.n-a.R/a.n})[0];
- pptHead(P,s,4,"Penormalan per Unit DCC",pptSn(best?"Porsi penormalan Remote tertinggi di "+best.k+" ("+lapPct(best.R,best.n)+"). Seluruh kejadian padam trip dan dilepas pada filter dihitung.":"Tidak ada data per Unit DCC."));
- pptCard(P,s,0.55,1.8,5.6,5.1);pptTx(s,"Remote, Lokal, dan Gagal Remot",0.8,1.95,5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(rows.length)pptCol(P,s,0.7,2.3,5.3,4.5,rows.map(function(q){return pptCut(q.k,14)}),[{name:"Remote",values:rows.map(function(q){return q.R})},{name:"Lokal",values:rows.map(function(q){return q.L})},{name:"Gagal Remot",values:rows.map(function(q){return q.G})}],[PPT_NM.Remote,PPT_NM.Lokal,PPT_NM.Gagal],{stacked:true});else pptEmpty(s,0.7,2.3,5.3,4.5);
- pptCard(P,s,6.35,1.8,6.433,5.1);pptTx(s,"Rincian penormalan per Unit DCC",6.6,1.95,5.8,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,6.5,2.4,[1.6,0.7,0.7,0.75,0.85,0.85,0.85],["Unit DCC","Remote","Lokal","Gagal","% Remote","Durasi R","Durasi L"],rows.map(function(q){return[pptCut(q.k,18),lapN(q.R),lapN(q.L),lapN(q.G),lapPct(q.R,q.n),lapMin(q.aR),lapMin(q.aL)]}),{al:["left","right","right","right","right","right","right"],rh:0.44,fs:10.5})
-}
-function pptS45(P,s,M){
- var f=M.lokalFd.slice(0,10);
- pptHead(P,s,4,"Prioritas Remotisasi: Penormalan Lokal Terbanyak",pptSn(f[0]?f[0].k+" mencatat penormalan lokal terbanyak ("+lapN(f[0].L)+" kali). Penyulang ini kandidat utama perbaikan telekontrol/komunikasi agar penormalan dapat dilakukan dari jarak jauh.":"Tidak ada penormalan lokal pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,PPT_CW,5.1);pptTx(s,"10 penyulang dengan penormalan lokal terbanyak",0.8,1.95,8,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,0.7,2.4,[2.55,1.5,2.0,1.0,1.0,1.3,1.2,1.35],["Penyulang","UP3","ULP","Lokal","Remote","Gagal Remot","% Remote","Durasi Lokal"],f.map(function(q){var tot=q.R+q.L+q.G;return[pptCut(q.k,28),pptCut(q.up3,16),pptCut(q.ulp,22),lapN(q.L),lapN(q.R),lapN(q.G),lapPct(q.R,tot),lapMin(lapAvg(q.dl))]}),{al:["left","left","left","right","right","right","right","right"],rh:0.36,fs:11});
- pptTx(s,"% Remote dihitung dari jumlah penormalan Remote, Lokal, dan Gagal Remot pada penyulang tersebut.",0.8,6.55,11.5,0.25,{fs:10,c:PPT_C.mute,i:true})
+function pptS51(P,s,M,pg){
+ var T=M.norm.Trip,D=M.norm.Dilepas,f=M.lokalFd.slice(0,3);
+ pptHead(s,5,"Remote vs Lokal",T.n+D.n?"Penormalan Remote mencapai "+lapD(pptRemPct(T),1)+"% pada padam trip ("+lapN(T.n)+" kejadian) dan "+lapD(pptRemPct(D),1)+"% pada padam dilepas ("+lapN(D.n)+" kejadian).":"Tidak ada data penormalan pada filter yang diterapkan.",pg);
+ [["Padam Trip",T,0.6,PPT_C.or],["Padam Dilepas",D,5.1,PPT_C.bl]].forEach(function(q){
+  var r=q[1],x=q[2];
+  pptPanel(P,s,x,PPT_CY,4.3,4.5,q[0]+" ("+lapN(r.n)+" kejadian)",q[3]);
+  if(r.n)pptDonut(P,s,x+0.15,2.4,4.0,2.4,["Remote","Lokal","Gagal Remot"],[r.R.length,r.L.length,r.G.length],[PPT_NM.Remote,PPT_NM.Lokal,PPT_NM.Gagal],{lpos:"r"});else pptEmpty(s,x+0.15,2.4,4.0,2.4);
+  pptTable(s,x+0.15,4.95,[1.35,0.7,0.8,1.15],["Metode","Jumlah","%","Rata-rata"],[["Remote (SCADA)",lapN(r.R.length),lapPct(r.R.length,r.n),lapMin(r.aR)],["Lokal (manual)",lapN(r.L.length),lapPct(r.L.length,r.n),lapMin(r.aL)],["Gagal Remot",lapN(r.G.length),lapPct(r.G.length,r.n),lapMin(r.aG)]],{al:["left","right","right","right"],rh:0.3,fs:9.5})
+ });
+ pptCap(s,f.length?"Prioritas remotisasi (penormalan lokal terbanyak): "+f.map(function(q){return q.k+" ("+lapN(q.L)+"x)"}).join(", ")+" \u2013 kandidat perbaikan telekontrol/komunikasi.":"Tidak ada penormalan lokal pada filter yang diterapkan.",6.5,0.7)
 }
 
-/* ================= BAGIAN 5 : KONDISI SISTEM DAN ASET ================= */
-function pptS51(P,s,M){
- var tn=M.trip.length,ex=M.ex.length,inn=M.inn.length,ee=pptSum(M.ex,"ensKwh"),ei=pptSum(M.inn,"ensKwh"),dom=ex>=inn?"eksternal":"internal";
- pptHead(P,s,5,"Ringkasan Kondisi Sistem",pptSn(tn?"Faktor "+dom+" mendominasi padam trip ("+lapPct(Math.max(ex,inn),tn)+"). Total "+lapN(tn)+" padam trip dengan recovery JTM rata-rata "+lapMin(M.recT)+".":"Tidak ada padam trip pada filter yang diterapkan."));
- var k=[["Total padam trip",lapN(tn),"Recovery rata-rata "+lapMin(M.recT),PPT_C.navy],["Faktor eksternal",lapN(ex),lapPct(ex,tn)+" \u2022 ENS "+lapD(ee,1)+" kWh",PPT_C.teal],["Faktor internal",lapN(inn),lapPct(inn,tn)+" \u2022 ENS "+lapD(ei,1)+" kWh",PPT_C.red],["Trip > 5 menit",lapN(M.trip5),pptPct(M.trip5,tn)+" dari padam trip",PPT_C.purple]];
- k.forEach(function(q,i){pptKpi(P,s,0.55+(i%2)*3.275,1.8+Math.floor(i/2)*1.7,3.075,1.5,q[0],q[1],q[2],q[3])});
- pptCard(P,s,0.55,5.2,6.35,1.7,PPT_C.soft,true);pptTx(s,"Makna bagi pemeliharaan",0.8,5.32,5.8,0.3,{fs:13,b:true,c:PPT_C.navy});
- var nt=ex>=inn?"Faktor eksternal (lingkungan dan cuaca) lebih dominan: perkuat pemangkasan pohon/ROW, proteksi petir, dan perlindungan satwa pada titik rawan.":"Faktor internal (peralatan dan jaringan) lebih dominan: percepat inspeksi, thermovision, dan penggantian komponen yang menua.";
- if(!tn)nt="Belum ada padam trip; pertahankan pemeliharaan preventif rutin.";
- pptTx(s,nt,0.8,5.65,5.85,1.2,{fs:pptFit(nt,5.85,1.2,14,11),c:PPT_C.ink});
- pptCard(P,s,7.1,1.8,5.683,5.1);pptTx(s,"Eksternal vs internal",7.35,1.95,5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(ex+inn)pptDonut(P,s,7.25,2.3,5.4,4.5,["Eksternal (lingkungan & cuaca)","Internal (peralatan & jaringan)"],[ex,inn],[PPT_C.teal,PPT_C.red]);else pptEmpty(s,7.25,2.3,5.4,4.5)
+/* ================= BAB 6 : KONDISI SISTEM DAN ASET ================= */
+function pptS61(P,s,M,pg){
+ var tn=M.trip.length,ex=M.ex.length,inn=M.inn.length,ee=pptSum(M.ex,"ensKwh"),ei=pptSum(M.inn,"ensKwh"),dom=ex>=inn?"eksternal":"internal",fd=M.fd.slice(0,5),pm=M.pmt.slice(0,5);
+ pptHead(s,6,"Penyulang dan PMT Rawan",tn?"Faktor "+dom+" mendominasi padam trip ("+lapPct(Math.max(ex,inn),tn)+"). "+(fd[0]?fd[0].k+" menjadi penyulang paling rawan ("+lapN(fd[0].all)+" trip).":""):"Tidak ada padam trip pada filter yang diterapkan.",pg);
+ if(fd.length)pptCol(P,s,0.6,2.0,4.3,2.95,fd.map(function(q){return pptCut(q.k,20)}),[{name:"Trip",values:fd.map(function(q){return q.all})}],[PPT_C.or],{horizontal:true,catAxisLabelFontSize:8.5});else pptEmpty(s,0.6,2.0,4.3,2.95);
+ pptRect(P,s,5.0,2.05,0.015,3.0,PPT_C.lb);
+ if(pm.length)pptCol(P,s,5.1,2.0,4.3,2.95,pm.map(function(q){return pptCut(q.k,26)}),[{name:"Trip",values:pm.map(function(q){return q.all})}],[PPT_C.bl],{horizontal:true,catAxisLabelFontSize:8.5});else pptEmpty(s,5.1,2.0,4.3,2.95);
+ pptTx(s,"5 penyulang terbanyak padam trip",0.6,5.0,4.3,0.28,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptTx(s,"5 PMT / peralatan terbanyak padam trip",5.1,5.0,4.3,0.28,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ var w=(8.8-0.3)/3,k=[["Faktor eksternal",lapN(ex),lapPct(ex,tn)+" \u2022 ENS "+lapD(ee,1)+" kWh",PPT_C.or],["Faktor internal",lapN(inn),lapPct(inn,tn)+" \u2022 ENS "+lapD(ei,1)+" kWh",PPT_C.bl],["Trip > 5 menit",lapN(M.trip5),lapPct(M.trip5,tn)+" dari padam trip",PPT_C.dg]];
+ k.forEach(function(q,i){pptKpi(P,s,0.6+i*(w+0.15),5.4,w,1.2,q[0],q[1],q[2],q[3])});
+ pptCap(s,tn?(ex>=inn?"Faktor eksternal lebih dominan: perkuat pemangkasan pohon/ROW, proteksi petir, dan perlindungan satwa pada titik rawan.":"Faktor internal lebih dominan: percepat inspeksi, thermovision, dan penggantian komponen yang menua."):"Belum ada padam trip; pertahankan pemeliharaan preventif rutin.",6.68,0.5)
 }
-function pptTopTable(P,s,M,rows,first,ttl,hdr){
- var f=rows.slice(0,10);
- pptHead(P,s,5,hdr,pptSn(f[0]?f[0].k+" menempati urutan teratas dengan "+lapN(f[0].all)+" padam trip (ENS "+lapD(f[0].ens,1)+" kWh). Eksternal/Internal menunjukkan kategori penyebab trip.":"Tidak ada padam trip pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,PPT_CW,5.1);pptTx(s,ttl,0.8,1.95,9,0.3,{fs:14,b:true,c:PPT_C.navy});
- pptTable(s,0.7,2.4,[2.6,1.7,2.0,1.0,1.3,1.5,1.8],[first,"UP3","ULP","Trip","Recovery","Eksternal / Internal","ENS kWh"],f.map(function(q){return[pptCut(q.k,30),pptCut(q.up3,18),pptCut(q.ulp,22),lapN(q.all),lapMin(q.rec),q.list.filter(function(x){return x.kategoriPenyebab==="Eksternal"}).length+" / "+q.list.filter(function(x){return x.kategoriPenyebab==="Internal"}).length,lapD(q.ens,1)]}),{al:["left","left","left","right","right","right","right"],rh:0.38,fs:11})
-}
-function pptS52(P,s,M){pptTopTable(P,s,M,M.fd,"Penyulang","10 penyulang terbanyak padam trip","10 Penyulang Terbanyak Padam Trip")}
-function pptS53(P,s,M){pptTopTable(P,s,M,M.pmt,"PMT / Peralatan","10 PMT / peralatan terbanyak padam trip","10 PMT / Peralatan Terbanyak Padam Trip")}
-function pptS54(P,s,M){
- var c=M.cause.slice(0,8),pk=0,pi=0;M.hours.forEach(function(v,i){v>pk&&(pk=v,pi=i)});
- var pad=function(n){return String(n).padStart(2,"0")};
- pptHead(P,s,5,"Penyebab Dominan dan Pola Waktu Gangguan",pptSn(M.trip.length?(c[0]?"Penyebab dominan: "+c[0].k+" ("+lapN(c[0].all)+" trip, "+lapPct(c[0].all,M.trip.length)+"). ":"")+(pk>0?"Jam paling rawan "+pad(pi)+".00\u2013"+pad(pi)+".59 ("+lapN(pk)+" trip).":""):"Tidak ada padam trip pada filter yang diterapkan."));
- pptCard(P,s,0.55,1.8,5.9,5.1);pptTx(s,"Penyebab padam trip",0.8,1.95,5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(c.length)pptCol(P,s,0.65,2.3,5.7,4.5,c.map(function(q){return pptCut(q.k,30)}),[{name:"Trip",values:c.map(function(q){return q.all})}],[PPT_C.red],{horizontal:true});else pptEmpty(s,0.65,2.3,5.7,4.5);
- pptCard(P,s,6.65,1.8,6.133,5.1);pptTx(s,"Sebaran padam trip per jam",6.9,1.95,5.5,0.3,{fs:14,b:true,c:PPT_C.navy});
- if(pptPos(M.hours))pptCol(P,s,6.75,2.3,5.93,4.5,M.hours.map(function(_,i){return pad(i)}),[{name:"Trip",values:M.hours}],[PPT_C.blue],{vals:false,gap:30,catAxisLabelFontSize:9});else pptEmpty(s,6.75,2.3,5.93,4.5)
+function pptS62(P,s,M,pg){
+ var c=M.cause.slice(0,6),pk=0,pi=0,pad=function(n){return String(n).padStart(2,"0")};
+ M.hours.forEach(function(v,i){v>pk&&(pk=v,pi=i)});
+ pptHead(s,6,"Penyebab dan Pola Waktu",M.trip.length?(c[0]?"Penyebab dominan: "+c[0].k+" ("+lapN(c[0].all)+" trip, "+lapPct(c[0].all,M.trip.length)+"). ":"")+(pk>0?"Jam paling rawan "+pad(pi)+".00\u2013"+pad(pi)+".59 ("+lapN(pk)+" trip).":""):"Tidak ada padam trip pada filter yang diterapkan.",pg);
+ if(c.length)pptCol(P,s,0.6,2.0,4.3,3.9,c.map(function(q){return pptCut(q.k,26)}),[{name:"Trip",values:c.map(function(q){return q.all})}],[PPT_C.or],{horizontal:true,catAxisLabelFontSize:8.5});else pptEmpty(s,0.6,2.0,4.3,3.9);
+ pptRect(P,s,5.0,2.05,0.015,3.9,PPT_C.lb);
+ if(pptPos(M.hours))pptCol(P,s,5.1,2.0,4.3,3.9,M.hours.map(function(_,i){return pad(i)}),[{name:"Trip",values:M.hours}],[PPT_C.bl],{vals:false,gap:30,catAxisLabelFontSize:8});else pptEmpty(s,5.1,2.0,4.3,3.9);
+ pptTx(s,"Penyebab padam trip (sub-kelompok)",0.6,5.98,4.3,0.28,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptTx(s,"Sebaran padam trip per jam",5.1,5.98,4.3,0.28,{fs:10.5,b:true,c:PPT_C.dg,al:"center"});
+ pptCap(s,"Gunakan pola penyebab dan jam rawan untuk menjadwalkan patroli dan kesiapan tim piket.",6.4,0.5)
 }
 
-/* ================= BAGIAN 6 : PENUTUP ================= */
+/* ================= BAB 7 : PENUTUP ================= */
 function pptConclusions(M){
- var dt=M.dt,T=M.tren,N=M.norm.Trip,out=[];
- out.push(["Executive Summary","Terjadi "+lapN(M.e.length)+" kejadian padam ("+lapN(M.trip.length)+" trip, "+lapN(M.dil.length)+" dilepas) dengan recovery JTM trip rata-rata "+lapMin(M.recT)+"; status sistem "+dt.statusKesehatan+" (skor "+dt.skorKesehatan+"/100)."]);
+ var dt=M.dt,T=M.tren,N=M.norm.Trip,G=M.fg,out=[],tn=M.trip.length;
+ out.push(["Executive Summary","Terjadi "+lapN(M.e.length)+" kejadian padam ("+lapN(tn)+" trip, "+lapN(M.dil.length)+" dilepas) dengan recovery JTM trip rata-rata "+lapMin(M.recT)+"; status sistem "+dt.statusKesehatan+" (skor "+dt.skorKesehatan+"/100)."]);
+ out.push(["Realisasi FGTM",G.ok?"Realisasi FGTM "+lapN(G.n)+" kali (Zona 1: "+lapN(G.A)+", Zona 2: "+lapN(G.B)+", Zona 3+: "+lapN(G.C)+"). "+pptFgTgt(G):"Realisasi FGTM belum dapat dihitung pada cakupan ini."]);
  var tr="";
- if(T.mom||T.yoy){var parts=[];if(T.mom)parts.push("dibanding "+T.nM+" kinerja "+T.mom.ks.verdict.toLowerCase()+" (padam trip "+lapN(T.mom.sA.trip)+" \u2192 "+lapN(T.mom.sB.trip)+")");if(T.yoy)parts.push("dibanding "+T.nY+" kinerja "+T.yoy.ks.verdict.toLowerCase()+" (padam trip "+lapN(T.yoy.sA.trip)+" \u2192 "+lapN(T.yoy.sB.trip)+")");tr=T.nC+": "+parts.join("; ")+(T.mom&&!T.yoy?"; pembanding YoY belum tersedia.":".")}
+ if(T.mom||T.yoy){var parts=[];if(T.mom)parts.push("dibanding "+T.nM+" kinerja "+T.mom.ks.verdict.toLowerCase()+" (trip "+lapN(T.mom.sA.trip)+" \u2192 "+lapN(T.mom.sB.trip)+")");if(T.yoy)parts.push("dibanding "+T.nY+" kinerja "+T.yoy.ks.verdict.toLowerCase()+" (trip "+lapN(T.yoy.sA.trip)+" \u2192 "+lapN(T.yoy.sB.trip)+")");tr="Pada "+T.nC+", "+parts.join("; ")+"."}
  else tr="Data pembanding bulan sebelumnya maupun tahun sebelumnya belum tersedia sehingga tren belum dapat disimpulkan.";
  out.push(["Analisis Tren",tr]);
- out.push(["Evaluasi dan Tindak Lanjut Trip",M.trip.length?"Penyebab dominan "+dt.penyebabUtama.nama+" ("+dt.penyebabUtama.persentase+"%); penyulang paling rawan "+dt.feederPalingRawan.feeder+" ("+lapN(dt.feederPalingRawan.tripCount)+" trip); ULP paling terdampak "+dt.ulpTerdampak.ulp+".":"Tidak ada padam trip sehingga tidak ada temuan prioritas."]);
- out.push(["Penormalan (Remote/Lokal)",N.n?"Pada padam trip, penormalan Remote "+lapPct(N.R.length,N.n)+" dan Lokal "+lapPct(N.L.length,N.n)+(N.aR>0&&N.aL>0?"; rata-rata durasi Remote "+lapMin(N.aR)+" vs Lokal "+lapMin(N.aL):"")+".":"Belum ada data penormalan padam trip."]);
- var tn=M.trip.length;
+ out.push(["Evaluasi Trip",tn?"Penyebab dominan "+dt.penyebabUtama.nama+" ("+dt.penyebabUtama.persentase+"%); penyulang paling rawan "+dt.feederPalingRawan.feeder+" ("+lapN(dt.feederPalingRawan.tripCount)+" trip); ULP paling terdampak "+dt.ulpTerdampak.ulp+".":"Tidak ada padam trip sehingga tidak ada temuan prioritas."]);
+ out.push(["Penormalan",N.n?"Penormalan Remote "+lapPct(N.R.length,N.n)+" dan Lokal "+lapPct(N.L.length,N.n)+" pada padam trip"+(N.aR>0&&N.aL>0?"; rata-rata durasi Remote "+lapMin(N.aR)+" vs Lokal "+lapMin(N.aL):"")+".":"Belum ada data penormalan padam trip."]);
  out.push(["Kondisi Sistem dan Aset",tn?"Faktor eksternal "+lapPct(M.ex.length,tn)+" dan internal "+lapPct(M.inn.length,tn)+" dari padam trip; energi tak tersalurkan "+lapD(M.ens,1)+" kWh.":"Tidak ada padam trip pada periode ini."]);
  return out
 }
-function pptS61(P,s,M){
- var c=pptConclusions(M),rh=(5.1-0.12*4)/5;
- pptHead(P,s,6,"Ringkasan Kesimpulan",pptSn("Kesimpulan singkat dari materi 1\u20135 berdasarkan data pada filter yang diterapkan."));
- c.forEach(function(q,i){var y=1.8+i*(rh+0.12);pptCard(P,s,0.55,y,PPT_CW,rh);pptDot(P,s,i+1,0.78,y+rh/2-0.25,0.5,PPT_C.navy,17);
-  pptTx(s,q[0],1.5,y+0.06,3.1,rh-0.12,{fs:pptFit(q[0],3.1,rh-0.12,16,12),b:true,c:PPT_C.navy,va:"middle"});
-  var t=pptCut(q[1],300);pptTx(s,t,4.75,y+0.06,7.85,rh-0.12,{fs:pptFit(t,7.85,rh-0.12,15,11),c:PPT_C.ink,va:"middle"})})
+function pptS71(P,s,M,pg){
+ var c=pptConclusions(M),rh=0.7,cols=[PPT_C.or,PPT_C.bl,PPT_C.gr];
+ pptHead(s,7,"Kesimpulan","Kesimpulan singkat dari BAB 1\u20136 berdasarkan data pada filter yang diterapkan.",pg);
+ c.forEach(function(q,i){
+  var y=PPT_CY+i*(rh+0.1),cc=cols[i%3];
+  pptRound(P,s,0.6,y,8.8,rh,PPT_C.lg,{r:0.08});pptRect(P,s,0.6,y+0.1,0.06,rh-0.2,cc);
+  pptDot(P,s,i+1,0.8,y+rh/2-0.18,0.36,cc,11);
+  pptTx(s,q[0],1.3,y+0.05,2.0,rh-0.1,{fs:pptFit(q[0],2.0,rh-0.1,12,9),b:true,f:PPT_HF,c:cc===PPT_C.gr?PPT_C.dg:cc,va:"middle"});
+  var t=pptCut(q[1],230);pptTx(s,t,3.4,y+0.04,5.85,rh-0.08,{fs:pptFit(t,5.85,rh-0.08,10.5,8),c:PPT_C.tx,va:"middle"})
+ })
 }
 function pptPriorities(M){
- var dt=M.dt,T=M.tren,N=M.norm.Trip,out=[],tn=M.trip.length;
+ var dt=M.dt,T=M.tren,N=M.norm.Trip,G=M.fg,out=[],tn=M.trip.length;
  if(tn){
-  out.push(["Tinggi",dt.penyebabUtama.mitigasi,"Penyebab: "+dt.penyebabUtama.nama+" ("+lapN(dt.penyebabUtama.jumlah)+" trip)","Trip akibat penyebab ini turun dari "+lapN(dt.penyebabUtama.jumlah)+" kejadian"]);
-  out.push(["Tinggi",dt.feederPalingRawan.rekomendasi,"Penyulang "+dt.feederPalingRawan.feeder+" (UP3 "+dt.feederPalingRawan.up3+")","Trip penyulang di bawah "+lapN(dt.feederPalingRawan.tripCount)+" kejadian"]);
-  out.push(["Sedang","Perkuat inspeksi preventif dan siagakan tim piket di ULP "+dt.ulpTerdampak.ulp+" pada jam rawan "+dt.waktuPalingRawan+".","ULP "+dt.ulpTerdampak.ulp+" (UP3 "+dt.ulpTerdampak.up3+")","Recovery JTM trip di bawah "+lapMin(M.recT)])}
- if(N.n&&M.lokalFd.length)out.push([pptRemPct(N)<70?"Tinggi":"Sedang","Tingkatkan porsi penormalan Remote (saat ini "+lapPct(N.R.length,N.n)+") melalui perbaikan telekontrol dan komunikasi pada penyulang dengan penormalan lokal terbanyak.",M.lokalFd.slice(0,3).map(function(q){return q.k}).join(", "),"Porsi Remote naik dari "+lapPct(N.R.length,N.n)]);
- var zs=M.zona.slice().sort(function(a,b){return b.n-a.n})[0];
- if(zs&&zs.n)var za=pptCut(trZonaAksi(zs.k.replace("Zona ","")),230);out.push(["Sedang",za.charAt(0).toUpperCase()+za.slice(1)+".",zs.k+" ("+lapN(zs.n)+" trip)","Trip "+zs.k.toLowerCase()+" turun dari "+lapN(zs.n)+" kejadian"]);
+  out.push(["Tinggi",dt.penyebabUtama.mitigasi,"Penyebab: "+dt.penyebabUtama.nama+" ("+lapN(dt.penyebabUtama.jumlah)+" trip)"]);
+  out.push(["Tinggi",dt.feederPalingRawan.rekomendasi,"Penyulang "+dt.feederPalingRawan.feeder+" (UP3 "+dt.feederPalingRawan.up3+")"]);
+  out.push(["Sedang","Perkuat inspeksi preventif dan siagakan tim piket di ULP "+dt.ulpTerdampak.ulp+" pada jam rawan "+dt.waktuPalingRawan+".","ULP "+dt.ulpTerdampak.ulp+" (UP3 "+dt.ulpTerdampak.up3+")"])
+ }
+ if(G.ok&&G.n>0){var over=G.T!=null&&G.n>G.T;out.push([over?"Tinggi":"Sedang",over?"Tekan realisasi FGTM yang melampaui target ("+lapN(G.n)+" dari target "+lapN(G.T)+" kali) dengan patroli dan perbaikan pada penyulang prioritas.":"Jaga realisasi FGTM tetap rendah dengan fokus pada ULP dengan gangguan terbanyak.","ULP "+G.rows[0].k+" ("+lapN(G.rows[0].n)+" kali)"])}
+ if(N.n&&M.lokalFd.length)out.push([pptRemPct(N)<70?"Tinggi":"Sedang","Tingkatkan porsi penormalan Remote (saat ini "+lapPct(N.R.length,N.n)+") melalui perbaikan telekontrol dan komunikasi pada penyulang dengan penormalan lokal terbanyak.",M.lokalFd.slice(0,3).map(function(q){return q.k}).join(", ")]);
  var wk=T.mom||T.yoy;
- if(wk){var tk=wk.ks.tindak[0];out.push([wk.ks.tone==="tr-up"?"Tinggi":"Sedang",tk?pptCut(tk,230):"Pantau terus indikator tren pada periode berikutnya.","Seluruh cakupan unit ("+pptScope(M.sel)+")","Indikator utama tidak memburuk dibanding "+T.nC])}
- else out.push(["Sedang","Lengkapi data bulan pembanding (bulan sebelumnya dan tahun sebelumnya) agar analisis tren MoM dan YoY dapat dilakukan.","Seluruh cakupan unit","Data pembanding tersedia pada evaluasi berikutnya"]);
- out=out.map(function(q,i){return{q:q,i:i}}).sort(function(x,y){return (x.q[0]==="Tinggi"?0:1)-(y.q[0]==="Tinggi"?0:1)||x.i-y.i}).map(function(o){return o.q});return out.slice(0,6)
+ if(wk){var tk=wk.ks.tindak[0];out.push([wk.ks.tone==="tr-up"?"Tinggi":"Sedang",tk?pptCut(tk,200):"Pantau terus indikator tren pada periode berikutnya.","Seluruh cakupan unit ("+pptScope(M.sel)+")"])}
+ else out.push(["Sedang","Lengkapi data bulan pembanding (bulan sebelumnya dan tahun sebelumnya) agar analisis tren MoM dan YoY dapat dilakukan.","Seluruh cakupan unit"]);
+ return out.map(function(q,i){return{q:q,i:i}}).sort(function(x,y){return (x.q[0]==="Tinggi"?0:1)-(y.q[0]==="Tinggi"?0:1)||x.i-y.i}).map(function(o){return o.q}).slice(0,5)
 }
-function pptS62(P,s,M){
+function pptS72(P,s,M,pg){
  var r=pptPriorities(M);
- pptHead(P,s,6,"Tindak Lanjut Prioritas Periode Selanjutnya",pptSn("Daftar tindak lanjut disusun otomatis dari temuan pada materi 1\u20135 dan diurutkan menurut prioritas."));
- pptCard(P,s,0.55,1.8,PPT_CW,5.1);
- pptTable(s,0.7,1.95,[0.5,1.05,5.3,2.8,2.25],["No","Prioritas","Tindak lanjut","Sasaran / lokasi","Indikator keberhasilan"],r.map(function(q,i){var c=q[0]==="Tinggi"?PPT_C.red:PPT_C.amber;return[{text:i+1,o:{align:"center",bold:true}},{text:q[0],o:{bold:true,color:c}},pptCut(q[1],170),pptCut(q[2],70),pptCut(q[3],80)]}),{al:["center","left","left","left","left"],rh:0.68,fs:11})
+ pptHead(s,7,"Tindak Lanjut Prioritas","Daftar tindak lanjut disusun otomatis dari temuan BAB 1\u20136 dan diurutkan menurut prioritas.",pg);
+ pptRound(P,s,0.6,PPT_CY,8.8,4.7,PPT_C.lg,{r:0.08});
+ pptTable(s,0.75,PPT_CY+0.15,[0.45,0.9,4.5,2.8],["No","Prioritas","Tindak lanjut","Sasaran / lokasi"],r.map(function(q,i){var c=q[0]==="Tinggi"?PPT_C.red:PPT_C.amb;return[{text:i+1,o:{align:"center",bold:true}},{text:q[0],o:{bold:true,color:c}},pptCut(q[1],170),pptCut(q[2],70)]}),{al:["center","left","left","left"],rh:[0.4].concat(r.map(function(){return 0.78})),fs:9.5})
 }
 
 /* ================= PERAKITAN DECK ================= */
-function pptBuildDeck(Lib,ctx,sel,logo){
- var P=new Lib(),M=pptModel(ctx,sel),L={white:pptStrip(logo&&logo.white),color:pptStrip(logo&&logo.color)},T=M.tren;
- P.layout="LAYOUT_WIDE";P.title="Pemaparan Evaluasi Monitoring Sistem Distribusi 20kV";P.subject="Monitoring Sistem Distribusi 20kV UID Suluttenggo";P.author="PLN Nusa Daya";P.company="PLN Nusa Daya";P.theme={headFontFace:PPT_FONT,bodyFontFace:PPT_FONT};
- var ob=[];if(L.color)ob.push({image:{x:PPT_W-PPT_MX-1.7,y:0.3,w:1.7,h:0.505,data:L.color}});
- ob.push({text:{text:"Pemaparan Evaluasi \u2022 Monitoring Sistem Distribusi 20kV UID Suluttenggo \u2022 PLN Nusa Daya",options:{x:PPT_MX,y:7.06,w:9,h:0.25,fontFace:PPT_FONT,fontSize:10,color:PPT_C.mute,margin:0}}});
- P.defineSlideMaster({title:"PPT_CONTENT",background:{color:PPT_C.bg},objects:ob,slideNumber:{x:PPT_W-PPT_MX-0.8,y:7.06,w:0.8,h:0.25,fontFace:PPT_FONT,fontSize:10,color:PPT_C.mute,align:"right"}});
- P.defineSlideMaster({title:"PPT_DARK",background:{color:PPT_C.navy}});
+function pptBuildDeck(Lib,ctx,sel,A){
+ var P=new Lib(),M=pptModel(ctx,sel),T=M.tren;
+ M.fg=pptFgtm(M);
+ P.layout="LAYOUT_4x3";P.title="Pemaparan Evaluasi Monitoring Sistem Distribusi 20kV";P.subject="Monitoring Sistem Distribusi 20kV UID Suluttenggo";P.author="PLN Nusa Daya";P.company="PLN Nusa Daya";P.theme={headFontFace:PPT_HF,bodyFontFace:PPT_FONT};
+ var bars=[],w3=PPT_W/3;
+ [PPT_C.or,PPT_C.bl,PPT_C.gr].forEach(function(c,i){bars.push({rect:{x:i*w3,y:0,w:w3+0.01,h:0.31,fill:{color:c}}})});
+ var hb=bars.slice();
+ [PPT_C.or,PPT_C.bl,PPT_C.gr].forEach(function(c,i){hb.push({rect:{x:i*w3,y:1.535,w:w3+0.01,h:0.156,fill:{color:c,transparency:60}}})});
+ P.defineSlideMaster({title:"PPT_CONTENT",background:{color:"FFFFFF"},objects:hb});
+ P.defineSlideMaster({title:"PPT_COVER",background:{color:"FFFFFF"}});
  var plan=[],add=function(sec,title,fn){plan.push({sec:sec,title:title,fn:fn})};
- add(1,"Ringkasan operasional",pptS11);add(1,"Tren kejadian",pptS12);add(1,"Per Unit DCC",pptS13);add(1,"Per UP3 dan ULP",pptS14);add(1,"Zona dan penyebab",pptS15);add(1,"10 penyulang teratas",pptS16);
- if(T.ok&&T.hasC){
-  add(2,"Parameter dan ketersediaan data",pptS21);
-  if(T.mom){add(2,"MoM: indikator",function(P,s,M){pptS2Cmp(P,s,M,T.mom)});add(2,"MoM: pola harian",function(P,s,M){pptS2Harian(P,s,M,T.mom)});add(2,"MoM: kesimpulan",function(P,s,M){pptS2Kes(P,s,M,T.mom)})}
-  else add(2,"MoM belum tersedia",function(P,s,M){pptS2Kosong(P,s,M,"Data bulan sebelumnya ("+T.nM+") belum tersedia pada cakupan unit ini, sehingga perbandingan MoM belum dapat ditampilkan.")});
-  if(T.yoy){add(2,"YoY: indikator",function(P,s,M){pptS2Cmp(P,s,M,T.yoy)});add(2,"YoY: pola harian",function(P,s,M){pptS2Harian(P,s,M,T.yoy)});add(2,"YoY: kesimpulan",function(P,s,M){pptS2Kes(P,s,M,T.yoy)})}
-  if(T.mom&&T.yoy)add(2,"Ringkasan tiga periode",pptS2Tiga)
- }else add(2,"Periode analisis",function(P,s,M){pptS2Kosong(P,s,M,"Data pada periode analisis ("+(T.nC||"-")+") belum tersedia pada cakupan unit ini.")});
- add(3,"Status dan ringkasan eksekutif",pptS31);add(3,"Temuan utama",pptS32);add(3,"Rekomendasi manajerial",pptS33);add(3,"Langkah tindakan lapangan",pptS34);add(3,"Skor per Unit DCC",pptS35);
- add(4,"Ringkasan Remote vs Lokal",pptS41);add(4,"Tren padam trip",function(P,s,M){pptS4Tipe(P,s,M,"Trip")});add(4,"Tren padam dilepas",function(P,s,M){pptS4Tipe(P,s,M,"Dilepas")});add(4,"Per Unit DCC",pptS44);add(4,"Prioritas remotisasi",pptS45);
- add(5,"Ringkasan kondisi sistem",pptS51);add(5,"Penyulang teratas",pptS52);add(5,"PMT / peralatan teratas",pptS53);add(5,"Penyebab dan pola waktu",pptS54);
- add(6,"Ringkasan kesimpulan",pptS61);add(6,"Tindak lanjut prioritas",pptS62);
- var order=[],pages={};
- for(var sec=1;sec<=6;sec++){var items=plan.filter(function(p){return p.sec===sec});order.push({div:true,sec:sec,titles:items.map(function(p){return p.title})});items.forEach(function(p){order.push(p)})}
- order.forEach(function(o,i){if(o.div)pages[o.sec]=i+3});
- pptCover(P,M,L);pptToc(P,M,pages);
- order.forEach(function(o){if(o.div)pptDivider(P,o.sec,o.titles);else{var s=P.addSlide({masterName:"PPT_CONTENT"});o.fn(P,s,M)}});
- pptBack(P,M,L);
- return{pptx:P,count:order.length+3,name:"Pemaparan_Evaluasi_Sistem_Distribusi_"+String(sel.bulan||"").replace(/\s+/g,"")+"_"+(sel.tahun||"")+".pptx",plan:order,model:M}
+ add(1,"Ringkasan kondisi",pptS11);add(1,"Sebaran padam",pptS12);
+ add(2,"Realisasi FGTM",pptS21);add(2,"FGTM per ULP dan bulan",pptS22);
+ add(3,"Perbandingan MoM dan YoY",pptS31);
+ add(4,"Temuan utama",pptS41);add(4,"Rekomendasi dan tindakan",pptS42);
+ add(5,"Remote vs Lokal",pptS51);
+ add(6,"Penyulang dan PMT rawan",pptS61);add(6,"Penyebab dan pola waktu",pptS62);
+ add(7,"Kesimpulan",pptS71);add(7,"Tindak lanjut prioritas",pptS72);
+ var pages={};plan.forEach(function(p,i){if(!pages[p.sec])pages[p.sec]=i+3});
+ pptCover(P,M,A,false);pptToc(P,M,pages);
+ plan.forEach(function(p,i){var s=P.addSlide({masterName:"PPT_CONTENT"});p.fn(P,s,M,i+3)});
+ pptCover(P,M,A,true);
+ return{pptx:P,count:plan.length+3,name:"Pemaparan_Evaluasi_Sistem_Distribusi_"+String(sel.bulan||"").replace(/\s+/g,"")+"_"+(sel.tahun||"")+".pptx",plan:plan,model:M}
 }
 async function pptRun(ctx,sel){
- var Lib=await pptLoadLib(),logo={white:null,color:null},svg=pptLogoSvg();
- if(svg){logo.white=await pptSvgPng(svg,1032,307);logo.color=await pptSvgPng(svg.replace(/fill="#ffffff"/g,'fill="#0B2A5B"'),1032,307)}
- var d=pptBuildDeck(Lib,ctx,sel,logo);
+ var Lib=await pptLoadLib(),A={logo:null,pat:null};
+ A.logo=pptStrip(await pptSvgPng(PPT_LOGO_SVG,1670,612));A.pat=pptStrip(await pptSvgPng(PPT_PAT_SVG,1600,1200));
+ var d=pptBuildDeck(Lib,ctx,sel,A);
  await d.pptx.writeFile({fileName:d.name});
  return d.count
 }
@@ -2084,12 +2033,12 @@ function PptModal(props){
  go=async function(){busyRef.current=true;setBusy(true);setMsg(null);try{await new Promise(function(r){setTimeout(r,40)});var n=await pptRun(ctx,sel);setMsg({ok:true,t:"PPT berhasil dibuat ("+n+" slide) dan sedang diunduh."})}catch(er){console.error(er);setMsg({ok:false,t:"Gagal membuat PPT: "+((er&&er.message)||er)})}finally{busyRef.current=false;setBusy(false)}};
  return h("div",{className:"ppt-ov",onMouseDown:function(ev){ev.target===ev.currentTarget&&!busy&&onClose()}},
   h("div",{className:"ppt-box",role:"dialog","aria-modal":"true","aria-label":"Buat Pemaparan"},
-   h("div",{className:"ppt-hd"},h("div",null,h("div",{className:"ppt-tt"},"Buat Pemaparan (PPT)"),h("div",{className:"ppt-st"},"Template otomatis: cover, daftar isi, 6 bagian materi, dan cover penutup")),h("button",{type:"button",className:"ppt-x",onClick:onClose,disabled:busy,"aria-label":"Tutup"},"\u00D7")),
+   h("div",{className:"ppt-hd"},h("div",null,h("div",{className:"ppt-tt"},"Buat Pemaparan (PPT)"),h("div",{className:"ppt-st"},"Layout kit PLN Nusa Daya (4:3): cover, daftar isi, 7 BAB ringkas, dan penutup")),h("button",{type:"button",className:"ppt-x",onClick:onClose,disabled:busy,"aria-label":"Tutup"},"\u00D7")),
    h("div",{className:"ppt-bd"},
-    h("div",{className:"ppt-sec"},h("div",{className:"ppt-h"},"Filter data yang terpasang"),h("div",{className:"ppt-p"},"Dipakai oleh bagian 1 Executive Summary, 3 Evaluasi dan Tindak Lanjut Trip, 4 Penormalan, dan 5 Kondisi Sistem dan Aset."),
+    h("div",{className:"ppt-sec"},h("div",{className:"ppt-h"},"Filter data yang terpasang"),h("div",{className:"ppt-p"},"Dipakai oleh BAB 1 Executive Summary, 4 Evaluasi dan Tindak Lanjut Trip, 5 Penormalan, dan 6 Kondisi Sistem dan Aset."),
      h("div",{className:"ppt-chips"},fl.length?fl.map(function(r,i){return h("span",{key:i,className:"ppt-chip"},r[0]+": "+r[1])}):h("span",{className:"ppt-chip"},"Tanpa filter (semua data)")),
      h("div",{className:"ppt-p ppt-sm"},lapN(ctx.entries.length)+" kejadian dari "+lapN(all.length)+" data. Ubah filter pada dashboard bila ingin cakupan berbeda.")),
-    h("div",{className:"ppt-sec"},h("div",{className:"ppt-h"},"Analisis Tren \u2013 periode bulan"),h("div",{className:"ppt-p"},"Periode dibandingkan otomatis dengan bulan sebelumnya (MoM) dan bulan yang sama tahun sebelumnya (YoY, hanya jika datanya tersedia)."),
+    h("div",{className:"ppt-sec"},h("div",{className:"ppt-h"},"Periode bulan \u2013 Analisis Tren dan Realisasi FGTM"),h("div",{className:"ppt-p"},"Periode ini dipakai untuk Realisasi FGTM (BAB 2) dan dibandingkan otomatis dengan bulan sebelumnya (MoM) serta bulan yang sama tahun sebelumnya (YoY, hanya jika datanya tersedia) pada BAB 3."),
      h("div",{className:"ppt-grid"},
       fld("Tahun",sel.tahun,function(v){var ms=trOpts(all,{tahun:v,dcc:sel.dcc,up3:sel.up3,ulp:TR_ALL}).mons;upd({tahun:v,bulan:ms.indexOf(sel.bulan)>=0?sel.bulan:(ms[ms.length-1]||TR_ALL)})},o.yrs.map(function(v){return opt(v)})),
       fld("Bulan",sel.bulan,function(v){upd({bulan:v})},o.mons.length?o.mons.map(function(v){return opt(v)}):[opt(TR_ALL,"Tidak ada data")]),
@@ -2105,6 +2054,7 @@ function PptModal(props){
     !ctx.entries.length?h("div",{className:"ppt-msg ppt-msg-er"},"Tidak ada data pada filter yang terpasang. Longgarkan filter dashboard terlebih dahulu."):null),
    h("div",{className:"ppt-ft"},h("button",{type:"button",className:"ppt-b",onClick:onClose,disabled:busy},"Tutup"),h("button",{type:"button",className:"ppt-b ppt-bp",onClick:go,disabled:busy||!valid},busy?"Menyusun slide\u2026":"Buat Pemaparan"))))
 }
+
 
 /* ===================== REKAP FGTM : LOGIKA ===================== */
 var FG_ALL="SEMUA",FG_LS="fgtm_target_v1";
