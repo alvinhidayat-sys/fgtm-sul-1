@@ -2118,7 +2118,7 @@ function fgNat(a,b){return String(a).localeCompare(String(b),"id",{numeric:true,
 function fgJam(e){var j=e.jamPadam&&e.jamPadam!=="-"?e.jamPadam:(e.jamTrip&&e.jamTrip!=="-"?e.jamTrip:"");var m=String(j).match(/(\d{1,2})\s*[:.]\s*(\d{2})/);return m?("0"+m[1]).slice(-2)+":"+m[2]:""}
 function fgZ(e){var m=String(e.zona==null?"":e.zona).match(/\d+/);return m?String(Number(m[0])):"-"}
 function fgGN(e){var k=e.kelompokRaw!=null?e.kelompokRaw:e.kelompok;return String(k||"").trim().toUpperCase()==="DISTRIBUSI_GN"}
-function fgExcl(e){var s=String(e.subKelompok||"").toLowerCase();if(/pembangkit|ufr/.test(s)||/pembangkit/i.test(String(e.kelompok||"")))return"UFR";if(/binatang|pihak\s*ke\s*-?\s*(3|iii|tiga)/.test(s))return"Binatang";return""}
+function fgExcl(e){var s=String(e.subKelompok||"").toLowerCase();if(/pembangkit|ufr/.test(s)||/pembangkit/i.test(String(e.kelompok||"")))return"UFR";if(/pihak\s*ke\s*-?\s*(3|iii|tiga)/.test(s))return"Pihak3";if(/binatang|hewan|satwa/.test(s))return"Binatang";return""}
 function fgUnit(e,f){return(f.dcc===FG_ALL||e.dcc===f.dcc)&&(f.up3===FG_ALL||e.up3===f.up3)&&ulpOk(f.ulp,e.ulp)}
 function fgMatch(e,f){return(f.tahun===FG_ALL||trYear(e)===f.tahun)&&(f.bulan===FG_ALL||trMon(e)===f.bulan)&&fgUnit(e,f)}
 function fgDefault(a){var by=-1,bm=-1,ty="",tm="";a.forEach(function(e){var y=Number(trYear(e)),m=TR_BLN.indexOf(trMon(e));if(!y||m<0)return;if(y>by||(y===by&&m>bm)){by=y;bm=m;ty=String(y);tm=TR_BLN[m]}});return{tahun:ty||FG_ALL,bulan:tm||FG_ALL,dcc:FG_ALL,up3:FG_ALL,ulp:FG_ALL}}
@@ -2130,22 +2130,77 @@ function fgNames(entries){var m={};entries.forEach(function(e){var x=/^PMT_(.+?)
 function fgFLabel(names,dcc,fd){var n=names[dcc+"|"+String(fd).toUpperCase()];return n?fd+" - "+n:fd}
 function fgDateNum(e){var d=A2(e.tanggal);return d?d.getTime():9e15}
 
-/* --- pipeline: (0) hanya KELOMPOK PADAM_EVENT = DISTRIBUSI_GN sesuai periode, (1) trip > 5 menit, (2) dedupe jam padam sama per feeder (ambil paling atas), (3) keluarkan binatang / UFR --- */
+/* --- pipeline FGTM ---
+ (0) hanya KELOMPOK PADAM_EVENT = DISTRIBUSI_GN sesuai periode, tipe Trip
+ (1) buang data ganda: tanggal dinormalkan (6-Okt-26 = 6-Oct-26), lalu kunci unit DCC + penyulang + tanggal + jam trip;
+     baris tanpa jam ("-") dianggap ganda bila ada baris berjam dengan PMT, tanggal, dan durasi yang sama
+ (2) gabungkan trip beruntun: jam masuk baris sebelumnya = jam trip baris berikutnya (UP3, ULP, penyulang, zona sama) -> 1 gangguan,
+     durasi = jam trip pertama sampai jam masuk terakhir
+ (3) durasi gangguan > 5 menit
+ (4) keluarkan UFR / binatang / pihak ke-3 --- */
+var FG_GAP=0;
+var FG_MONID={jan:1,feb:2,mar:3,apr:4,mei:5,may:5,jun:6,jul:7,agu:8,agt:8,aug:8,sep:9,okt:10,oct:10,nov:11,des:12,dec:12};
+function fgDK(e){var t=String(e.tanggal==null?"":e.tanggal).trim().toLowerCase(),m=t.match(/^(\d{1,2})[-\/ ]([a-z]{3})[a-z]*[-\/ ](\d{2,4})$/);if(m&&FG_MONID[m[2]]){var y=Number(m[3]);if(y<100)y+=2000;return y*10000+FG_MONID[m[2]]*100+Number(m[1])}var d=A2(e.tanggal);return d?d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate():t}
+function fgDayN(k){if(typeof k!=="number")return null;var y=Math.floor(k/10000),m=Math.floor(k/100)%100,d=k%100;return Math.round(Date.UTC(y,m-1,d)/864e5)}
+function fgHM(j){var m=String(j==null?"":j).match(/^\s*(\d{1,2})\s*[:.]\s*(\d{2})/);return m?Number(m[1])*60+Number(m[2]):null}
+function fgSpan(e){var dn=fgDayN(fgDK(e)),a=fgHM(fgJam(e));if(dn==null||a==null)return null;var st=dn*1440+a,b=fgHM(e.jamMasuk),en=null;if(b!=null){en=dn*1440+b;if(en<st)en+=1440}var dd=Number(e.durasiPadamMenit)>0?st+Number(e.durasiPadamMenit):null;if(en==null)en=dd;return{st:st,en:en,ed:dd}}
+function fgHHMM(n){var m=((n%1440)+1440)%1440;return("0"+Math.floor(m/60)).slice(-2)+":"+("0"+(m%60)).slice(-2)}
+function fgMerge(parts){
+ var first=parts[0].e,last=parts[parts.length-1].e,sp0=parts[0].sp,spL=parts[parts.length-1].sp,endAbs=spL.en!=null?spL.en:spL.ed,dur=endAbs-sp0.st;
+ var e2=Object.assign({},last,{tanggal:first.tanggal,bulan:first.bulan,jamPadam:first.jamPadam,jamTrip:first.jamTrip,jamDilepas:first.jamDilepas,jamMasuk:fgHHMM(endAbs),durasiPadamMenit:dur,lamaPadam:("0"+Math.floor(dur/60)).slice(-2)+":"+("0"+(dur%60)).slice(-2),keterangan:parts.map(function(x){return x.e.keterangan}).filter(function(x){return x&&x!=="-"}).filter(function(x,i,a){return a.indexOf(x)===i}).join(" \u2192 ")||last.keterangan,digabung:parts.length});
+ return e2
+}
 function fgRun(entries,f){
- var kept=[],seen={},dups=[],exB=[],exU=[],cand=0;
+ var kept=[],dups=[],exB=[],exP=[],exU=[],folded=[],cand=0;
+ /* (0)+(1) saring dan buang data ganda */
+ var seen={},seenNT={},uniq=[],tmpDup=[];
  for(var i=0;i<entries.length;i++){
   var e=entries[i];
-  if(!e||e.tipe!=="Trip"||!(e.durasiPadamMenit>5)||!fgGN(e)||!fgMatch(e,f))continue;
-  cand++;
-  var jm=fgJam(e),fd=e.feeder&&e.feeder!=="-"?e.feeder:"",key=jm&&fd?[e.dcc,fd,e.tanggal,jm].join("|"):"";
-  if(key&&seen[key]){seen[key].skipped.push(e);dups.push({e:e,i:i,first:seen[key]});continue}
-  var r={e:e,i:i,skipped:[]};if(key)seen[key]=r;
-  var x=fgExcl(e);
-  if(x==="UFR"){exU.push(r);continue}
-  if(x==="Binatang"){exB.push(r);continue}
-  kept.push(r)
+  if(!e||e.tipe!=="Trip"||!fgGN(e)||!fgMatch(e,f))continue;
+  var jm=fgJam(e),fd=e.feeder&&e.feeder!=="-"?e.feeder:"",dk=fgDK(e),sp=fgSpan(e),dur=Number(e.durasiPadamMenit)||0;
+  var key=jm&&fd?[e.dcc,fd,dk,jm].join("|"):"";
+  var nk=fd?[e.dcc,fd,dk,String(e.pmt||"").toUpperCase(),dur].join("|"):"";
+  var r={e:e,i:i,sp:sp,skipped:[]};
+  if(key){
+   if(seen[key]){seen[key].skipped.push(e);tmpDup.push({e:e,i:i,first:seen[key]});continue}
+   seen[key]=r;if(nk&&(!seenNT[nk]||!fgJam(seenNT[nk].e)))seenNT[nk]=r
+  }else if(nk){
+   if(seenNT[nk]){tmpDup.push({e:e,i:i,first:seenNT[nk]});continue}
+   seenNT[nk]=r
+  }
+  uniq.push(r)
  }
- return{kept:kept,dups:dups,exB:exB,exU:exU,cand:cand}
+ /* baris tanpa jam yang baru ketemu pasangan berjam setelahnya */
+ var uniq2=[];uniq.forEach(function(r){var e=r.e,jm=fgJam(e),fd=e.feeder&&e.feeder!=="-"?e.feeder:"";if(!jm&&fd){var nk=[e.dcc,fd,fgDK(e),String(e.pmt||"").toUpperCase(),Number(e.durasiPadamMenit)||0].join("|"),o=seenNT[nk];if(o&&o!==r&&fgJam(o.e)){tmpDup.push({e:e,i:r.i,first:o});return}}uniq2.push(r)});
+ uniq=uniq2;
+ /* (2) gabungkan trip beruntun */
+ var G={},order=[];
+ uniq.forEach(function(r){var e=r.e;if(!r.sp||!e.feeder||e.feeder==="-"){order.push({parts:[r]});return}var k=[e.dcc,e.up3,e.ulp,e.feeder,fgZ(e)].join("|");(G[k]=G[k]||[]).push(r)});
+ Object.keys(G).forEach(function(k){
+  var L=G[k].slice().sort(function(a,b){return a.sp.st-b.sp.st||a.i-b.i}),cur=null;
+  L.forEach(function(r){
+   if(cur){var last=cur.parts[cur.parts.length-1].sp,ends=[last.en,last.ed].filter(function(x){return x!=null}),ok=ends.some(function(x){return Math.abs(r.sp.st-x)<=FG_GAP});
+    if(ok){cur.parts.push(r);return}}
+   cur={parts:[r]};order.push(cur)
+  })
+ });
+ order.sort(function(a,b){return a.parts[0].i-b.parts[0].i});
+ var events=order.map(function(g){
+  if(g.parts.length===1){var r=g.parts[0];return r}
+  var e2=fgMerge(g.parts),r2={e:e2,i:g.parts[0].i,sp:g.parts[0].sp,skipped:[],parts:g.parts.map(function(x){return x.e})};
+  g.parts.forEach(function(x,ix){x.skipped.forEach(function(y){r2.skipped.push(y)});if(ix>0)folded.push({e:x.e,i:x.i,into:r2})});
+  return r2
+ });
+ /* (3)+(4) durasi > 5 menit, lalu saring UFR / binatang / pihak ke-3 */
+ events.forEach(function(r){
+  if(!(r.e.durasiPadamMenit>5))return;
+  cand++;
+  var x=fgExcl(r.e);
+  if(!x&&r.parts){for(var j=r.parts.length-1;j>=0&&!x;j--)x=fgExcl(r.parts[j])}
+  if(x==="UFR")exU.push(r);else if(x==="Pihak3")exP.push(r);else if(x==="Binatang")exB.push(r);else kept.push(r)
+ });
+ tmpDup.forEach(function(d){if((d.e.durasiPadamMenit>5)||(d.first&&d.first.e&&d.first.e.durasiPadamMenit>5)){dups.push(d);cand++}});
+ return{kept:kept,dups:dups,exB:exB,exP:exP,exU:exU,folded:folded,cand:cand}
 }
 
 /* --- definisi tabel: A (Zona 1), B (Zona 2), C (Zona 3 dst) --- */
@@ -2180,11 +2235,15 @@ function fgBuild(entries,f,showZero){
 }
 function fgSortRecs(recs){return recs.slice().sort(function(a,b){return fgDateNum(a.e)-fgDateNum(b.e)||String(fgJam(a.e)).localeCompare(fgJam(b.e))||a.i-b.i})}
 function fgNote(r,kind){
- if(kind==="dup")return"Tidak dihitung: jam padam sama dengan "+(r.first.e.pmt||"-")+" (baris di atasnya) pada feeder yang sama";
+ if(kind==="dup")return"Tidak dihitung: data ganda (penyulang, tanggal, dan jam trip sama dengan baris yang sudah dihitung)";
+ if(kind==="merge")return"Tidak dihitung terpisah: digabung ke gangguan "+(r.into?fgJam(r.into.e)+" \u2192 "+r.into.e.jamMasuk+" ("+r.into.e.durasiPadamMenit+" mnt)":"")+" karena jam masuk = jam trip berikutnya";
  if(kind==="UFR")return"Tidak dihitung: gangguan UFR / berasal dari pembangkit";
- if(kind==="Binatang")return"Tidak dihitung: gangguan binatang / pihak ke-3";
- if(r.skipped&&r.skipped.length)return"Dihitung 1x. PMT lain pada jam sama tidak dihitung: "+r.skipped.map(function(x){return x.pmt||"-"}).join(", ");
- return""
+ if(kind==="Binatang")return"Tidak dihitung: gangguan binatang / hewan";
+ if(kind==="Pihak3")return"Tidak dihitung: gangguan pihak ke-3";
+ var t="";
+ if(r.parts&&r.parts.length)t="Dihitung 1x (gabungan "+r.parts.length+" baris trip beruntun: "+r.parts.map(function(x){return fgJam(x)+"\u2192"+x.jamMasuk}).join(", ")+"). ";
+ if(r.skipped&&r.skipped.length)t+="Baris ganda pada jam sama tidak dihitung: "+r.skipped.map(function(x){return x.pmt||"-"}).join(", ");
+ return t.trim()
 }
 function fgZName(z){return z==="-"?"TANPA ZONA":"ZONA "+z}
 
@@ -2523,18 +2582,21 @@ var empty=M.groups.length===0,
     h("div",{key:"ULP"},h("label",{className:"block text-xs font-semibold text-slate-600 mb-1"},"ULP"),h(UlpCheck,{value:f.ulp,options:o.ulp,onChange:function(v){upd({ulp:v})},allLabel:"Semua ULP"})))),
   h("div",{className:"fg-chips"},
    chip("Padam trip dihitung",R.kept.length,R.kept.map(function(r){return{r:r,k:""}}),"fg-c-ok"),
-   chip("DISTRIBUSI_GN trip > 5 menit (sebelum penyaringan)",R.cand,R.kept.map(function(r){return{r:r,k:""}}).concat(R.exU.map(function(r){return{r:r,k:"UFR"}}),R.exB.map(function(r){return{r:r,k:"Binatang"}}),R.dups.map(function(d){return{r:d,k:"dup"}})),"fg-c-n"),
+   chip("DISTRIBUSI_GN trip > 5 menit (sebelum penyaringan)",R.cand,R.kept.map(function(r){return{r:r,k:""}}).concat(R.exU.map(function(r){return{r:r,k:"UFR"}}),R.exB.map(function(r){return{r:r,k:"Binatang"}}),R.exP.map(function(r){return{r:r,k:"Pihak3"}}),R.dups.map(function(d){return{r:d,k:"dup"}})),"fg-c-n"),
    chip("UFR / pembangkit",R.exU.length,R.exU.map(function(r){return{r:r,k:"UFR"}}),"fg-c-x"),
-   chip("Binatang / pihak ke-3",R.exB.length,R.exB.map(function(r){return{r:r,k:"Binatang"}}),"fg-c-x"),
-   chip("Duplikat jam sama",R.dups.length,R.dups.map(function(d){return{r:d,k:"dup"}}),"fg-c-d")),
+   chip("Binatang / hewan",R.exB.length,R.exB.map(function(r){return{r:r,k:"Binatang"}}),"fg-c-x"),
+   chip("Pihak ke-3",R.exP.length,R.exP.map(function(r){return{r:r,k:"Pihak3"}}),"fg-c-x"),
+   chip("Data ganda",R.dups.length,R.dups.map(function(d){return{r:d,k:"dup"}}),"fg-c-d"),
+   chip("Trip beruntun digabung",R.folded.length,R.folded.map(function(r){return{r:r,k:"merge"}}),"fg-c-d")),
   h("details",{className:"fg-rule"},h("summary",null,"Aturan perhitungan"),
    h("ul",null,
     h("li",null,"Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUSI_GN dari database sumber utama, sesuai periode (tahun / bulan) yang dipilih."),
     h("li",null,"Hanya padam trip dengan durasi lebih dari 5 menit."),
     h("li",null,"Tabel A = gangguan Zona 1 (kolom PMT GI/ PLTD/ GH). Tabel B = gangguan Zona 2 (kolom REC/ LBS). Tabel C = gangguan Zona 3 dan seterusnya (kolom PMT dan Zona). Ringkasan total = Tabel A + B + C."),
     h("li",null,"Gangguan UFR atau yang berasal dari pembangkit tidak dihitung."),
-    h("li",null,"Gangguan binatang / pihak ke-3 tidak dihitung."),
-    h("li",null,"Dalam satu penyulang, jika beberapa PMT memiliki jam padam dan hari yang sama (penormalan bertahap), hanya baris paling atas pada sumber data yang dihitung; sebab gangguan mengikuti baris tersebut."),
+    h("li",null,"Gangguan binatang / hewan dan gangguan pihak ke-3 tidak dihitung (dipisahkan pada kartu rekap)."),
+    h("li",null,"Data ganda tidak dihitung: baris dengan penyulang, tanggal (format 6-Okt-26 dan 6-Oct-26 dianggap sama), dan jam trip yang sama hanya dihitung 1x, yaitu baris paling atas pada sumber data. Baris tanpa jam yang memiliki PMT, tanggal, dan durasi sama dengan baris berjam juga dianggap ganda."),
+    h("li",null,"Trip beruntun dihitung 1 gangguan: bila jam masuk suatu baris sama dengan jam trip baris berikutnya (UP3, ULP, penyulang, dan zona sama), dianggap gagal remote lalu trip kembali. Durasi dihitung dari jam trip baris pertama sampai jam masuk baris terakhir, dan durasi > 5 menit diuji setelah penggabungan."),
     h("li",null,"Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini."))),
   (empty&&!ldv)?h("div",{className:"fg-none"},f.ulp==="NONE"?"Tidak ada ULP yang dipilih. Centang minimal satu ULP untuk menampilkan data.":"Tidak ada padam trip DISTRIBUSI_GN > 5 menit untuk filter ini ("+fgPeriod(f)+" \u00B7 "+unitTxt+")."):
   h("div",{className:"space-y-5 mt-4"},
