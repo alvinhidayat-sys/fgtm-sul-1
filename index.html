@@ -2388,20 +2388,22 @@ var FG_RULE_K=["Sumber data: hanya baris dengan KELOMPOK PADAM_EVENT = DISTRIBUS
  "Export Excel hanya memuat kejadian yang dihitung, sehingga jumlah pada Detail dan Rekapitulasi sama. Klik angka pada tabel untuk melihat rincian kejadian. Kolom TARGET dapat diisi manual per ULP dan tersimpan di perangkat ini."];
 var FG_RULE_N="Khusus UP3 Kotamobagu aturannya berbeda: durasi di atas 2 menit, gangguan binatang tetap dihitung, dan bencana alam tidak dihitung. Pilih UP3 Kotamobagu untuk melihat aturan lengkapnya.";
 /* --- Download Log Sheet: baris asli Logsheet UP2D (semua kelompok & tipe) sesuai filter Tahun/Bulan/DCC/UP3/ULP --- */
-var FG_LOGCOL=[[0,"NO"],[1,"UP3"],[2,"ULP"],[3,"TANGGAL"],[4,"PENYULANG"],[5,"PMT"],[6,"ZONA"],[7,"REMOTE / MANUAL"],[8,"JAM PADAM"],[9,"JAM TRIP"],[10,"JAM DILEPAS"],[12,"JAM MASUK"],[14,"LAMA PADAM"],[15,"KETERANGAN"],[16,"INDIKASI"],[17,"BEBAN HILANG (A)"],[22,"KELOMPOK PADAM_EVENT"],[23,"SUB KELOMPOK"],[24,"CUACA"],[25,"DISPATCHER"],[28,"JUSTIFIKASI TRIP"],[29,"RC1"],[31,"ENS (kWh)"],[33,"DURASI (MENIT)"]];
+var FG_LOGH=["NO","UP3 TERKAIT","ULP TERKAIT","TANGGAL","FEEDER","PMT GI/ PLTD/ GH/ REC/ LBS","ZONA KE-","REMOTE/MANUAL","JAM PADAM","JAM TRIP","JAM DILEPAS","JAM KETEMU GGN","JAM MASUK","","LAMA PADAM (MENIT)","KETERANGAN","INDIKASI","BEBAN HILANG (AMP)","AG R","AG S","AG T","AG N","KELOMPOK PADAM","SUB KELOMPOK PADAM","CUACA","PIKET DISPATCHER","NO LAPORAN APKT","PIKET APKT","JUSTIFIKASI TRIP","RC-1","TIME VALUE WAKTU PADAM","ENS (KWH)","DURASI PENCARIAN GGN (MENIT)","DURASI PADAM (MENIT)","EVENT","KELOMPOK PADAM_EVENT"];
+/* kolom bernilai angka (dikonversi ke angka); kolom tanggal/jam/durasi dibiarkan apa adanya; kolom tanpa header (tersembunyi) dan kolom di luar daftar header tidak diunduh */
+var FG_LOGNUM={0:1,6:1,17:1,18:1,19:1,20:1,21:1,31:1};
+var FG_LOGWID={0:6,1:14,2:16,3:11,4:12,5:24,6:8,7:11,8:9,9:9,10:9,11:11,12:9,14:12,15:50,16:16,17:12,18:8,19:8,20:8,21:8,22:18,23:26,24:11,25:18,26:16,27:16,28:36,29:12,30:14,31:11,32:14,33:12,34:14,35:20};
+function fgLogNum(v){var t=String(v).trim();if(/^-?\d+$/.test(t))return Number(t);if(/^-?\d{1,3}(\.\d{3})+(,\d+)?$/.test(t))return Number(t.replace(/\./g,"").replace(",","."));if(/^-?\d+,\d+$/.test(t))return Number(t.replace(",","."));if(/^-?\d+\.\d+$/.test(t))return Number(t);return v}
+function fgLogCell(v,i){if(v==null)return"";var t=String(v).replace(/\u00a0/g," ").trim();if(t===""||t==="-"&&i!==15&&!FG_LOGNUM[i])return t==="-"?"-":"";return FG_LOGNUM[i]?fgLogNum(t):t}
 function fgLogRows(a,f){return a.filter(function(e){return e&&fgMatch(e,f)})}
-function fgLogFallback(e){var m={0:e.no,1:e.up3,2:e.ulp,3:e.tanggal,4:e.feeder,5:e.pmt,6:e.zona,7:e.remoteManual,8:e.jamPadam,9:e.jamTrip,10:e.jamDilepas,12:e.jamMasuk,14:e.lamaPadam,15:e.keterangan,16:e.indikasi,17:e.bebanHilangAmpere,22:e.kelompokRaw!=null?e.kelompokRaw:e.kelompok,23:e.subKelompok,24:e.cuaca,25:e.dispatcher,28:e.justifikasiTrip,29:e.rc1,31:e.ensKwh,33:e.durasiPadamMenit};return FG_LOGCOL.map(function(c){var v=m[c[0]];return v==null?"":v})}
+function fgLogFallback(e){var m={0:e.no,1:e.up3,2:e.ulp,3:e.tanggal,4:e.feeder,5:e.pmt,6:e.zona,7:e.remoteManual,8:e.jamPadam,9:e.jamTrip,10:e.jamDilepas,12:e.jamMasuk,14:e.lamaPadam,15:e.keterangan,16:e.indikasi,17:e.bebanHilangAmpere,22:e.kelompokRaw!=null?e.kelompokRaw:e.kelompok,23:e.subKelompok,24:e.cuaca,25:e.dispatcher,28:e.justifikasiTrip,29:e.rc1,31:e.ensKwh,33:e.durasiPadamMenit},r=[];for(var i=0;i<FG_LOGH.length;i++){var v=m[i];r.push(v==null||v==="-"?"":v)}return r}
 function fgXlsxLog(rows){
- var th={b:1,sz:10,fill:FG_PINK,bd:2,h:"center",v:"center",wrap:1},td={sz:10,bd:2,v:"top"},by={};
+ var th={b:1,sz:10,fill:FG_PINK,bd:2,h:"center",v:"center",wrap:1},td={sz:10,bd:2,v:"top"},tw={sz:10,bd:2,v:"top",wrap:1},tc={sz:10,bd:2,h:"center",v:"top"},by={};
+ var keep=[];FG_LOGH.forEach(function(t,i){if(t)keep.push(i)});
  rows.forEach(function(e){(by[e.dcc]=by[e.dcc]||[]).push(e)});
  return Object.keys(by).sort(function(x,y){return fgDccRank(x)-fgDccRank(y)}).map(function(d){
-  var L=by[d],raw=L.some(function(e){return e.raw&&e.hdr}),hdr,n;
-  if(raw){var src=L.filter(function(e){return e.hdr})[0].hdr;n=Math.max(src.length,Math.max.apply(null,L.map(function(e){return e.raw?e.raw.length:0})));hdr=[];for(var i=0;i<n;i++)hdr.push(String(src[i]||""))}
-  else{hdr=FG_LOGCOL.map(function(c){return c[1]});n=hdr.length}
-  var out=[hdr.map(function(t){return{v:t,s:th}})];
-  L.forEach(function(e){var r=e.raw?e.raw:fgLogFallback(e),row=[];for(var i=0;i<n;i++){var v=r[i];row.push({v:v==null?"":v,s:td})}out.push(row)});
-  var w=hdr.map(function(t,i){var mx=String(t).length;L.slice(0,200).forEach(function(e){var v=(e.raw?e.raw[i]:null);if(v!=null)mx=Math.max(mx,String(v).length)});return Math.max(6,Math.min(48,mx+2))});
-  return{name:("Logsheet "+d).slice(0,31),cols:w,rows:out,heights:{0:30},freeze:1,filter:1,landscape:true}
+  var L=by[d],out=[keep.map(function(i){return{v:FG_LOGH[i],s:th}})];
+  L.forEach(function(e){var r=e.raw?e.raw:fgLogFallback(e);out.push(keep.map(function(i){var v=fgLogCell(r[i],i);return{v:v,s:(i===15||i===28)?tw:(i===0||i===6)?tc:td}}))});
+  return{name:("Logsheet "+d).slice(0,31),cols:keep.map(function(i){return FG_LOGWID[i]||12}),rows:out,heights:{0:36},freeze:1,filter:1,landscape:true}
  })
 }
 function fgExportLog(a,f){var rows=fgLogRows(a,f);if(!rows.length)return;fgSave(fgXlsx(fgXlsxLog(rows)),fgFile(f,"Logsheet").replace("Rekap_FGTM_Logsheet_","Logsheet_UP2D_"))}
